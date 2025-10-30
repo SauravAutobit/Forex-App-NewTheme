@@ -4,6 +4,7 @@ import filter from "../../assets/icons/filter.svg";
 interface MarketsNavbarProps {
   active: string;
   setActive: (tab: string) => void;
+  favourite?: boolean;
 }
 
 const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
@@ -11,10 +12,11 @@ const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
 export default function MarketsNavbar({
   active,
   setActive,
+  favourite,
 }: MarketsNavbarProps) {
   // Filter out "Favorites" when active is "Favorites"
   const visibleTabs =
-    active === "Favorites" ? tabs.filter((tab) => tab !== "Favorites") : tabs;
+    favourite === true ? tabs.filter((tab) => tab !== "Favorites") : tabs;
 
   return (
     <div className="w-full flex items-center gap-2">

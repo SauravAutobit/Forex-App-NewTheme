@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import cardIcon from "../../assets/icons/cardIcon.svg";
+import notFavouriteTick from "../../assets/icons/notFavrouiteTick.svg";
+import favouriteTick from "../../assets/icons/favrouiteTick.svg";
+
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined);
   useEffect(() => {
@@ -21,6 +24,8 @@ interface CardProps {
   pip?: number | string;
   timestamp: string; // ✅ FIX: Moved to its own line
   onClick: () => void;
+  active: string;
+  favourites: boolean;
 }
 
 // ✅ NEW: Rewritten helper to format price based on pip value
@@ -80,6 +85,8 @@ const Card = ({
   pip,
   timestamp,
   onClick,
+  active,
+  favourites,
 }: CardProps) => {
   const askPrice = formatPrice(ask, pip);
   const bidPrice = formatPrice(bid, pip);
@@ -88,6 +95,8 @@ const Card = ({
   // ✅ State to hold the dynamic color classes
   const [askColor, setAskColor] = useState("text-primary"); // Start neutral
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
+
+  const [star, setStar] = useState(false);
 
   // ✅ Get the previous values
   const prevAsk = usePrevious(ask);
@@ -214,6 +223,15 @@ const Card = ({
             </p>
           </div>
         </div>
+        {active !== "Favorites" && favourites === true ? (
+          <img
+            src={star === false ? notFavouriteTick : favouriteTick}
+            alt="notFavouriteTick"
+            onClick={() => setStar(!star)}
+          />
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

@@ -1,19 +1,31 @@
 import { useState } from "react";
 import Card from "../../components/card/Card";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
-// import Navbar from "../../components/navbar/Navbar";
 import SearchBar from "../../components/searchBar/SearchBar";
 import Favourites from "../favourites/Favourites";
 
 const Home = () => {
   const [active, setActive] = useState("Favorites");
 
+  const [favourites, setFavourites] = useState(false);
+  const addFavourites = () => {
+    setFavourites(true);
+  };
+
+  if (active === "Favorites" && favourites === true) {
+    setActive("Forex");
+  }
+
   return (
     <div className="px-5 py-2.5">
       <SearchBar />
-      <MarketsNavbar active={active} setActive={setActive} />
+      <MarketsNavbar
+        active={active}
+        setActive={setActive}
+        favourite={favourites}
+      />
       {active === "Favorites" ? (
-        <Favourites />
+        <Favourites addFavourite={addFavourites} />
       ) : (
         // className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4"
         <div>
@@ -33,6 +45,8 @@ const Home = () => {
                 onClick={function (): void {
                   throw new Error("Function not implemented.");
                 }}
+                active={active}
+                favourites={favourites}
               />
             );
           })}
