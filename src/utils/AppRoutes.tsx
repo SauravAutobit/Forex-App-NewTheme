@@ -15,23 +15,24 @@ import Profile from "../pages/profile/Profile";
 // import ClosePositions from "../pages/closePositions/ClosePositions";
 // import ModifyPositions from "../pages/modifyPositions/ModifyPositions";
 // import Accounts from "../pages/accounts/Accounts";
-// import Login from "../pages/login/Login";
+import Login from "../pages/login/Login";
 
 export const AppRoutes = createBrowserRouter([
-  //   {
-  //     path: "/",
-  //     element: <Login />,
-  //   },
+  {
+    path: "/",
+    element: <Login />,
+  },
   {
     // /app
-    path: "/",
+    path: "/app",
     element: <MainLayout />,
     children: [
-      { path: "/home", element: <Home /> },
-      { path: "/trade", element: <Trade /> },
-      { path: "/history", element: <History /> },
-      { path: "/general", element: <General /> },
-      { path: "/profile", element: <Profile /> },
+      { index: true, element: <Home /> }, // /app
+      { path: "home", element: <Home /> },
+      { path: "trade", element: <Trade /> },
+      { path: "history", element: <History /> },
+      { path: "general", element: <General /> },
+      { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },
       //   { path: "/market-statistics", element: <MarketStatistics /> },

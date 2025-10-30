@@ -20,22 +20,22 @@ import { useState } from "react";
 // import { useAppSelector } from "../../store/hook";
 
 const navLinks = [
-  { to: "/home", label: "Home", icon: home, selectedIcon: homeSelected },
-  { to: "/trade", label: "Trade", icon: trade, selectedIcon: tradeSelected },
+  { to: "home", label: "Home", icon: home, selectedIcon: homeSelected },
+  { to: "trade", label: "Trade", icon: trade, selectedIcon: tradeSelected },
   {
-    to: "/history",
+    to: "history",
     label: "History",
     icon: history,
     selectedIcon: historySelected,
   },
   {
-    to: "/general",
+    to: "general",
     label: "General",
     icon: general,
     selectedIcon: generalSelected,
   },
   {
-    to: "/profile",
+    to: "profile",
     label: "Profile",
     icon: profile,
     selectedIcon: profileSelected,
