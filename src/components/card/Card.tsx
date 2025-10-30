@@ -32,7 +32,7 @@ interface FormattedPrice {
 }
 
 const formatPrice = (price: number, pip?: number | string): FormattedPrice => {
-  console.log("formatPrice called with price:", price, "and pip:", pip);
+  // console.log("formatPrice called with price:", price, "and pip:", pip);
   if (price === 0)
     return { isPipFormatted: false, main: "0.00", pipsOrSmall: "", small: "" };
 
