@@ -1,0 +1,14 @@
+.btn-global {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding: 10px 20px; */
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-global:disabled {
+  background: var(--secondary-btn-color) !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
