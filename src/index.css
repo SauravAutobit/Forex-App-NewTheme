@@ -164,6 +164,7 @@
   --tertiary-color: #2d2d2d;
   /* --quaternary-color: #505050; */
   --quaternary-color: #aeed09;
+  --fifth-color: #505050;
 
   /* profit & loss */
   --profit-color: #2cbd80;
@@ -244,4 +245,12 @@ body {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -17,6 +17,7 @@ export default {
         secondary: "var(--secondary-color)",
         tertiary: "var(--tertiary-color)",
         quaternary: "var(--quaternary-color)",
+        fifth: "var(--fifth-color)",
         disabledBottom: "var(--disabled-bottom)",
         profit: "var(--profit-color)",
         loss: "var(--loss-color)",
