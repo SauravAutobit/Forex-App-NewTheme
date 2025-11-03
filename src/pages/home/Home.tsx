@@ -3,18 +3,27 @@ import Card from "../../components/card/Card";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 import SearchBar from "../../components/searchBar/SearchBar";
 import Favourites from "../favourites/Favourites";
+import type { OutletContextType } from "../../layout/MainLayout";
+import { useOutletContext } from "react-router-dom";
 
 const Home = () => {
+  const { isFlag, setIsFlag } = useOutletContext<OutletContextType>();
   const [active, setActive] = useState("Favorites");
+  // const [favourites, setFavourites] = useState(false);
 
-  const [favourites, setFavourites] = useState(false);
   const addFavourites = () => {
-    setFavourites(true);
+    setIsFlag((prev) => ({
+      ...prev,
+      favourites: { status: true },
+    }));
   };
 
-  if (active === "Favorites" && favourites === true) {
+  if (active === "Favorites" && isFlag.favourites?.status === true) {
     setActive("Forex");
-  }
+  } 
+  // else if (isFlag.favourites?.status === false && active === "Forex") {
+  //   setActive("Favorites");
+  // }
 
   return (
     <div className="px-5 py-2.5">
@@ -22,7 +31,7 @@ const Home = () => {
       <MarketsNavbar
         active={active}
         setActive={setActive}
-        favourite={favourites}
+        favourite={isFlag.favourites?.status}
       />
       {active === "Favorites" ? (
         <Favourites addFavourite={addFavourites} />
@@ -46,7 +55,7 @@ const Home = () => {
                   throw new Error("Function not implemented.");
                 }}
                 active={active}
-                favourites={favourites}
+                favourites={isFlag.favourites?.status}
               />
             );
           })}
