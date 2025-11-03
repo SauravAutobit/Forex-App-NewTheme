@@ -10,21 +10,41 @@ type HeaderProps = {
 };
 
 export default function Header({ isFlag, setIsFlag }: HeaderProps) {
-  // const conditionalRender = () => {
-  //   let title = "";
-  //   let actions = null;
+  const pathname = window.location.pathname;
 
-  //   switch (pathname) {
-  //   case ""
-  //   }
-  // };
+  const conditionalRender = () => {
+    let title = "";
+    let actions = null;
+
+    switch (pathname) {
+      case "/app/home":
+        title = "Add to Favourites";
+        actions = "Confirm";
+        break;
+      default:
+        return null;
+    }
+    return (
+      <>
+        <div
+          className={`text-primary font-secondary flex-1 flex flex-col text-left`}
+        >
+          <span>{isFlag.favourites.status && title}</span>
+        </div>
+        {isFlag.favourites.status && (
+          <div className="flex gap-4 text-quaternary">{actions}</div>
+        )}
+      </>
+    );
+  };
+
   return (
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justi0fy-between max-w-[390px] mx-auto">
       {isFlag.favourites?.status === true ? (
         <button
           aria-label="Open menu"
           // bg-green-300
-          className="w-[53px]"
+          // className="w-[53px]"
           onClick={() => {
             setIsFlag((prev) => ({
               ...prev,
@@ -38,7 +58,7 @@ export default function Header({ isFlag, setIsFlag }: HeaderProps) {
         <button
           aria-label="Open menu"
           // bg-blue-300
-          className="w-[53px]"
+          // className="w-[53px]"
           onClick={() => {
             document.dispatchEvent(new CustomEvent("openSidebar"));
           }}
@@ -46,7 +66,7 @@ export default function Header({ isFlag, setIsFlag }: HeaderProps) {
           <img src={menu} alt="menu" />
         </button>
       )}
-      {/* {conditionalRender()} */}
+      {conditionalRender()}
     </header>
   );
 }

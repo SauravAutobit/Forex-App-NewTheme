@@ -13,7 +13,7 @@ function usePrevious<T>(value: T): T | undefined {
 
 // Interface for the EURUSDCard's props, based on the QuoteData structure
 // ✅ CHANGED: Props are now clear and match the data
-interface CardProps {
+export interface CardProps {
   code: string;
   bid: number;
   ask: number;
@@ -24,7 +24,7 @@ interface CardProps {
   pip?: number | string;
   timestamp: string; // ✅ FIX: Moved to its own line
   onClick: () => void;
-  active: string;
+  active?: string;
   favourites: boolean;
 }
 
@@ -227,7 +227,10 @@ const Card = ({
           <img
             src={star === false ? notFavouriteTick : favouriteTick}
             alt="notFavouriteTick"
-            onClick={() => setStar(!star)}
+            onClick={(e) => {
+              e.stopPropagation(); // ⭐️ Stop click event from triggering the parent card's onClick/swipe
+              setStar(!star);
+            }}
           />
         ) : (
           ""
