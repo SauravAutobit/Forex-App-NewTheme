@@ -1,0 +1,130 @@
+// src/components/NavigationTabs/NavigationTabs.tsx
+import React, { useState, useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+// import { useAppSelector } from "../../store/hook";
+
+interface TabItem {
+  id: string;
+  label: string;
+  content?: React.ReactNode;
+}
+
+interface MobileTabsProps {
+  tabs: TabItem[];
+  defaultActiveTab?: string;
+  onTabChange?: (tabId: string) => void;
+  className?: string;
+  activeColor?: string; // Text color for active tab (e.g., 'text-black')
+  inactiveColor?: string; // Text color for inactive tabs (e.g., 'text-gray-400')
+}
+
+// NOTE: Removed backgroundColor prop as it's now internally controlled for the segmented look.
+const NavigationTabs = ({
+  tabs,
+  defaultActiveTab,
+  onTabChange,
+  className = "",
+  activeColor = "text-black", // Changed default to black for better contrast on neon background
+  inactiveColor = "text-gray-400",
+}: MobileTabsProps) => {
+  const [activeTab, setActiveTab] = useState(
+    defaultActiveTab || tabs[0]?.id || ""
+  );
+  const isInitialLoad = useRef(true);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]); // To measure button width
+
+  useEffect(() => {
+    isInitialLoad.current = false;
+    // Initialize refs array
+    tabRefs.current = tabRefs.current.slice(0, tabs.length);
+  }, [tabs]);
+
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+    onTabChange?.(tabId);
+  };
+
+  const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  //   const theme = useAppSelector((state) => state.theme.mode);
+
+  // 🎯 Determine the appropriate background color for the pill container
+  //   const containerBg = theme === "dark" ? "bg-gray-800" : "bg-gray-200";
+
+  // 🎯 Define the active indicator color (your neon green/yellow)
+  // Ensure this color is defined in your Tailwind config or is a utility class
+  //   const indicatorBg = "bg-primary-neon"; // Assuming 'bg-primary-neon' is your bright color
+
+  return (
+    <div className={`w-full ${className}`}>
+      {/* Tab Navigation Container (The 'Pill' Background) */}
+      <div className={`relative flex p-1 rounded-10 bg-secondaryBg h-[37px]`}>
+        {/* Active Tab Indicator (The Moving Background) */}
+        {tabs[activeTabIndex] && (
+          <motion.div
+            className={`absolute h-full rounded-10 ${"bg-quaternary"}`}
+            style={{ zIndex: 0 }}
+            // We use the full width calculation here for dynamic sizing
+            initial={false}
+            animate={{
+              // Calculate the x position (translate) based on the active tab's position
+              x: tabRefs.current[activeTabIndex]?.offsetLeft || 0,
+              // Set the width based on the active tab's width
+              width:
+                tabRefs.current[activeTabIndex]?.offsetWidth ||
+                `${100 / tabs.length}%`,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 30,
+              duration: 0.2,
+            }}
+          />
+        )}
+
+        {/* Tab Buttons */}
+        {tabs.map((tab, index) => (
+          <button
+            key={tab.id}
+            // ✅ FIX: Use an explicit function body (curly braces) to ensure nothing is returned.
+            ref={(el) => {
+              tabRefs.current[index] = el;
+            }}
+            onClick={() => handleTabClick(tab.id)}
+            className={`
+                flex-1  font-medium relative z-10
+                transition-colors duration-200 rounded-10
+                ${activeTab === tab.id ? activeColor : inactiveColor}
+              `}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      <div className="pt-4">
+        <AnimatePresence mode="wait">
+          {tabs.map(
+            (tab) =>
+              tab.id === activeTab && (
+                <motion.div
+                  key={tab.id} // 👈 key is required for exit animation
+                  initial={
+                    isInitialLoad.current ? false : { opacity: 0, y: 10 }
+                  } // starting state
+                  animate={{ opacity: 1, y: 0 }} // enter state
+                  exit={{ opacity: 0, y: -10 }} // exit state
+                  transition={{ duration: 0.25 }} // speed of animation
+                >
+                  {tab.content}
+                </motion.div>
+              )
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default NavigationTabs;
