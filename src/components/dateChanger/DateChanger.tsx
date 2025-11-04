@@ -1,8 +1,37 @@
-const DateChanger = () => {
+interface DateChangerProps {
+  text: string;
+  date: string;
+  dualDate?: boolean;
+  secondaryText?: string;
+  secondaryDate?: string;
+  height?: string;
+}
+
+const DateChanger = ({
+  text,
+  date,
+  dualDate = false,
+  secondaryText,
+  secondaryDate,
+  height = "41px",
+}: DateChangerProps) => {
   return (
-    <div className="bg-cardBg h-[41px] my-2.5 py-2.5 px-5 rounded-10 flex items-center justify-between">
-      <p className="text-sm text-secondary">Change Date</p>
-      <p className="text-quaternary font-secondary">25/06/2025</p>
+    <div
+      className={
+        "bg-cardBg  my-2.5 py-2.5 px-5 rounded-10 flex flex-col items-center justify-between"
+      }
+      style={{ height }}
+    >
+      <div className="w-full flex items-center justify-between">
+        <p className="text-sm text-secondary">{text}</p>
+        <p className="text-quaternary font-secondary">{date}</p>
+      </div>
+      {dualDate && (
+        <div className="w-full flex items-center justify-between mt-1">
+          <p className="text-sm text-secondary">{secondaryText}</p>
+          <p className="text-quaternary font-secondary">{secondaryDate}</p>
+        </div>
+      )}
     </div>
   );
 };

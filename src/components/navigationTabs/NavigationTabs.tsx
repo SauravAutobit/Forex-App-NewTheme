@@ -105,7 +105,20 @@ const NavigationTabs = ({
       </div>
 
       {activeTab === "market" && <ProfitLossClose />}
-      {activeTab === "date" && <DateChanger />}
+      {activeTab === "date" && (
+        <DateChanger text={"Change Date"} date={"25/06/2025"} />
+      )}
+      {activeTab === "monthly" && (
+        <DateChanger
+          text={"Start Date"}
+          date={"25/06/2025"}
+          dualDate={true}
+          height={"82px"}
+          secondaryText="End Date"
+          secondaryDate="30/06/2025"
+        />
+      )}
+
       {/* Tab Content */}
       <div className="">
         <AnimatePresence mode="wait">
