@@ -105,7 +105,7 @@ const NavigationTabs = ({
 
       <ProfitLossClose />
       {/* Tab Content */}
-      <div className="pt-4">
+      <div className="">
         <AnimatePresence mode="wait">
           {tabs.map(
             (tab) =>

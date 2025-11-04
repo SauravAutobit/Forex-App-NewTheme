@@ -25,7 +25,7 @@ export interface CardProps {
   timestamp: string; // ✅ FIX: Moved to its own line
   onClick: () => void;
   active?: string;
-  favourites: boolean;
+  favourites?: boolean;
 }
 
 // ✅ NEW: Rewritten helper to format price based on pip value
