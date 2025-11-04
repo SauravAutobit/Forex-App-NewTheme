@@ -103,7 +103,8 @@ const NavigationTabs = ({
         ))}
       </div>
 
-      <ProfitLossClose />
+      {activeTab === "market" && <ProfitLossClose />}
+
       {/* Tab Content */}
       <div className="">
         <AnimatePresence mode="wait">
