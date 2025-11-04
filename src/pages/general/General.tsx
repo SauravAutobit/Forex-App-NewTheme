@@ -1,4 +1,5 @@
-import ClosedCard from "../../components/closedCard/ClosedCard";
+// import ClosedCard from "../../components/closedCard/ClosedCard";
+import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
@@ -76,7 +77,13 @@ const tabsData: TabItem[] = [
     label: "Script",
     content: (
       <div>
-        {Array.from({ length: 10 }).map((_, index) => {
+        <Dropddown
+          categoryName={""}
+          instruments={[]}
+          addedCount={0}
+          totalCount={0}
+        />
+        {/* {Array.from({ length: 10 }).map((_, index) => {
           return (
             <ClosedCard
               key={index}
@@ -96,7 +103,7 @@ const tabsData: TabItem[] = [
               // favourites={isFlag.favourites?.status}
             />
           );
-        })}
+        })} */}
       </div>
     ),
   },

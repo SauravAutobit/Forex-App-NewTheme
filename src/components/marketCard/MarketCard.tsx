@@ -15,12 +15,15 @@ export interface CardProps {
   onClick: () => void;
   active?: string;
   favourites?: boolean;
+  border?: boolean;
 }
 
-const MarketCard = ({ code, timestamp, onClick }: CardProps) => {
+const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
   return (
     <div
-      className="text-primary py-2.5 border-b border-primary"
+      className={`text-primary py-2.5 ${
+        border === true ? "border-b border-primary" : ""
+      }`}
       onClick={onClick}
       //   style={{ border: theme === "dark" ? "" : "1px solid #C2C2C2" }}
     >
