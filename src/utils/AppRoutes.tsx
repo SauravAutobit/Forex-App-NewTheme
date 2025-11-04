@@ -6,7 +6,7 @@ import Home from "../pages/home/Home";
 import Trade from "../pages/trade/Trade";
 import History from "../pages/history/History";
 import General from "../pages/general/General";
-import Profile from "../pages/profile/Profile";
+// import Profile from "../pages/profile/Profile";
 // import AIChat from "../pages/aiChatbot/AIChat";
 // import NewOrder from "../pages/newOrder/NewOrder";
 // import Properties from "../pages/properties/Properties";
@@ -31,8 +31,8 @@ export const AppRoutes = createBrowserRouter([
       { path: "home", element: <Home /> },
       { path: "trade", element: <Trade /> },
       { path: "history", element: <History /> },
-      { path: "general", element: <General /> },
-      { path: "profile", element: <Profile /> },
+      { path: "console", element: <General /> },
+      // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },
       //   { path: "/market-statistics", element: <MarketStatistics /> },

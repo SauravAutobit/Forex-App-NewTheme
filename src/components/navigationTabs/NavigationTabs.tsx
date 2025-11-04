@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ProfitLossClose from "../profitLossClose/ProfitLossClose";
+import DateChanger from "../dateChanger/DateChanger";
 // import { useAppSelector } from "../../store/hook";
 
 interface TabItem {
@@ -24,8 +25,8 @@ const NavigationTabs = ({
   defaultActiveTab,
   onTabChange,
   className = "",
-  activeColor = "text-black", // Changed default to black for better contrast on neon background
-  inactiveColor = "text-gray-400",
+  activeColor = "text-tertiary", // Changed default to black for better contrast on neon background
+  inactiveColor = "text-fifth",
 }: MobileTabsProps) => {
   const [activeTab, setActiveTab] = useState(
     defaultActiveTab || tabs[0]?.id || ""
@@ -58,7 +59,7 @@ const NavigationTabs = ({
     <div className={`w-full ${className}`}>
       {/* Tab Navigation Container (The 'Pill' Background) */}
 
-      <div className={`relative flex rounded-10 bg-secondaryBg h-[37px]`}>
+      <div className={`relative flex rounded-10 bg-cardBg h-[37px]`}>
         {/* Active Tab Indicator (The Moving Background) */}
         {tabs[activeTabIndex] && (
           <motion.div
@@ -104,7 +105,7 @@ const NavigationTabs = ({
       </div>
 
       {activeTab === "market" && <ProfitLossClose />}
-
+      {activeTab === "date" && <DateChanger />}
       {/* Tab Content */}
       <div className="">
         <AnimatePresence mode="wait">

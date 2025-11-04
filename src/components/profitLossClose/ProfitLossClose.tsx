@@ -7,7 +7,7 @@ const ProfitLossClose = () => {
         Floating Profit :{" "}
         <span className="font-tertiary text-quaternary">$25.36</span>
       </div>
-      <div className="flex items-center bg-[#181818] text-sm font-secondary w-[82px] h-[26px] justify-center rounded-[6px] gap-[7px] cursor-pointer border border-primary">
+      <div className="flex items-center bg-cardBg text-sm font-secondary w-[82px] h-[26px] justify-center rounded-[6px] gap-[7px] cursor-pointer border border-primary">
         Close all <img src={closeAllArrow} alt="closeAllArrow" />
       </div>
     </div>

@@ -23,6 +23,7 @@ export default {
         loss: "var(--loss-color)",
         icon: "var(--icon-color)",
         btnCommon: "var(--btn-common)",
+        cardBg: "var(--card-color)",
       },
       fontFamily: {
         primary: "var(--primary-font-family)",

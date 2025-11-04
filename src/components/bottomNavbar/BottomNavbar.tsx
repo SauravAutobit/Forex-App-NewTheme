@@ -3,7 +3,7 @@ import home from "../../assets/icons/home.svg";
 import trade from "../../assets/icons/trade.svg";
 import history from "../../assets/icons/history.svg";
 import general from "../../assets/icons/general.svg";
-import profile from "../../assets/icons/profile.svg";
+// import profile from "../../assets/icons/profile.svg";
 import homeSelected from "../../assets/icons/homeSelected.svg";
 
 import tradeSelected from "../../assets/icons/tradeSelected.svg";
@@ -12,7 +12,7 @@ import historySelected from "../../assets/icons/historySelected.svg";
 
 import generalSelected from "../../assets/icons/generalSelected.svg";
 
-import profileSelected from "../../assets/icons/profileSelected.svg";
+// import profileSelected from "../../assets/icons/profileSelected.svg";
 
 import { useState } from "react";
 // import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
@@ -29,17 +29,17 @@ const navLinks = [
     selectedIcon: historySelected,
   },
   {
-    to: "general",
-    label: "General",
+    to: "console",
+    label: "Console",
     icon: general,
     selectedIcon: generalSelected,
   },
-  {
-    to: "profile",
-    label: "Profile",
-    icon: profile,
-    selectedIcon: profileSelected,
-  },
+  // {
+  //   to: "profile",
+  //   label: "Profile",
+  //   icon: profile,
+  //   selectedIcon: profileSelected,
+  // },
 ];
 
 // interface BottomNavbarProps {
