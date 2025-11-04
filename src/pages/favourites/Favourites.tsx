@@ -25,7 +25,6 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
   const { isFlag } = useOutletContext<OutletContextType>();
   const [active] = useState("Favorites");
 
-  // ⭐️ Conditional render for the "Add Instrument" screen
   if (items.length === 0 && isFlag.favourites?.status === true) {
     return (
       <div className="flex flex-col gap-2.5 items-center justify-center pt-[156px]">

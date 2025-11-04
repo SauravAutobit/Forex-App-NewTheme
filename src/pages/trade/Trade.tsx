@@ -1,3 +1,6 @@
+import InstrumentInfoCard, {
+  type ProfitBalanceProps,
+} from "../../components/instrumentInfoCard/InstrumentInfoCard";
 import NavigationTabs from "../../components/navigationBar/NavigationBar";
 
 interface TabItem {
@@ -8,24 +11,42 @@ interface TabItem {
 
 const tabsData: TabItem[] = [
   {
-    id: "position",
-    label: "Position",
-    content: "  <div>Position Content</div> ",
+    id: "market",
+    label: "Market",
+    content: "Market Content",
   },
-  { id: "orders", label: "Orders", content: "<div>Orders Content</div>" },
-  { id: "deals", label: "Deals", content: "<div>Deals Content</div>" },
+  { id: "pending", label: "Pending", content: "Pending Content" },
+  { id: "closed", label: "Closed", content: "Closed Content" },
 ];
 
 const Trade = () => {
   // const activeTabId = searchParams.get("tab") || "position"; // Default to 'position'
 
+  const profitBalanceProps: ProfitBalanceProps = {
+    showProfitLoss: true,
+    profitLoss: "$10.46",
+    showBalances: true,
+    balanceItems: [
+      { label: "Bonus", value: "$0.00" },
+      { label: "Profit | Loss", value: "-$8.46" },
+      { label: "Margin", value: "$19.98" },
+      { label: "Margin level", value: "461.97%" },
+
+      { label: "Free margin", value: "$8.44" },
+    ],
+    showBorder: true,
+    marginTop: "16px",
+  };
+
   return (
-    <div className="p-5">
+    // px-5 py-2.5
+    <div className="">
+      <InstrumentInfoCard {...profitBalanceProps} />
       <NavigationTabs
         tabs={tabsData}
         // defaultActiveTab={activeTabId} // Use state from URL
         // onTabChange={handleTabChange} // New handler for URL update
-        className="max-w-md mx-auto"
+        className="max-w-md mx-auto px-5 pt-5 pb-2.5"
       />
     </div>
   );

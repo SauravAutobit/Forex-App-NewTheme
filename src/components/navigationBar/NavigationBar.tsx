@@ -1,6 +1,6 @@
-// src/components/NavigationTabs/NavigationTabs.tsx
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import ProfitLossClose from "../profitLossClose/ProfitLossClose";
 // import { useAppSelector } from "../../store/hook";
 
 interface TabItem {
@@ -57,7 +57,8 @@ const NavigationTabs = ({
   return (
     <div className={`w-full ${className}`}>
       {/* Tab Navigation Container (The 'Pill' Background) */}
-      <div className={`relative flex p-1 rounded-10 bg-secondaryBg h-[37px]`}>
+
+      <div className={`relative flex rounded-10 bg-secondaryBg h-[37px]`}>
         {/* Active Tab Indicator (The Moving Background) */}
         {tabs[activeTabIndex] && (
           <motion.div
@@ -102,6 +103,7 @@ const NavigationTabs = ({
         ))}
       </div>
 
+      <ProfitLossClose />
       {/* Tab Content */}
       <div className="pt-4">
         <AnimatePresence mode="wait">
