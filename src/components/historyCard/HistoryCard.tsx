@@ -211,7 +211,6 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
                   <div className="font-tertiary text-primary">
                     {resolvedInstrumentName}
                   </div>
-
                   {/* Price Transition or Simple Price (For History Items) */}
                   {isHistoryPosition && (
                     <div className="flex items-center gap-3">
