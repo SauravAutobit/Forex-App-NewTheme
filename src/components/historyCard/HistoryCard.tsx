@@ -31,7 +31,7 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
   const isDeal = label === "Deals";
 
   // Shared Dummy Data
-  const resolvedInstrumentName = "EUR/USD";
+  const resolvedInstrumentName = "EURUSD";
   const buySellSide = isHistoryOrder ? "buy" : "sell";
 
   // Data that varies by type
@@ -43,9 +43,9 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
 
   // History Position (Closed Position)
   if (isHistoryPosition) {
-    pnl = -85.75;
+    pnl = 85.75;
     orderSideLabel = `${buySellSide.toUpperCase()} Qty:`;
-    qtyDisplayString = "1.50 @ 1.08500";
+    qtyDisplayString = "11.00";
     dateTimeString = "2024.10.15 | 09:15:30"; // Time of closing
     statusValue = "CLOSED";
   }
@@ -53,7 +53,7 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
   else if (isHistoryOrder) {
     pnl = 0; // Orders don't have PnL
     orderSideLabel = `${buySellSide.toUpperCase()} Limit:`;
-    qtyDisplayString = "1.50 @ 1.08500";
+    qtyDisplayString = "1.50 @ Market";
     dateTimeString = "2024.10.15 | 09:15:00"; // Time of completion
     statusValue = "FILLED";
   }
@@ -74,7 +74,11 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
   const totalCharges = 2.5;
   const sl = 1.08;
   const tp = 1.095;
-  const tid = isDeal ? "D987654" : isHistoryOrder ? "O112233" : "P456789";
+  const tid = isDeal
+    ? "#7619388856"
+    : isHistoryOrder
+    ? "#9619388856"
+    : "#8619388856";
 
   const formatPriceOrEmpty = (p: number | null) =>
     p == null ? " " : Number(p).toFixed(5);
@@ -91,23 +95,23 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
         <div>
           <div>S/L:</div>
           <div className="mt-2">T/P:</div>
-          <div className="mt-2">Type:</div>
+          {/* <div className="mt-2">Type:</div> */}
         </div>
         <div className="text-right text-primary">
           <div className="no-underline">{formatSlTp(sl)}</div>
           <div className="mt-2 no-underline">{formatSlTp(tp)}</div>
-          <div className="mt-2 no-underline">Market</div>
+          {/* <div className="mt-2 no-underline">Market</div> */}
         </div>
         {/* Right Column Group (Placeholders for alignment) */}
         <div className="text-left">
-          <div>Filled:</div>
-          <div className="mt-2">Time:</div>
-          <div className="mt-2">ID:</div>
+          {/* <div className="pb-2"></div> */}
+          {/* <div className="mt-2">Time:</div> */}
+          {/* <div className="mt-2"></div> */}
         </div>
         <div className="text-right text-primary">
-          <div>100%</div>
-          <div className="mt-2">{dateTimeString.split(" | ")[1]}</div>
-          <div className="mt-2">{tid}</div>
+          {/* <div className="pb-2"></div> */}
+          {/* <div className="mt-2">{dateTimeString.split(" | ")[1]}</div> */}
+          <div className="mt-[26px] ml-[-6px]">{tid}</div>
         </div>
       </div>
     </div>
@@ -125,7 +129,7 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
         </div>
         <div className="text-right text-primary">
           <div className="no-underline">{formatSlTp(sl)}</div>
-          <div className="mt-2 no-underline">{dateTimeString}</div>
+          <div className="mt-2 no-underline ml-[-32px]">{dateTimeString}</div>
           <div className="mt-2 no-underline">{tid}</div>
         </div>
         {/* Right Column Group */}
@@ -162,12 +166,12 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
         <div className="text-left">
           <div>Swap:</div>
           <div className="mt-2">Charges:</div>
-          <div className="mt-2">Time:</div>
+          {/* <div className="mt-2">Time:</div> */}
         </div>
         <div className="text-right text-primary">
           <div>0.00</div>
           <div className="mt-2">{totalCharges.toFixed(2)}</div>
-          <div className="mt-2">{dateTimeString.split(" | ")[1]}</div>
+          {/* <div className="mt-2">{dateTimeString.split(" | ")[1]}</div> */}
         </div>
       </div>
     </div>
@@ -209,12 +213,14 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
                   </div>
 
                   {/* Price Transition or Simple Price (For History Items) */}
-                  <div className="flex items-center gap-3">
-                    <span className={`text-secondary pl-2 text-sm`}>
-                      {formatPriceOrEmpty(topLeftPrice)} &gt;
-                      {formatPriceOrEmpty(topRightPrice)}
-                    </span>
-                  </div>
+                  {isHistoryPosition && (
+                    <div className="flex items-center gap-3">
+                      <span className={`text-secondary pl-2 text-sm`}>
+                        {formatPriceOrEmpty(topLeftPrice)} &gt;
+                        {formatPriceOrEmpty(topRightPrice)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -231,8 +237,10 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
               <div className="flex items-center gap-3">
                 {isHistoryOrder ? (
                   <span className="text-sm text-secondary">Status</span>
-                ) : (
+                ) : !isDeal ? (
                   <span className="text-sm text-secondary">Profit & Loss</span>
+                ) : (
+                  ""
                 )}
               </div>
             </div>
@@ -240,15 +248,17 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
             <div className="flex justify-between items-center text-primary">
               {/* Quantity or Price Value */}
               <div
-                className={buySellSide === "buy" ? "text-profit" : "text-loss"}
+              // className={buySellSide === "buy" ? "text-profit" : "text-loss"}
               >
                 {qtyDisplayString}
               </div>
               {/* P&L or Status Value */}
               {isHistoryOrder ? (
                 <div>{statusValue}</div>
-              ) : (
+              ) : !isDeal ? (
                 <div className={pnlColorClass}>{pnl.toFixed(2)}</div>
+              ) : (
+                ""
               )}
             </div>
           </div>
