@@ -37,6 +37,8 @@ const Home = () => {
     navigate("/app/charts");
   };
 
+  const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
+
   return (
     <div className="px-5 py-2.5">
       <SearchBar />
@@ -44,12 +46,13 @@ const Home = () => {
         active={active}
         setActive={setActive}
         favourite={isFlag.favourites?.status}
+        tabs={tabs}
       />
       {active === "Favorites" ? (
         <Favourites
           addFavourite={addFavourites}
-          items={favoriteItems} // ⭐️ Pass the list
-          removeItem={removeFavorite} // ⭐️ Pass the remove function
+          items={favoriteItems}
+          removeItem={removeFavorite}
         />
       ) : (
         // className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4"

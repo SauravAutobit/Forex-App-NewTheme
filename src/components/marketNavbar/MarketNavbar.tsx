@@ -7,14 +7,14 @@ interface MarketsNavbarProps {
   active: string;
   setActive: (tab: string) => void;
   favourite?: boolean;
+  tabs: string[];
 }
-
-const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
 
 export default function MarketsNavbar({
   active,
   setActive,
   favourite,
+  tabs,
 }: MarketsNavbarProps) {
   const { isFlag } = useOutletContext<OutletContextType>();
   // Filter out "Favorites" when active is "Favorites"
