@@ -30,6 +30,10 @@ const Home = () => {
 
   const handleCardClick = () => {
     // Handle card click event
+    setIsFlag((prev) => ({
+      ...prev,
+      charts: { status: true },
+    }));
     navigate("/app/charts");
   };
 

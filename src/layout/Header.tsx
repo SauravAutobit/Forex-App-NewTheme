@@ -2,8 +2,11 @@ import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import type { IsFlagType } from "./MainLayout";
-import type { Dispatch, SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import plus from "../assets/icons/plus.svg";
+import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
+import favouriteTick from "../assets/icons/favrouiteTick.svg";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type HeaderProps = {
   isFlag: IsFlagType;
@@ -29,7 +32,9 @@ export default function Header({
   favoriteItems,
   active,
 }: HeaderProps) {
-  const pathname = window.location.pathname;
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [star, setStar] = useState(false);
 
   // Function to handle the "Confirm" click and exit selection mode
   const handleConfirm = () => {
@@ -52,6 +57,7 @@ export default function Header({
   const conditionalRender = () => {
     let title = "";
     let actions = null;
+    let subTitle = "";
 
     switch (pathname) {
       case "/app/home":
@@ -70,9 +76,10 @@ export default function Header({
         }
         // 2. If NOT in Selection Mode AND favorites exist, show '+' button
         else if (
+          active === "Favorites" &&
           favoriteItems &&
           favoriteItems.length > 0 &&
-          active === "Favorites"
+          pathname === "/app/home"
         ) {
           actions = (
             <button
@@ -88,6 +95,34 @@ export default function Header({
         // 3. Otherwise (No Selection Mode, No Favorites): Default to no title/actions
 
         break;
+
+      case "/app/charts":
+        if (isFlag.charts.status) {
+          title = "EURUSD";
+          subTitle = "+30 (+23.2%)";
+          actions = (
+            <div className="flex items-center gap-5">
+              <img
+                src={star === false ? notFavouriteTick : favouriteTick}
+                alt="notFavouriteTick"
+                onClick={(e) => {
+                  e.stopPropagation(); // ⭐️ Stop click event from triggering the parent card's onClick/swipe
+                  setStar(!star);
+                }}
+              />
+              <div className="flex items-center gap-[7px]">
+                <button className="w-[23px] h-[23px] bg-loss rounded-20 text-secondary flex justify-center items-center text-tertiary">
+                  S
+                </button>
+                <button className="w-[23px] h-[23px] bg-profit rounded-20 text-secondary flex justify-center items-center text-tertiary">
+                  B
+                </button>
+              </div>
+            </div>
+          );
+        }
+        break;
+
       default:
         // Handle other paths (e.g., History, etc.)
         return null;
@@ -101,6 +136,9 @@ export default function Header({
         >
           {/* Render the title based on the state */}
           <span>{isFlag.favourites.status ? "Add to Favourites" : title}</span>
+          {subTitle && (
+            <span className="text-sm font-primary text-profit">{subTitle}</span>
+          )}
         </div>
 
         {/* Render actions */}
@@ -113,14 +151,16 @@ export default function Header({
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">
       {/* Back button logic: Only show the back button (to exit selection mode) 
           when isFlag.favourites.status is true. Otherwise, show the menu. */}
-      {isFlag.favourites?.status === true ? (
+      {isFlag.favourites?.status === true || isFlag.charts.status === true ? (
         <button
           aria-label="Exit selection mode"
           onClick={() => {
             setIsFlag((prev) => ({
               ...prev,
               favourites: { status: false },
+              charts: { status: false },
             }));
+            navigate("home");
           }}
         >
           <img src={back} alt="back" />

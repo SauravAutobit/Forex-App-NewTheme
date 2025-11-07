@@ -11,6 +11,9 @@ export type IsFlagType = {
   favourites: {
     status: boolean;
   };
+  charts: {
+    status: boolean;
+  };
 };
 
 export type OutletContextType = {
@@ -55,6 +58,7 @@ const MainLayout = () => {
     favourites: {
       status: false,
     },
+    charts: { status: false },
   });
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag);
