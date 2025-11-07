@@ -18,6 +18,7 @@ import General from "../pages/general/General";
 // import Accounts from "../pages/accounts/Accounts";
 import Login from "../pages/login/Login";
 import HistoryScreenContainer from "../components/historyScreenContainer/HistoryScreenContainer";
+import Charts from "../pages/charts/Charts";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "trade", element: <Trade /> },
       { path: "history", element: <HistoryScreenContainer /> },
       { path: "console", element: <General /> },
+      { path: "charts", element: <Charts /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },

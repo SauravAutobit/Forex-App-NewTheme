@@ -3,13 +3,15 @@ import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 import SearchBar from "../../components/searchBar/SearchBar";
 import Favourites from "../favourites/Favourites";
 import type { OutletContextType } from "../../layout/MainLayout";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 const Home = () => {
   const { favoriteItems, setFavoriteItems } =
     useOutletContext<OutletContextType>();
   const { isFlag, setIsFlag, active, setActive } =
     useOutletContext<OutletContextType>();
+
+  const navigate = useNavigate();
 
   const addFavourites = () => {
     setIsFlag((prev) => ({
@@ -25,6 +27,11 @@ const Home = () => {
   if (active === "Favorites" && isFlag.favourites?.status === true) {
     setActive("Forex");
   }
+
+  const handleCardClick = () => {
+    // Handle card click event
+    navigate("/app/charts");
+  };
 
   return (
     <div className="px-5 py-2.5">
@@ -56,9 +63,7 @@ const Home = () => {
                 close={23.22}
                 pip={"5asa"}
                 timestamp={"15:23:00"}
-                onClick={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
+                onClick={handleCardClick}
                 active={active}
                 favourites={isFlag.favourites?.status}
               />
