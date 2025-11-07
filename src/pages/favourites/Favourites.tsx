@@ -6,9 +6,8 @@ import Card, { type CardProps } from "../../components/card/Card";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 import { SwipeableList, SwipeableListItem } from "react-swipeable-list";
-import "react-swipeable-list/dist/styles.css"; // Import default styles
+import "react-swipeable-list/dist/styles.css";
 
-// ⭐️ Interface for the list item data (must have a unique 'id' for removal)
 interface FavoriteItemType
   extends Omit<CardProps, "onClick" | "active" | "favourites"> {
   id: number;
@@ -16,7 +15,6 @@ interface FavoriteItemType
 
 interface FavouritesProps {
   addFavourite: () => void;
-  // ⭐️ Props for the list data and removal function
   items: FavoriteItemType[];
   removeItem: (id: number) => void;
 }
@@ -25,7 +23,7 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
   const { isFlag } = useOutletContext<OutletContextType>();
   const [active] = useState("Favorites");
 
-  if (items.length === 0 && isFlag.favourites?.status === true) {
+  if (items.length === 0) {
     return (
       <div className="flex flex-col gap-2.5 items-center justify-center pt-[156px]">
         <img src={noFavourites} alt="noFavourites" />
@@ -40,39 +38,26 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // ✅ NEW: Helper function to define the action element
-  // This is the simplest possible structure that satisfies the most rigid
-  // type definition for a render prop expecting only a React Element.
-  const TrailingActions = (itemId: number) => (
-    <div
-      // 🚨 IMPORTANT: We rely on a click handler here since we can't
-      // pass the 'action' prop via the object structure due to the type error.
-      // This makes the action a "click to remove" instead of "full swipe to remove".
-      // The *full swipe to remove* logic must be implemented using an undocumented
-      // internal prop or by upgrading the library.
-      onClick={() => {
-        console.log(`Removing item ${itemId} via click on action area.`);
-        removeItem(itemId);
-      }}
-      className="bg-red-500 text-white p-4 h-full flex items-center justify-end pr-5 w-full"
-    >
+  const TrailingActions = () => (
+    <div className="bg-loss text-white p-4 h-full flex items-center justify-end pr-5 w-full">
       Remove
     </div>
   );
-  // -------------------------------------------------------------------------
 
   return (
     <>
       <SwipeableList threshold={0.3} fullSwipe={true}>
-        {/* Configure swipe behavior */}
         {items.map((item) => {
           return (
             <SwipeableListItem
               key={item.id}
-              // ✅ Trailing actions now uses the simplified render function.
-              // This should resolve the TypeScript error.
-              trailingActions={TrailingActions(item.id)}
+              trailingActions={TrailingActions()}
+              onSwipeEnd={() => {
+                console.log(`Item ${item.id} removed via full swipe.`);
+                removeItem(item.id);
+              }}
+              // 3. Optional: Add a delay to let the animation finish
+              // swipeDelay={200}
             >
               <Card
                 code={item.code}
