@@ -83,6 +83,8 @@ const Charts = () => {
         setActive={setActive}
         favourite={isFlag.favourites?.status}
         tabs={tabs}
+        paddingLeft="20px"
+        paddingRight="20px"
       />
       <ChartComponent
         height={height}
