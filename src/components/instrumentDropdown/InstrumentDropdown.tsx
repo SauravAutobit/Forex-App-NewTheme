@@ -75,28 +75,32 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
         <AnimatePresence>
           {isOpen && (
             <motion.ul
-              className="dropdown-content z-[1] menu p-2.5 shadow bg-primaryBg border border-primary rounded-box w-full overflow-y-auto text-primary"
+              className="dropdown-content z-[1] mt-8 menu p-2.5 shadow bg-primaryBg border border-primary rounded-box w-full overflow-y-auto text-primary"
               variants={listVariants}
               initial="closed"
               animate="open"
               exit="closed"
               style={{ position: "relative", scrollbarWidth: "none" }}
             >
-              {instruments.map((instrument) => (
-                <motion.li key={instrument.id} variants={itemVariants}>
-                  <button
-                    type="button"
-                    className={`w-[108px] text-left px-2 py-1 pb-7  ${
-                      instrument.id === selectedInstrumentId
-                        ? "font-semibold"
-                        : ""
-                    }`}
-                    onClick={() => handleSelect(instrument.id)}
-                  >
-                    {instrument.name}
-                  </button>
-                </motion.li>
-              ))}
+              {instruments.map((instrument, index) => {
+                return (
+                  <motion.li key={instrument.id} variants={itemVariants}>
+                    <button
+                      type="button"
+                      className={`w-[88px] text-left px-2 py-1 ${
+                        index === instruments.length - 1 ? "pb-0" : "pb-7"
+                      }  ${
+                        instrument.id === selectedInstrumentId
+                          ? "font-semibold"
+                          : ""
+                      }`}
+                      onClick={() => handleSelect(instrument.id)}
+                    >
+                      {instrument.name}
+                    </button>
+                  </motion.li>
+                );
+              })}
             </motion.ul>
           )}
         </AnimatePresence>

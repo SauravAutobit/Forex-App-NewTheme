@@ -19,6 +19,7 @@ import General from "../pages/general/General";
 import Login from "../pages/login/Login";
 import HistoryScreenContainer from "../components/historyScreenContainer/HistoryScreenContainer";
 import Charts from "../pages/charts/Charts";
+import ChartSkeleton from "../components/chartSkeleton/ChartSkeleton";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -36,6 +37,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "history", element: <HistoryScreenContainer /> },
       { path: "console", element: <General /> },
       { path: "charts", element: <Charts /> },
+      { path: "charts-skeleton", element: <ChartSkeleton /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },

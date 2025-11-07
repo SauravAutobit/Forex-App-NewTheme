@@ -60,6 +60,17 @@ export default {
       placeholderColor: {
         placeholder: "var(--placeholder)",
       },
+
+      keyframes: {
+        shimmer: {
+          "0%": { backgroundPosition: "-1000px 0" },
+          "100%": { backgroundPosition: "1000px 0" },
+        },
+      },
+      // ⬅️ Add the 'shimmer' animation
+      animation: {
+        shimmer: "shimmer 1.5s infinite linear",
+      },
     },
   },
   plugins: [require("daisyui")],
