@@ -148,7 +148,7 @@ const Card = ({
           {/* Left Side: Title and Change */}
 
           <div>
-            <div className="flex justify-between items-center text-secondary text-xs mt-2.5">
+            <div className="flex justify-between items-center text-secondary text-xs">
               <span>{timestamp}</span>
             </div>
             <h2 className="my-1">{code.toUpperCase()}</h2>

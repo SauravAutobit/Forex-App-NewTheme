@@ -47,6 +47,8 @@ const Home = () => {
         setActive={setActive}
         favourite={isFlag.favourites?.status}
         tabs={tabs}
+        marginBottom="10px"
+        marginTop="10px"
       />
       {active === "Favorites" ? (
         <Favourites

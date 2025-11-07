@@ -10,6 +10,8 @@ interface MarketsNavbarProps {
   tabs: string[];
   paddingLeft?: string;
   paddingRight?: string;
+  marginBottom?: string;
+  marginTop?: string;
 }
 
 export default function MarketsNavbar({
@@ -19,6 +21,8 @@ export default function MarketsNavbar({
   tabs,
   paddingLeft = "10px",
   paddingRight = "10px",
+  marginBottom,
+  marginTop,
 }: MarketsNavbarProps) {
   const { isFlag } = useOutletContext<OutletContextType>();
   const { pathname } = useLocation();
@@ -38,13 +42,13 @@ export default function MarketsNavbar({
   }, [active]); // Dependency array: run this effect whenever the active tab changes
 
   return (
-    <div className="w-full flex items-center gap-2">
+    <div
+      className="w-full h-[40px] bg-primaryBg flex items-center gap-2"
+      style={{ marginTop, marginBottom }}
+    >
       <div className="flex items-center overflow-x-auto no-scrollbar">
         {/* Tabs container */}
-        <div
-          className="flex space-x-10 py-5"
-          style={{ paddingLeft, paddingRight }}
-        >
+        <div className="flex space-x-10" style={{ paddingLeft, paddingRight }}>
           {visibleTabs.map((tab) => {
             const isActive = active === tab;
             return (

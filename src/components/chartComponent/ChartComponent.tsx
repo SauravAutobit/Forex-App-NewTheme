@@ -270,13 +270,13 @@ export default function ChartComponent({
     dispatch(clearChartData());
     // fetch fresh data (only if websocket connected)
     if (apiStatus === "connected") {
-      dispatch(
-        fetchChartData({
-          instrumentId: selectedInstrumentId,
-          startIndex: 0,
-          endIndex: 500,
-        })
-      );
+      // dispatch(
+      //   fetchChartData({
+      //     instrumentId: selectedInstrumentId,
+      //     startIndex: 0,
+      //     endIndex: 500,
+      //   })
+      // );
     }
   }, [selectedInstrumentId, dispatch, apiStatus]);
 
@@ -1026,13 +1026,22 @@ export default function ChartComponent({
   return (
     <>
       <div className="flex flex-col relative" style={{ height }}>
-        {pathname === "/charts" && (
-          <div className="absolute top-0 left-0 right-0 z-10 p-2 pt-4 ">
+        {pathname === "/app/charts" && (
+          <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between ">
             <InstrumentDropdown
-              instruments={instruments}
-              selectedInstrumentId={selectedInstrumentId}
-              onSelect={onInstrumentChange}
-              setIsModalOpen={() => setIsModalOpen(true)}
+              instruments={instruments ?? []}
+              selectedInstrumentId={selectedInstrumentId!}
+              onSelect={onInstrumentChange!}
+            />
+            <InstrumentDropdown
+              instruments={instruments ?? []}
+              selectedInstrumentId={selectedInstrumentId!}
+              onSelect={onInstrumentChange!}
+            />
+            <InstrumentDropdown
+              instruments={instruments ?? []}
+              selectedInstrumentId={selectedInstrumentId!}
+              onSelect={onInstrumentChange!}
             />
           </div>
         )}

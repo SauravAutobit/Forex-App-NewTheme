@@ -53,3 +53,18 @@ export const generateMockChartData = (): OHLVCData[] => {
   // which is typically what charting libraries expect.
   return mockData;
 };
+
+
+export const mockInstruments = [
+  { id: "EURUSD_ID", name: "EURUSD" },
+  { id: "GBPUSD_ID", name: "GBPUSD" },
+  { id: "XAUUSD_ID", name: "XAUUSD)" },
+  { id: "BTCUSD_ID", name: "BTCUSD" },
+  { id: "SPX500_ID", name: "S&P500" },
+  { id: "JP225_ID", name: "Nikkei225" },
+];
+
+export type Instrument = {
+  id: string;
+  name: string;
+};

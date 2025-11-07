@@ -11,14 +11,12 @@ interface InstrumentDropdownProps {
   instruments: Instrument[];
   selectedInstrumentId: string | null;
   onSelect: (instrumentId: string) => void;
-  setIsModalOpen: () => void;
 }
 
 const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
   instruments,
   selectedInstrumentId,
   onSelect,
-  setIsModalOpen,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,23 +53,15 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
 
   return (
     <>
-      <div className="flex items-center gap-[80px]">
-        <p className="mb-1 text-sm text-center text-primary pl-2">
-          Euro Vs US dollar
-        </p>
-        <div onClick={setIsModalOpen} className="text-primary mb-1">
-          Indicators
-        </div>
-      </div>
+      {/* <div className="flex items-center gap-[80px]"></div> */}
       <div className="dropdown">
         <button
-          className="btn h-[44px] w-full bg-secondaryBg border border-primary outline-none rounded-10 flex justify-between items-center px-4 text-primary"
+          className="btn w-[104px] h-[40px] w-full bg-primaryBg border border-primary rounded-10 flex justify-between items-center px-2.5 text-primary"
           onClick={() => setIsOpen(!isOpen)}
           aria-haspopup="true"
           aria-expanded={isOpen}
-          style={{ color: "#f9f9f9", boxShadow: "none", border: "none" }}
         >
-          <div className="text-primary">
+          <div className="text-primary font-secondary">
             {selectedInstrument?.name || "Select Symbol"}
           </div>
           <motion.div
@@ -85,7 +75,7 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
         <AnimatePresence>
           {isOpen && (
             <motion.ul
-              className="dropdown-content z-[1] menu p-2 shadow bg-secondaryBg border border-primary rounded-box w-full max-h-60 overflow-y-auto text-primary"
+              className="dropdown-content z-[1] menu p-2.5 shadow bg-primaryBg border border-primary rounded-box w-full overflow-y-auto text-primary"
               variants={listVariants}
               initial="closed"
               animate="open"
@@ -93,14 +83,10 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
               style={{ position: "relative", scrollbarWidth: "none" }}
             >
               {instruments.map((instrument) => (
-                <motion.li
-                  className="border border-tertiary"
-                  key={instrument.id}
-                  variants={itemVariants}
-                >
+                <motion.li key={instrument.id} variants={itemVariants}>
                   <button
                     type="button"
-                    className={`w-full text-left px-2 py-1 ${
+                    className={`w-[108px] text-left px-2 py-1 pb-7  ${
                       instrument.id === selectedInstrumentId
                         ? "font-semibold"
                         : ""
