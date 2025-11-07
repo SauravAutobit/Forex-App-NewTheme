@@ -1,5 +1,7 @@
 // import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import filter from "../../assets/icons/filter.svg";
+import type { OutletContextType } from "../../layout/MainLayout";
 
 interface MarketsNavbarProps {
   active: string;
@@ -14,6 +16,7 @@ export default function MarketsNavbar({
   setActive,
   favourite,
 }: MarketsNavbarProps) {
+  const { isFlag } = useOutletContext<OutletContextType>();
   // Filter out "Favorites" when active is "Favorites"
   const visibleTabs =
     favourite === true ? tabs.filter((tab) => tab !== "Favorites") : tabs;
@@ -41,7 +44,7 @@ export default function MarketsNavbar({
         </div>
       </div>
 
-      {active !== "Favorites" ? <img src={filter} alt="filter" /> : ""}
+      {!isFlag.favourites.status && <img src={filter} alt="filter" />}
     </div>
   );
 }

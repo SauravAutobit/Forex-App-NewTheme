@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Card from "../../components/card/Card";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 import SearchBar from "../../components/searchBar/SearchBar";
@@ -7,27 +6,11 @@ import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 
 const Home = () => {
-  const { isFlag, setIsFlag } = useOutletContext<OutletContextType>();
-  const [active, setActive] = useState("Favorites");
-  // const [favourites, setFavourites] = useState(false);
+  const { favoriteItems, setFavoriteItems } =
+    useOutletContext<OutletContextType>();
+  const { isFlag, setIsFlag, active, setActive } =
+    useOutletContext<OutletContextType>();
 
-  // ⭐️ NEW: State for the list of favorite instruments
-  const [favoriteItems, setFavoriteItems] = useState(
-    Array.from({ length: 5 }).map((_, index) => ({
-      // Using 5 to keep the list short for testing
-      id: index,
-      code: `EUR/GBP ${index}`,
-      bid: 1678.256369 + index,
-      ask: 1078.256369 + index,
-      high: 253659 + index,
-      low: 235698 - index,
-      ltp: 30 + index,
-      close: 23.22 + index / 10,
-      pip: "5asa",
-      timestamp: "15:23:00",
-      // Add other necessary properties
-    }))
-  );
   const addFavourites = () => {
     setIsFlag((prev) => ({
       ...prev,
@@ -35,7 +18,6 @@ const Home = () => {
     }));
   };
 
-  // ⭐️ NEW: Function to remove an item from the list
   const removeFavorite = (id: number) => {
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
@@ -43,9 +25,6 @@ const Home = () => {
   if (active === "Favorites" && isFlag.favourites?.status === true) {
     setActive("Forex");
   }
-  // else if (isFlag.favourites?.status === false && active === "Forex") {
-  //   setActive("Favorites");
-  // }
 
   return (
     <div className="px-5 py-2.5">
