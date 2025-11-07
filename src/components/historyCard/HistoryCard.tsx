@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-// import classNames from "classnames";
-// Import placeholder images/icons if they were used in the original project
-// import TimeIcon from "../../assets/icons/time.svg";
-// import ArrowUp from "../../assets/icons/arrowUp.svg";
-// import ArrowDown from "../../assets/icons/arrowDown.svg";
 
-// Define a minimal interface for the component signature
+// Define a new interface for the component signature
 interface HistoryCardPropsStatic {
-  label: "Position" | "Orders" | "Deals"; // Enforcing the three historical tabs
-  index?: number; // Optional index for list rendering
+  label: "Position" | "Orders" | "Deals";
+  index?: number;
+  // NEW PROPS for the tutorial feature
+  onCardClick: () => void;
+  isTutorialTarget: boolean; // Flag to identify the card the arrow points to
 }
 
-const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
+const HistoryCard = ({
+  label,
+  index,
+  onCardClick,
+  isTutorialTarget,
+}: HistoryCardPropsStatic) => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
   const toggleDetails = () => {
@@ -20,10 +23,17 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // 1. Dismiss the tutorial arrow if this is the target card
+    if (isTutorialTarget) {
+      onCardClick();
+    }
+
+    // 2. Toggle the card details
     toggleDetails();
   };
 
-  // --- Static Dummy Data Simulation (Based on History/PositionCard logic) ---
+  // --- (Static Dummy Data Simulation - REMAINING LOGIC IS UNCHANGED) ---
 
   // Determine the type being rendered
   const isHistoryPosition = label === "Position";
@@ -69,8 +79,8 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
   // Common formatting
   const pnlColorClass =
     pnl > 0 ? "text-profit" : pnl < 0 ? "text-loss" : "text-secondary";
-  const topLeftPrice = 1.085; // Entry/Order Price
-  const topRightPrice = 1.0845; // Close/Deal Price or N/A
+  const topLeftPrice = 1.17282; // Entry/Order Price
+  const topRightPrice = 1.17427; // Close/Deal Price or N/A
   const totalCharges = 2.5;
   const sl = 1.08;
   const tp = 1.095;
@@ -197,8 +207,9 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
     <>
       <div key={index} className="flex flex-col gap-4 select-none no-select">
         <div
+          // Added a visual cue (border/shadow) when it's the target card
           className={`${
-            isDetailsVisible === true ? "bg-cardBg" : "bg-inherit"
+            isDetailsVisible ? "bg-cardBg" : "bg-inherit"
           } border-b border-primary px-5 py-4 backdrop-blur-[32px] cursor-pointer`}
           onClick={handleClick}
         >
@@ -246,11 +257,7 @@ const HistoryCard = ({ label, index }: HistoryCardPropsStatic) => {
 
             <div className="flex justify-between items-center text-primary">
               {/* Quantity or Price Value */}
-              <div
-              // className={buySellSide === "buy" ? "text-profit" : "text-loss"}
-              >
-                {qtyDisplayString}
-              </div>
+              <div>{qtyDisplayString}</div>
               {/* P&L or Status Value */}
               {isHistoryOrder ? (
                 <div>{statusValue}</div>
