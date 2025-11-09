@@ -34,7 +34,7 @@ const Home = () => {
       ...prev,
       charts: { status: true },
     }));
-    navigate("/app/charts-skeleton");
+    navigate("/app/charts");
   };
 
   const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
