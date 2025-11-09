@@ -4,6 +4,8 @@ import { type ProfitBalanceProps } from "../../components/editOrderList/EditOrde
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
+import CheckList from "../../components/checkList/CheckList";
+import Counter from "../../components/counter/Counter";
 
 interface TabItem {
   id: string;
@@ -66,7 +68,36 @@ const MarketEdit = () => {
     {
       id: "edit",
       label: "Edit",
-      content: <div>Edit</div>,
+      content: (
+        <div className="px-5 h-[calc(100vh-234px)]">
+          <div className="flex flex-col justify-between h-full">
+            <div className="flex flex-col gap-2.5 mt-5">
+              <Counter label="Take Profit" />
+              <Counter label="Stop Loss" />
+              <CheckList />
+            </div>
+            <div className="flex items-center justify-between mt-3 mb-2.5">
+              <Button
+                label="Discard"
+                width="169.5px"
+                height="44px"
+                bgColor="#505050"
+                textColor="#FAFAFA"
+                border="1px solid #505050"
+              />
+              <Button
+                label="Confirm"
+                textShadow="1px 1px 3.5px 0px #02900B"
+                width="169.5px"
+                height="44px"
+                bgColor="#02F511"
+                textColor="#FAFAFA"
+                fontWeight={500}
+              />
+            </div>
+          </div>
+        </div>
+      ),
     },
   ];
   return (

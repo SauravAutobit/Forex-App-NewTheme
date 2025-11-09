@@ -140,7 +140,12 @@ export default function Header({
         break;
 
       case "/app/marketEdit":
-        title = "EURUSD";
+        title = "Edit Order";
+        actions = null;
+        break;
+
+      case "/app/pendingEdit":
+        title = "Edit Order";
         actions = null;
         break;
 
@@ -175,7 +180,8 @@ export default function Header({
       {isFlag.favourites?.status === true ||
       isFlag.charts?.status === true ||
       isFlag.newOrder?.status === true ||
-      isFlag.marketEdit?.status === true ? (
+      isFlag.marketEdit?.status === true ||
+      isFlag.pendingEdit?.status === true ? (
         <button
           aria-label="Exit selection mode"
           onClick={() => {

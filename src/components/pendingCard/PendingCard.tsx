@@ -1,4 +1,6 @@
 import rightArrow from "../../assets/icons/rightArrow.svg";
+import cardIcon from "../../assets/icons/cardIcon.svg";
+import { useLocation } from "react-router-dom";
 
 export interface CardProps {
   code: string;
@@ -16,6 +18,9 @@ export interface CardProps {
 }
 
 const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
+  const { pathname } = useLocation();
+
+  const pendingEdit = pathname === "/app/pendingEdit";
   return (
     <div
       className="text-primary px-5 py-2.5 border-b border-primary"
@@ -25,7 +30,7 @@ const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           {/* Left Side: Title and Change */}
-
+          {pendingEdit && <img src={cardIcon} alt="cardIcon" />}
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="my-1 font-tertiary">{code.toUpperCase()}</h2>

@@ -22,6 +22,7 @@ import Charts from "../pages/charts/Charts";
 import ChartSkeleton from "../components/chartSkeleton/ChartSkeleton";
 import NewOrder from "../pages/newOrder/NewOrder";
 import MarketEdit from "../pages/marketEdit/MarketEdit";
+import PendingEdit from "../pages/pendingEdit/PendingEdit";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "charts-skeleton", element: <ChartSkeleton /> },
       { path: "newOrder", element: <NewOrder /> },
       { path: "marketEdit", element: <MarketEdit /> },
+      { path: "PendingEdit", element: <PendingEdit /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },
