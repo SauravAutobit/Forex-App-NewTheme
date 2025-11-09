@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import ClosedCard from "../../components/closedCard/ClosedCard";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
@@ -6,6 +6,7 @@ import InstrumentInfoCard, {
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
+import type { OutletContextType } from "../../layout/MainLayout";
 
 interface TabItem {
   id: string;
@@ -16,6 +17,7 @@ interface TabItem {
 const Trade = () => {
   // const activeTabId = searchParams.get("tab") || "position"; // Default to 'position'
   const navigate = useNavigate();
+  const { setIsFlag } = useOutletContext<OutletContextType>();
 
   const tabsData: TabItem[] = [
     {
@@ -36,7 +38,13 @@ const Trade = () => {
                 close={23.22}
                 pip={"5asa"}
                 timestamp={"15:23:00"}
-                onClick={() => navigate("/app/marketEdit")}
+                onClick={() => {
+                  setIsFlag((prev) => ({
+                    ...prev,
+                    marketEdit: { status: true },
+                  }));
+                  navigate("/app/marketEdit");
+                }}
                 // active={active}
                 // favourites={isFlag.favourites?.status}
               />

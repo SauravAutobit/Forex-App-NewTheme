@@ -1,6 +1,6 @@
 import { useState } from "react";
 import History from "../../pages/history/History"; // Assuming your page component is named History
-import DirectionArrow from "../directionArrow/DirectionArrow";
+// import DirectionArrow from "../directionArrow/DirectionArrow";
 
 const HistoryScreenContainer = () => {
   // State to control the visibility of the tutorial arrow/message
@@ -25,11 +25,11 @@ const HistoryScreenContainer = () => {
           style={{ top: ARROW_TOP_POSITION, right: ARROW_RIGHT_POSITION }}
         >
           {/* pointer-events-none prevents this entire container from blocking clicks */}
-          <DirectionArrow
+          {/* <DirectionArrow
             // Add a class to the Arrow component's container to re-enable clicks
             // on the message box, but the arrow image will be click-through.
             className="pointer-events-auto"
-          />
+          /> */}
         </div>
       )}
 

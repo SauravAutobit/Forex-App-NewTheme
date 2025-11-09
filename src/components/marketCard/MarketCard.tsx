@@ -1,4 +1,6 @@
+import { useLocation } from "react-router-dom";
 import cardIcon from "../../assets/icons/cardIcon.svg";
+import arrow from "../../assets/icons/arrow.svg";
 
 // Interface for the EURUSDCard's props, based on the QuoteData structure
 // ✅ CHANGED: Props are now clear and match the data
@@ -19,6 +21,9 @@ export interface CardProps {
 }
 
 const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
+  const { pathname } = useLocation();
+
+  const marketEdit = pathname === "/app/marketEdit";
   return (
     <div
       className={`text-primary py-2.5 px-5 ${
@@ -44,18 +49,26 @@ const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
             <div className="text-right text-profit font-secondary">+$0.58</div>
             {/* Right: Bid Price (Green) */}
             <div className="flex">
-              <div className="text-right pr-2">
+              <div className={`text-right ${!marketEdit && "pr-2"}`}>
                 <div className="flex justify-between items-center mt-1">
-                  <span>2025.09.15</span>
+                  <span className={`${marketEdit && "text-secondary"}`}>
+                    {marketEdit ? "1.17047" : "2025.09.15"}
+                  </span>
                 </div>
               </div>
 
-              <div className="w-px bg-[#FAFAFA]"></div>
+              {marketEdit ? (
+                <img src={arrow} alt="arrow" />
+              ) : (
+                <div className="w-px bg-[#FAFAFA]"></div>
+              )}
 
               {/* Middle: Ask Price (Red) */}
-              <div className="text-right pl-2">
+              <div className={`text-right ${!marketEdit && "pl-2"}`}>
                 <div className="flex justify-between items-center mt-1">
-                  <span>{timestamp}</span>
+                  <span className={`${marketEdit && "text-secondary"}`}>
+                    {marketEdit ? "1.17047" : timestamp}
+                  </span>
                 </div>
               </div>
             </div>
