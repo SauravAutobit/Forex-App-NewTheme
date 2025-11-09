@@ -14,7 +14,7 @@ import type { OutletContextType } from "../../layout/MainLayout";
 
 // 3. Import the async thunk
 import { fetchChartData } from "../../store/slices/chartSlice";
-import { mockInstruments } from "../../mockData";
+import { mockInstruments, mockTimeframes } from "../../mockData";
 
 const Charts = () => {
   // const { isDrawerOpen, setIsDrawerOpen } =
@@ -35,6 +35,8 @@ const Charts = () => {
     }));
   }, [allActiveQuotes]);
 
+  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1m");
+
   const [selectedInstrumentId, setSelectedInstrumentId] = useState<
     string | null
   >(instrumentsForDropdown[0]?.id || null);
@@ -49,31 +51,34 @@ const Charts = () => {
     if (!selectedInstrumentId) {
       setSelectedInstrumentId(instrumentsForDropdown[0].id);
       return;
-    }
-    // If currently selected instrument is not present in new list, pick first
-    const exists = instrumentsForDropdown.find(
-      (i) => i.id === selectedInstrumentId
-    );
-    if (!exists) {
-      setSelectedInstrumentId(instrumentsForDropdown[0].id);
+    } else {
+      // If currently selected instrument is not present in new list, pick first
+      const exists = instrumentsForDropdown.find(
+        (i) => i.id === selectedInstrumentId
+      );
+      if (!exists) {
+        setSelectedInstrumentId(instrumentsForDropdown[0].id);
+      }
     }
   }, [instrumentsForDropdown, selectedInstrumentId]);
 
   // 5. Effect to fetch data whenever the selected instrument ID changes
   useEffect(() => {
-    if (selectedInstrumentId) {
+    if (selectedInstrumentId && selectedTimeframe) {
       // Dispatch the thunk to fetch/mock data for the new instrument.
       // Since your thunk currently returns 100 mock points,
       // we can use a fixed range (e.g., [0:99]) for initial load.
       dispatch(
         fetchChartData({
           instrumentId: selectedInstrumentId,
+          timeframe: selectedTimeframe,
           startIndex: 0,
           endIndex: 99,
         })
       );
     }
-  }, [selectedInstrumentId, dispatch]); // Re-run whenever the ID changes
+  }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
+
   const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
   const height = "calc(100vh - 150px)";
 
@@ -93,7 +98,9 @@ const Charts = () => {
         height={height}
         instruments={instrumentsForDropdown}
         selectedInstrumentId={selectedInstrumentId}
-        onInstrumentChange={setSelectedInstrumentId}
+        selectedTimeframe={selectedTimeframe} // ✅ Passing state
+        onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
+        timeframeGroups={mockTimeframes} // ✅ Passing the mock data
         stopLossPrice={null}
         targetPrice={null}
       />

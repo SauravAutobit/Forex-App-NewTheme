@@ -56,7 +56,7 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
       {/* <div className="flex items-center gap-[80px]"></div> */}
       <div className="dropdown">
         <button
-          className="btn w-[104px] h-[40px] w-full bg-primaryBg border border-primary rounded-10 flex justify-between items-center px-2.5 text-primary"
+          className="btn w-[104px] h-[40px] bg-primaryBg border border-primary rounded-10 flex justify-between items-center px-2.5 text-primary"
           onClick={() => setIsOpen(!isOpen)}
           aria-haspopup="true"
           aria-expanded={isOpen}

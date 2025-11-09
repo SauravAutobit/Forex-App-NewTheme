@@ -13,6 +13,9 @@ import { clearChartData, fetchChartData } from "../../store/slices/chartSlice";
 import IndicatorsModal from "../indicatorsModal/IndicatorsModal";
 import InstrumentDropdown from "../instrumentDropdown/InstrumentDropdown";
 import { useLocation } from "react-router-dom";
+import TimeframeDropdown, {
+  type TimeframeGroup,
+} from "../../components/timeframeSelector/TimeframeSelector";
 
 type Candle = {
   time: string | number;
@@ -157,6 +160,10 @@ interface ChartComponentProps {
   onInstrumentChange?: (id: string) => void;
   stopLossPrice: number | null;
   targetPrice: number | null;
+  // 👇 ADDED PROPS
+  selectedTimeframe: string; // The currently selected time frame value
+  onTimeframeChange: (timeframeValue: string) => void; // Handler for time frame change
+  timeframeGroups: TimeframeGroup[];
 }
 
 export default function ChartComponent({
@@ -166,6 +173,9 @@ export default function ChartComponent({
   onInstrumentChange,
   stopLossPrice,
   targetPrice,
+  selectedTimeframe,
+  onTimeframeChange,
+  timeframeGroups,
 }: ChartComponentProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { pathname } = useLocation();
@@ -1033,10 +1043,15 @@ export default function ChartComponent({
               selectedInstrumentId={selectedInstrumentId!}
               onSelect={onInstrumentChange!}
             />
-            <InstrumentDropdown
+            {/* <InstrumentDropdown
               instruments={instruments ?? []}
               selectedInstrumentId={selectedInstrumentId!}
               onSelect={onInstrumentChange!}
+            /> */}
+            <TimeframeDropdown
+              timeframeGroups={timeframeGroups} // ✅ Passed data
+              selectedTimeframe={selectedTimeframe} // ✅ Passed state
+              onSelect={onTimeframeChange} // ✅ Passed handler
             />
             <InstrumentDropdown
               instruments={instruments ?? []}

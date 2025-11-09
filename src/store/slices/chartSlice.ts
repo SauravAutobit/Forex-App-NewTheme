@@ -49,6 +49,7 @@ const initialState: ChartState = {
  * @param {string} instrumentId - The unique identifier of the financial instrument.
  * @param {number} startIndex - The starting index for the data slice.
  * @param {number} endIndex - The ending index for the data slice.
+ * @param {string} timeframe - The timestamp for the data slice.
  */
 export const fetchChartData = createAsyncThunk(
   "chart/fetchData",
@@ -57,16 +58,18 @@ export const fetchChartData = createAsyncThunk(
       instrumentId,
       startIndex,
       endIndex,
+      timeframe
     }: {
       instrumentId: string;
       startIndex: number;
       endIndex: number;
+      timeframe: string
     },
     { rejectWithValue }
   ) => {
     try {
 // mock data
-      console.log(instrumentId, startIndex, endIndex)
+      console.log(instrumentId, startIndex, endIndex, timeframe)
       const mockData = generateMockChartData();
       console.log(
         "fetchChartData: Returning 100 mock data points for development.", mockData
