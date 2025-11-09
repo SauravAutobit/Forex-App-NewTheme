@@ -154,6 +154,11 @@ export default function Header({
         actions = null;
         break;
 
+      case "/app/editHistory":
+        title = "History";
+        actions = null;
+        break;
+
       default:
         // Handle other paths (e.g., History, etc.)
         return null;
@@ -187,7 +192,8 @@ export default function Header({
       isFlag.newOrder?.status === true ||
       isFlag.marketEdit?.status === true ||
       isFlag.pendingEdit?.status === true ||
-      isFlag.closedEdit?.status === true ? (
+      isFlag.closedEdit?.status === true ||
+      isFlag.editHistory?.status === true ? (
         <button
           aria-label="Exit selection mode"
           onClick={() => {
@@ -199,6 +205,7 @@ export default function Header({
               marketEdit: { status: false },
               pendingEdit: { status: false },
               closedEdit: { status: false },
+              editHistory: { status: false },
             }));
             navigate("home");
           }}

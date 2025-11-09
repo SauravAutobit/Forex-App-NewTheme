@@ -24,6 +24,7 @@ import NewOrder from "../pages/newOrder/NewOrder";
 import MarketEdit from "../pages/marketEdit/MarketEdit";
 import PendingEdit from "../pages/pendingEdit/PendingEdit";
 import ClosedEdit from "../pages/closedEdit/ClosedEdit";
+import EditHistory from "../pages/editHistory/EditHistory";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -46,6 +47,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "marketEdit", element: <MarketEdit /> },
       { path: "PendingEdit", element: <PendingEdit /> },
       { path: "closedEdit", element: <ClosedEdit /> },
+      { path: "editHistory", element: <EditHistory /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },

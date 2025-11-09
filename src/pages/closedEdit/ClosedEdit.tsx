@@ -4,6 +4,7 @@ import EditOrderList, {
 } from "../../components/editOrderList/EditOrderList";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import ClosedCard from "../../components/closedCard/ClosedCard";
+import { useNavigate } from "react-router-dom";
 
 const ClosedEdit = () => {
   const profitBalanceProps: ProfitBalanceProps = {
@@ -20,6 +21,11 @@ const ClosedEdit = () => {
     marginTop: "16px",
   };
 
+  const navigate = useNavigate();
+
+  const editHistoryHandler = () => {
+    navigate("/app/editHistory");
+  };
   return (
     <div className="h-[calc(100vh-122px)]">
       <div className="flex flex-col justify-between h-full">
@@ -44,7 +50,10 @@ const ClosedEdit = () => {
             // favourites={isFlag.favourites?.status}
           />
           <div className="px-5">
-            <EditOrderList {...profitBalanceProps} />
+            <EditOrderList
+              {...profitBalanceProps}
+              onClick={editHistoryHandler}
+            />
           </div>
         </div>
         {/* <div className="px-5 flex items-center justify-between mt-3 mb-2.5">

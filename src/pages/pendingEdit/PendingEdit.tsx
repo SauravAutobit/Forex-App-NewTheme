@@ -4,6 +4,7 @@ import EditOrderList, {
 } from "../../components/editOrderList/EditOrderList";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import Button from "../../components/button/Button";
+import { useNavigate } from "react-router-dom";
 
 const PendingEdit = () => {
   const profitBalanceProps: ProfitBalanceProps = {
@@ -18,6 +19,12 @@ const PendingEdit = () => {
       },
     ],
     marginTop: "16px",
+  };
+
+  const navigate = useNavigate();
+
+  const editHistoryHandler = () => {
+    navigate("/app/editHistory");
   };
   return (
     <div className="h-[calc(100vh-122px)]">
@@ -41,7 +48,10 @@ const PendingEdit = () => {
             // favourites={isFlag.favourites?.status}
           />
           <div className="px-5">
-            <EditOrderList {...profitBalanceProps} />
+            <EditOrderList
+              {...profitBalanceProps}
+              onClick={editHistoryHandler}
+            />
           </div>
         </div>
         <div className="px-5 flex items-center justify-between mt-3 mb-2.5">

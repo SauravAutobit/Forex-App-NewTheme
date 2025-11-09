@@ -6,6 +6,7 @@ import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import CheckList from "../../components/checkList/CheckList";
 import Counter from "../../components/counter/Counter";
+import { useNavigate } from "react-router-dom";
 
 interface TabItem {
   id: string;
@@ -28,6 +29,11 @@ const MarketEdit = () => {
     marginTop: "16px",
   };
 
+  const navigate = useNavigate();
+  const editHistoryHandler = () => {
+    navigate("/app/editHistory");
+  };
+
   const tabsData: TabItem[] = [
     {
       id: "info",
@@ -36,7 +42,10 @@ const MarketEdit = () => {
         <div className="px-5 h-[calc(100vh-234px)]">
           <div className="flex flex-col justify-between h-full">
             <div>
-              <EditOrderList {...profitBalanceProps} />
+              <EditOrderList
+                {...profitBalanceProps}
+                onClick={editHistoryHandler}
+              />
             </div>
             <div className="flex items-center justify-between mt-3 mb-2.5">
               <Button

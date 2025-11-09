@@ -1,3 +1,5 @@
+import { useLocation } from "react-router-dom";
+
 interface BalanceDetail {
   label: string;
   value: string | React.ReactNode;
@@ -6,12 +8,17 @@ interface BalanceDetail {
 export interface ProfitBalanceProps {
   balanceItems?: BalanceDetail[];
   marginTop?: string;
+  onClick?: () => void;
 }
 
 const EditOrderList = ({
   balanceItems = [],
   marginTop,
+  onClick,
 }: ProfitBalanceProps) => {
+  const { pathname } = useLocation();
+
+  const editHistory = pathname === "/app/editHistory";
   return (
     <div>
       <div
@@ -26,11 +33,14 @@ const EditOrderList = ({
           >
             {balanceItems.map((balance, index) => (
               <div
-                className={`flex justify-between last:text-secondary`}
+                className={`flex justify-between last:text-secondary ${
+                  editHistory && "text-secondary"
+                }`}
                 key={index}
                 style={{
                   marginTop: index === 0 ? marginTop : "",
                 }}
+                onClick={onClick}
               >
                 <span>{balance.label}</span>
                 <span
