@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import "./Button.css";
 
 interface ButtonProps {
-  label: string;
+  label: string | React.ReactNode;
   btnRoute?: string;
   width?: string;
   height?: string;
