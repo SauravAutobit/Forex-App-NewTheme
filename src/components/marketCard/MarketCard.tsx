@@ -21,7 +21,7 @@ export interface CardProps {
 const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
   return (
     <div
-      className={`text-primary py-2.5 ${
+      className={`text-primary py-2.5 px-5 ${
         border === true ? "border-b border-primary" : ""
       }`}
       onClick={onClick}

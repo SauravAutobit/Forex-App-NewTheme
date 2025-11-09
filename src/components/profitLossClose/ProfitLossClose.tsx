@@ -2,7 +2,7 @@ import closeAllArrow from "../../assets/icons/closeAllArrow.svg";
 
 const ProfitLossClose = () => {
   return (
-    <div className="pt-5 pb-2.5 flex items-center justify-between">
+    <div className="px-5 pt-5 pb-2.5 flex items-center justify-between">
       <div className="text-secondary">
         Floating Profit :{" "}
         <span className="font-tertiary text-quaternary">$25.36</span>

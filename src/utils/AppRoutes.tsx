@@ -21,6 +21,7 @@ import HistoryScreenContainer from "../components/historyScreenContainer/History
 import Charts from "../pages/charts/Charts";
 import ChartSkeleton from "../components/chartSkeleton/ChartSkeleton";
 import NewOrder from "../pages/newOrder/NewOrder";
+import MarketEdit from "../pages/marketEdit/MarketEdit";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "charts", element: <Charts /> },
       { path: "charts-skeleton", element: <ChartSkeleton /> },
       { path: "newOrder", element: <NewOrder /> },
+      { path: "marketEdit", element: <MarketEdit /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },

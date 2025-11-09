@@ -137,7 +137,11 @@ export default function Header({
         title = "EURUSD";
         subTitle = "+30 (+23.2%)";
         actions = null;
+        break;
 
+      case "/app/marketEdit":
+        title = "EURUSD";
+        actions = null;
         break;
 
       default:
@@ -169,8 +173,9 @@ export default function Header({
       {/* Back button logic: Only show the back button (to exit selection mode) 
           when isFlag.favourites.status is true. Otherwise, show the menu. */}
       {isFlag.favourites?.status === true ||
-      isFlag.charts.status === true ||
-      isFlag.newOrder.status ? (
+      isFlag.charts?.status === true ||
+      isFlag.newOrder?.status === true ||
+      isFlag.marketEdit?.status === true ? (
         <button
           aria-label="Exit selection mode"
           onClick={() => {
@@ -179,6 +184,7 @@ export default function Header({
               favourites: { status: false },
               charts: { status: false },
               newOrder: { status: false },
+              marketEdit: { status: false },
             }));
             navigate("home");
           }}
