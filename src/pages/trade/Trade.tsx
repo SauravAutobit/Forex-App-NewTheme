@@ -104,9 +104,14 @@ const Trade = () => {
                 close={23.22}
                 pip={"5asa"}
                 timestamp={"15:23:00"}
-                onClick={function (): void {
-                  throw new Error("Function not implemented.");
+                onClick={() => {
+                  setIsFlag((prev) => ({
+                    ...prev,
+                    closedEdit: { status: true },
+                  }));
+                  navigate("/app/closedEdit");
                 }}
+
                 // active={active}
                 // favourites={isFlag.favourites?.status}
               />

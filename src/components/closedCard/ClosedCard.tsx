@@ -1,3 +1,7 @@
+import { useLocation } from "react-router-dom";
+import cardIcon from "../../assets/icons/cardIcon.svg";
+import arrow from "../../assets/icons/arrow.svg";
+
 export interface CardProps {
   code: string;
   bid: number;
@@ -14,6 +18,10 @@ export interface CardProps {
 }
 
 const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
+  const { pathname } = useLocation();
+
+  const closedEdit = pathname === "/app/closedEdit";
+
   return (
     <div
       className="text-primary px-5 py-2.5 border-b border-primary"
@@ -23,9 +31,12 @@ const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           {/* Left Side: Title and Change */}
+          {closedEdit && <img src={cardIcon} alt="cardIcon" />}
 
           <div>
-            <div className="text-quaternary font-secondary">25/06/2025</div>
+            {!closedEdit && (
+              <div className="text-quaternary font-secondary">25/06/2025</div>
+            )}
             <div className="flex items-center gap-2.5">
               <h2 className="my-1 font-tertiary">{code.toUpperCase()}</h2>
             </div>{" "}
@@ -41,16 +52,24 @@ const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
             <div className="flex">
               <div className="text-right pr-2">
                 <div className="flex justify-between items-center mt-1">
-                  <span>2025.09.15</span>
+                  <span className={`${closedEdit && "text-secondary"}`}>
+                    {closedEdit ? "1.17047" : "2025.09.15"}
+                  </span>
                 </div>
               </div>
 
-              <div className="w-px bg-[#FAFAFA]"></div>
+              {closedEdit ? (
+                <img src={arrow} alt="arrow" />
+              ) : (
+                <div className="w-px bg-[#FAFAFA]"></div>
+              )}
 
               {/* Middle: Ask Price (Red) */}
               <div className="text-right pl-2">
                 <div className="flex justify-between items-center mt-1">
-                  <span>{timestamp}</span>
+                  <span className={`${closedEdit && "text-secondary"}`}>
+                    {closedEdit ? "1.17047" : timestamp}
+                  </span>{" "}
                 </div>
               </div>
             </div>

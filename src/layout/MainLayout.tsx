@@ -23,6 +23,9 @@ export type IsFlagType = {
   pendingEdit: {
     status: boolean;
   };
+  closedEdit: {
+    status: boolean;
+  };
 };
 
 export type OutletContextType = {
@@ -71,6 +74,7 @@ const MainLayout = () => {
     newOrder: { status: false },
     marketEdit: { status: false },
     pendingEdit: { status: false },
+    closedEdit: { status: false },
   });
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag);
