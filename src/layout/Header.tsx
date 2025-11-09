@@ -53,7 +53,7 @@ export default function Header({
       favourites: { status: true },
     }));
   };
-
+  console.log("isFlag HEADER", isFlag);
   const conditionalRender = () => {
     let title = "";
     let actions = null;
@@ -111,16 +111,33 @@ export default function Header({
                 }}
               />
               <div className="flex items-center gap-[7px]">
-                <button className="w-[23px] h-[23px] bg-loss rounded-20 text-secondary flex justify-center items-center text-tertiary">
+                <button
+                  className="w-[23px] h-[23px] bg-loss rounded-20 text-secondary flex justify-center items-center text-tertiary"
+                  onClick={() => {
+                    navigate("newOrder");
+                  }}
+                >
                   S
                 </button>
-                <button className="w-[23px] h-[23px] bg-profit rounded-20 text-secondary flex justify-center items-center text-tertiary">
+                <button
+                  className="w-[23px] h-[23px] bg-profit rounded-20 text-secondary flex justify-center items-center text-tertiary"
+                  onClick={() => {
+                    navigate("newOrder");
+                  }}
+                >
                   B
                 </button>
               </div>
             </div>
           );
         }
+        break;
+
+      case "/app/newOrder":
+        title = "EURUSD";
+        subTitle = "+30 (+23.2%)";
+        actions = null;
+
         break;
 
       default:
@@ -151,7 +168,9 @@ export default function Header({
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">
       {/* Back button logic: Only show the back button (to exit selection mode) 
           when isFlag.favourites.status is true. Otherwise, show the menu. */}
-      {isFlag.favourites?.status === true || isFlag.charts.status === true ? (
+      {isFlag.favourites?.status === true ||
+      isFlag.charts.status === true ||
+      isFlag.newOrder.status ? (
         <button
           aria-label="Exit selection mode"
           onClick={() => {
@@ -159,6 +178,7 @@ export default function Header({
               ...prev,
               favourites: { status: false },
               charts: { status: false },
+              newOrder: { status: false },
             }));
             navigate("home");
           }}

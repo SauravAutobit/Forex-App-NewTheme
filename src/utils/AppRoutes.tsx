@@ -20,6 +20,7 @@ import Login from "../pages/login/Login";
 import HistoryScreenContainer from "../components/historyScreenContainer/HistoryScreenContainer";
 import Charts from "../pages/charts/Charts";
 import ChartSkeleton from "../components/chartSkeleton/ChartSkeleton";
+import NewOrder from "../pages/newOrder/NewOrder";
 
 export const AppRoutes = createBrowserRouter([
   {
@@ -38,6 +39,7 @@ export const AppRoutes = createBrowserRouter([
       { path: "console", element: <General /> },
       { path: "charts", element: <Charts /> },
       { path: "charts-skeleton", element: <ChartSkeleton /> },
+      { path: "newOrder", element: <NewOrder /> },
       // { path: "profile", element: <Profile /> },
       //   { path: "/new-order", element: <NewOrder /> },
       //   { path: "/properties", element: <Properties /> },
