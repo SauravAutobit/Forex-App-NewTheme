@@ -17,6 +17,8 @@ import Overview from "../overview/Overview";
 import Info from "../info/Info";
 import HistoryCard from "../../components/historyCard/HistoryCard";
 import Calender from "../../components/calender/Calender";
+import Button from "../../components/button/Button";
+import Counter from "../../components/counter/Counter";
 
 const Charts = () => {
   // const { isDrawerOpen, setIsDrawerOpen } =
@@ -115,23 +117,100 @@ const Charts = () => {
       {active === "Info" && <Info />}
 
       {active === "Positions" && (
-        <div className="mt-[40px]">
-          <HistoryCard
-            label={"Position"}
-            // Pass props only to the first card, and only if the tutorial is active
-            onCardClick={() => {}}
-            isTutorialTarget={false}
-          />
+        <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
+          <div className="flex flex-col justify-between h-full">
+            <div className="">
+              {Array.from({ length: 10 }).map((_, index) => {
+                return (
+                  <HistoryCard
+                    index={index}
+                    label={"Position"}
+                    onCardClick={() => {}}
+                    isTutorialTarget={false}
+                  />
+                );
+              })}
+            </div>
+            <div
+              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
+              style={{
+                position: "fixed",
+                bottom: "65px",
+                left: 0,
+                zIndex: 1000,
+              }}
+            >
+              <Button
+                label={"Sell"}
+                width="82px"
+                height="44px"
+                bgColor="#FE0000"
+                textColor="#FAFAFA"
+                fontWeight={600}
+                textShadow="0px 0px 10px 0px #950101"
+              />
+              <Counter label="Take Profit" />
+
+              <Button
+                label={"Buy"}
+                width="82px"
+                height="44px"
+                bgColor="#02F511"
+                textShadow="0px 0px 10px 0px #008508"
+                textColor="#FAFAFA"
+                fontWeight={600}
+              />
+            </div>
+          </div>
         </div>
       )}
 
       {active === "Orders" && (
-        <div className="mt-[40px]">
-          <HistoryCard
-            label="Orders"
-            onCardClick={() => {}}
-            isTutorialTarget={false}
-          />
+        <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
+          <div className="flex flex-col justify-between h-full">
+            <div className="">
+              {Array.from({ length: 10 }).map((_, index) => {
+                return (
+                  <HistoryCard
+                    index={index}
+                    label="Orders"
+                    onCardClick={() => {}}
+                    isTutorialTarget={false}
+                  />
+                );
+              })}
+            </div>
+            <div
+              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
+              style={{
+                position: "fixed",
+                bottom: "65px",
+                left: 0,
+                zIndex: 1000,
+              }}
+            >
+              <Button
+                label={"Sell"}
+                width="82px"
+                height="44px"
+                bgColor="#FE0000"
+                textColor="#FAFAFA"
+                fontWeight={600}
+                textShadow="0px 0px 10px 0px #950101"
+              />
+              <Counter label="Take Profit" />
+
+              <Button
+                label={"Buy"}
+                width="82px"
+                height="44px"
+                bgColor="#02F511"
+                textShadow="0px 0px 10px 0px #008508"
+                textColor="#FAFAFA"
+                fontWeight={600}
+              />
+            </div>
+          </div>
         </div>
       )}
 

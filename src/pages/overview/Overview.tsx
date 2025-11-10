@@ -6,7 +6,7 @@ import ProgressBar from "../../components/progressBar/ProgressBar";
 
 const Overview = () => {
   return (
-    <div className="h-[calc(100vh-162px)] mt-[40px]">
+    <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div>
           <OverviewCard
@@ -50,7 +50,11 @@ const Overview = () => {
             />
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3.5 mt-3 px-5 mb-9 pt-2.5 border-t border-primary">
+
+        <div
+          className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
+          style={{ position: "fixed", bottom: "65px", left: 0, zIndex: 1000 }}
+        >
           <Button
             label={"Sell"}
             width="82px"
