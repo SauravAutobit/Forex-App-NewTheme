@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { useLocation } from "react-router-dom";
 // import { useAppSelector } from "../../store/hook";
 
 interface CounterProps {
@@ -20,6 +21,7 @@ const Counter: React.FC<CounterProps> = ({
 }) => {
   const [value, setValue] = useState(initialValue);
   const [inputValue, setInputValue] = useState(String(initialValue));
+  const { pathname } = useLocation();
 
   useEffect(() => {
     setValue(initialValue);
@@ -72,10 +74,17 @@ const Counter: React.FC<CounterProps> = ({
   //   const theme = useAppSelector((state) => state.theme.mode);
   const theme = "dark";
 
+  const chartsPage = pathname === "/app/charts";
   return (
     <div>
-      <div className="mb-1 text-secondary">{label}</div>
-      <div className="flex items-center w-full rounded-10 overflow-hidden shadow-lg border border-primary">
+      {pathname !== "/app/charts" && (
+        <div className="mb-1 text-secondary">{label}</div>
+      )}
+      <div
+        className={`flex items-center ${
+          chartsPage ? "w-[159px]" : "w-full"
+        } rounded-10 overflow-hidden shadow-lg border border-primary`}
+      >
         <button
           onClick={handleDecrement}
           disabled={value <= min}
@@ -88,13 +97,14 @@ const Counter: React.FC<CounterProps> = ({
           />
         </button>
 
-        <div className="flex-1 flex items-center justify-center px-4 py-3 text-center bg-cardBg">
-          {/* <span
-          className={`font-medium text-lg mr-2 text-gray-400`}
-          // ${value > 0 ? "text-white" : "text-gray-400"}`}
+        <div
+          className={`flex-1 flex items-center flex-col justify-center px-4 ${
+            chartsPage ? "py-1" : "py-3"
+          } text-center bg-cardBg`}
         >
-          Price:
-        </span> */}
+          {pathname === "/app/charts" && (
+            <span className={`text-xs text-secondary`}>Price:</span>
+          )}
           <input
             type="text"
             inputMode="numeric"
@@ -102,7 +112,9 @@ const Counter: React.FC<CounterProps> = ({
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className={`w-1/3 text-center font-medium text-lg bg-transparent outline-none appearance-none ${
+            className={`${
+              chartsPage ? "w-[40px]" : "w-1/3"
+            } text-center font-medium text-lg bg-transparent outline-none appearance-none ${
               value > 0 ? "text-primary" : "text-disabledBottom"
             }`}
           />
