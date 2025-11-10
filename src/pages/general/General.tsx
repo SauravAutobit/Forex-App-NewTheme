@@ -76,7 +76,7 @@ const tabsData: TabItem[] = [
     id: "script",
     label: "Script",
     content: (
-      <div>
+      <div className="px-5">
         <Dropddown
           categoryName={""}
           instruments={[]}
@@ -136,7 +136,7 @@ const General = () => {
         tabs={tabsData}
         // defaultActiveTab={activeTabId} // Use state from URL
         // onTabChange={handleTabChange} // New handler for URL update
-        className="max-w-md mx-auto px-5 py-2.5"
+        className="max-w-md mx-auto py-2.5"
       />
     </div>
   );
