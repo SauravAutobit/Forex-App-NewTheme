@@ -78,7 +78,7 @@ const MainLayout = () => {
     marketEdit: { status: false },
     pendingEdit: { status: false },
     closedEdit: { status: false },
-    editHistory: { status: false },
+  editHistory: { status: false },
   });
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag);
