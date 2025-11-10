@@ -1,4 +1,5 @@
 import OverviewCard from "../../components/overviewCard/OverviewCard";
+import OverviewPerformance from "../../components/overviewPerformance/OverviewPerformance";
 
 const Overview = () => {
   return (
@@ -18,6 +19,7 @@ const Overview = () => {
           console.log("overview");
         }}
       />
+      <OverviewPerformance />
     </div>
   );
 };
