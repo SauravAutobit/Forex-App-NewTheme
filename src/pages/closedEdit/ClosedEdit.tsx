@@ -24,7 +24,7 @@ const ClosedEdit = () => {
   const navigate = useNavigate();
 
   const editHistoryHandler = () => {
-    navigate("/app/editHistory");
+    navigate("/app/editHistory", { state: { type: "closed" } });
   };
   return (
     <div className="h-[calc(100vh-122px)]">

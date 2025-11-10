@@ -31,7 +31,7 @@ const MarketEdit = () => {
 
   const navigate = useNavigate();
   const editHistoryHandler = () => {
-    navigate("/app/editHistory");
+    navigate("/app/editHistory", { state: { type: "market" } });
   };
 
   const tabsData: TabItem[] = [

@@ -24,7 +24,7 @@ const PendingEdit = () => {
   const navigate = useNavigate();
 
   const editHistoryHandler = () => {
-    navigate("/app/editHistory");
+    navigate("/app/editHistory", { state: { type: "pending" } });
   };
   return (
     <div className="h-[calc(100vh-122px)]">

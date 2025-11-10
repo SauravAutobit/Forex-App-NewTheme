@@ -8,12 +8,14 @@ interface HistoryCardPropsStatic {
   // NEW PROPS for the tutorial feature
   onCardClick: () => void;
   isTutorialTarget: boolean; // Flag to identify the card the arrow points to
+  type?: "market" | "pending" | "closed"; // dynamic from state
 }
 
 const EditHistoryDetail = ({
   index,
   onCardClick,
   isTutorialTarget,
+  type,
 }: HistoryCardPropsStatic) => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
@@ -61,20 +63,28 @@ const EditHistoryDetail = ({
               {/* Trading Name and Prices/Status */}
               <div className={`flex w-full justify-between`}>
                 <div className="flex items-center">
-                  <div>Order Closed</div>
+                  <div>
+                    {type !== "pending"
+                      ? "Order Closed"
+                      : "Pending ordercreated"}
+                  </div>
                   {/* Price Transition or Simple Price (For History Items) */}
                 </div>
               </div>
 
               {/* Date and Time (Always shown for history tabs) */}
-              <div className="text-loss whitespace-nowrap">-$0.45</div>
+              {type !== "pending" && (
+                <div className="text-loss whitespace-nowrap">-$0.45</div>
+              )}
               <img src={downArrowWhite} alt="downArrowWhite" />
             </div>
 
             <div className="flex justify-between items-center">
               {/* Buy/Sell with Qty/At/In Label */}
               <div className="text-sm text-secondary">
-                Executed Trailing Stop
+                {type !== "pending"
+                  ? "Executed Trailing Stop"
+                  : "Manual operation"}
               </div>
               {/* P&L or Status Label */}
               <div className="flex items-center gap-3">

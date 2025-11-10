@@ -1,7 +1,10 @@
+import { useLocation } from "react-router-dom";
 import EditHistoryCard from "../../components/editHistoryCard/EditHistoryCard";
 import EditHistoryDetail from "../../components/editHistoryDetail/EditHistoryDetail";
 
 const EditHistory = () => {
+  const location = useLocation();
+  const type = location.state?.type || "closed"; // default fallback
   return (
     <div>
       <EditHistoryCard
@@ -22,7 +25,13 @@ const EditHistory = () => {
         // active={active}
         // favourites={isFlag.favourites?.status}
       />
-      <EditHistoryDetail />
+      <EditHistoryDetail
+        onCardClick={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        isTutorialTarget={false}
+        type={type}
+      />
     </div>
   );
 };
