@@ -33,9 +33,9 @@ const EditOrderList = ({
           >
             {balanceItems.map((balance, index) => (
               <div
-                className={`flex justify-between last:text-secondary ${
-                  editHistory && "text-secondary"
-                }`}
+                className={`flex justify-between ${
+                  pathname !== "/app/charts" && "last:text-secondary"
+                } ${editHistory && "text-secondary"}`}
                 key={index}
                 style={{
                   marginTop: index === 0 ? marginTop : "",

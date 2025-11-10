@@ -14,6 +14,7 @@ import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 import { fetchChartData } from "../../store/slices/chartSlice";
 import { mockInstruments, mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
+import Info from "../info/Info";
 
 const Charts = () => {
   // const { isDrawerOpen, setIsDrawerOpen } =
@@ -106,6 +107,8 @@ const Charts = () => {
       )}
 
       {active === "Overview" && <Overview />}
+
+      {active === "Info" && <Info />}
 
       {/* <BottomDrawer
         isOpen={isDrawerOpen.chartDrawer}
