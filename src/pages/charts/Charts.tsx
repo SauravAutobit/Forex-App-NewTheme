@@ -1,13 +1,11 @@
 // src/pages/Charts/Charts.tsx
 
 import { useState, useMemo, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
 import { useDispatch } from "react-redux"; // 1. Import useDispatch
 import type { AppDispatch } from "../../store/store"; // 2. Import AppDispatch
 // import { useOutletContext } from "react-router-dom";
 import ChartComponent from "../../components/chartComponent/ChartComponent";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
-import type { OutletContextType } from "../../layout/MainLayout";
 // import BottomDrawer from "../../components/common/drawer/BottomDrawer";
 // import TradeButtonsDrawer from "../../components/tradeButtonsDrawer/TradeButtonsDrawer";
 // import type { OutletContextType } from "../../layout/MainLayout";
@@ -15,11 +13,12 @@ import type { OutletContextType } from "../../layout/MainLayout";
 // 3. Import the async thunk
 import { fetchChartData } from "../../store/slices/chartSlice";
 import { mockInstruments, mockTimeframes } from "../../mockData";
+import Overview from "../overview/Overview";
 
 const Charts = () => {
   // const { isDrawerOpen, setIsDrawerOpen } =
   //   useOutletContext<OutletContextType>();
-
+  const [active, setActive] = useState("Chart");
   // //   // Use the typed dispatch hook
   const dispatch = useDispatch<AppDispatch>();
 
@@ -79,7 +78,7 @@ const Charts = () => {
     }
   }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
 
-  const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
+  // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
   const height = "calc(100vh - 150px)";
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
@@ -88,22 +87,25 @@ const Charts = () => {
       <MarketsNavbar
         active={active}
         setActive={setActive}
-        favourite={isFlag.favourites?.status}
         tabs={tabs}
         paddingLeft="20px"
         paddingRight="20px"
         marginBottom="10px"
       />
-      <ChartComponent
-        height={height}
-        instruments={instrumentsForDropdown}
-        selectedInstrumentId={selectedInstrumentId}
-        selectedTimeframe={selectedTimeframe} // ✅ Passing state
-        onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
-        timeframeGroups={mockTimeframes} // ✅ Passing the mock data
-        stopLossPrice={null}
-        targetPrice={null}
-      />
+      {active === "Chart" && (
+        <ChartComponent
+          height={height}
+          instruments={instrumentsForDropdown}
+          selectedInstrumentId={selectedInstrumentId}
+          selectedTimeframe={selectedTimeframe} // ✅ Passing state
+          onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
+          timeframeGroups={mockTimeframes} // ✅ Passing the mock data
+          stopLossPrice={null}
+          targetPrice={null}
+        />
+      )}
+
+      {active === "Overview" && <Overview />}
 
       {/* <BottomDrawer
         isOpen={isDrawerOpen.chartDrawer}
