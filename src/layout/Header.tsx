@@ -97,9 +97,9 @@ export default function Header({
         break;
 
       case "/app/charts":
-        if (isFlag.charts.status) {
-          title = "EURUSD";
-          subTitle = "+30 (+23.2%)";
+        title = "EURUSD";
+        subTitle = "+30 (+23.2%)";
+        if (active === "Chart") {
           actions = (
             <div className="flex items-center gap-5">
               <img
@@ -129,6 +129,19 @@ export default function Header({
                 </button>
               </div>
             </div>
+          );
+        } else if (active === "Calendar") {
+          actions = null;
+        } else if (active !== "Chart") {
+          actions = (
+            <img
+              src={star === false ? notFavouriteTick : favouriteTick}
+              alt="notFavouriteTick"
+              onClick={(e) => {
+                e.stopPropagation();
+                setStar(!star);
+              }}
+            />
           );
         }
         break;

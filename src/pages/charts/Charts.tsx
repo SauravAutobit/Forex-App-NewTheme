@@ -19,11 +19,12 @@ import HistoryCard from "../../components/historyCard/HistoryCard";
 import Calender from "../../components/calender/Calender";
 import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
+import type { OutletContextType } from "../../layout/MainLayout";
+import { useOutletContext } from "react-router-dom";
 
 const Charts = () => {
-  // const { isDrawerOpen, setIsDrawerOpen } =
-  //   useOutletContext<OutletContextType>();
-  const [active, setActive] = useState("Chart");
+  const { active, setActive } = useOutletContext<OutletContextType>();
+  // const [active, setActive] = useState("Chart");
   // //   // Use the typed dispatch hook
   const dispatch = useDispatch<AppDispatch>();
 

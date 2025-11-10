@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import BottomNavbar from "../components/bottomNavbar/BottomNavbar";
 import { useEffect, useState } from "react";
@@ -68,6 +68,7 @@ export type OutletContextType = {
 };
 
 const MainLayout = () => {
+  const { pathname } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFlag, setIsFlag] = useLocalStorage<IsFlagType>("appState", {
     favourites: {
@@ -78,8 +79,9 @@ const MainLayout = () => {
     marketEdit: { status: false },
     pendingEdit: { status: false },
     closedEdit: { status: false },
-  editHistory: { status: false },
+    editHistory: { status: false },
   });
+
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag);
   // ⭐️ NEW: State for the list of favorite instruments
@@ -99,6 +101,17 @@ const MainLayout = () => {
       // Add other necessary properties
     }))
   );
+
+  useEffect(() => {
+    console.log("useffect first");
+    if (pathname === "/app/home") {
+      console.log("useffect second");
+      setActive("Favorites");
+    } else if (pathname === "/app/charts") {
+      console.log("useffect third");
+      setActive("Chart");
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const handleOpenSidebar = () => setIsSidebarOpen(true);

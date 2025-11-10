@@ -32,6 +32,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         animate={{ x: isOpen ? 0 : "-100%" }}
         transition={{ duration: 0.25 }}
         className="fixed top-0 left-0 h-full w-[20rem] z-[60] bg-primaryBg shadow-lg px-2.5 pt-[57px] pb-2.5 flex flex-col justify-between"
+        style={{ zIndex: 2000 }}
       >
         <div>
           <div className="py-3 px-4 flex items-center gap-3">
