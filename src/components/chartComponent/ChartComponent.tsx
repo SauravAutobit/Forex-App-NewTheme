@@ -1035,19 +1035,15 @@ export default function ChartComponent({
 
   return (
     <>
-      <div className="flex flex-col relative" style={{ height }}>
+      <div className="flex flex-col relative mt-[40px]" style={{ height }}>
         {pathname === "/app/charts" && (
-          <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between ">
+          <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between mt-2.5">
             <InstrumentDropdown
               instruments={instruments ?? []}
               selectedInstrumentId={selectedInstrumentId!}
               onSelect={onInstrumentChange!}
             />
-            {/* <InstrumentDropdown
-              instruments={instruments ?? []}
-              selectedInstrumentId={selectedInstrumentId!}
-              onSelect={onInstrumentChange!}
-            /> */}
+
             <TimeframeDropdown
               timeframeGroups={timeframeGroups} // ✅ Passed data
               selectedTimeframe={selectedTimeframe} // ✅ Passed state

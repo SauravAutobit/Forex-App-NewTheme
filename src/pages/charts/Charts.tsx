@@ -15,6 +15,8 @@ import { fetchChartData } from "../../store/slices/chartSlice";
 import { mockInstruments, mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
 import Info from "../info/Info";
+import HistoryCard from "../../components/historyCard/HistoryCard";
+import Calender from "../../components/calender/Calender";
 
 const Charts = () => {
   // const { isDrawerOpen, setIsDrawerOpen } =
@@ -80,7 +82,7 @@ const Charts = () => {
   }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
 
   // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
-  const height = "calc(100vh - 150px)";
+  const height = "calc(100vh - 160px)";
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
   return (
@@ -108,7 +110,30 @@ const Charts = () => {
 
       {active === "Overview" && <Overview />}
 
+      {active === "Calendar" && <Calender />}
+
       {active === "Info" && <Info />}
+
+      {active === "Positions" && (
+        <div className="mt-[40px]">
+          <HistoryCard
+            label={"Position"}
+            // Pass props only to the first card, and only if the tutorial is active
+            onCardClick={() => {}}
+            isTutorialTarget={false}
+          />
+        </div>
+      )}
+
+      {active === "Orders" && (
+        <div className="mt-[40px]">
+          <HistoryCard
+            label="Orders"
+            onCardClick={() => {}}
+            isTutorialTarget={false}
+          />
+        </div>
+      )}
 
       {/* <BottomDrawer
         isOpen={isDrawerOpen.chartDrawer}

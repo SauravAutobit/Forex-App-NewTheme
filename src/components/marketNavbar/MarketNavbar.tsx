@@ -44,7 +44,14 @@ export default function MarketsNavbar({
   return (
     <div
       className="w-full h-[40px] bg-primaryBg flex items-center gap-2"
-      style={{ marginTop, marginBottom }}
+      style={{
+        marginTop,
+        marginBottom,
+        position: "fixed",
+        top: "56px",
+        // background: "yellow",
+        zIndex: 1000,
+      }}
     >
       <div className="flex items-center overflow-x-auto no-scrollbar">
         {/* Tabs container */}

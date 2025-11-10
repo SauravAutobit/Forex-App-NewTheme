@@ -15,8 +15,8 @@ const Info = () => {
     ],
   };
   return (
-    <div className="px-5 flex flex-col gap-5">
-      <div className="text-[26px] font-secondary">Gold on Spot</div>
+    <div className="px-5 flex flex-col gap-5 mt-[40px]">
+      <div className="text-[26px] font-secondary mt-2.5">Gold on Spot</div>
       <p className="text-secondary">
         Figma ipsum component variant main layer. Frame comment editor text
         opacity fill library italic star. Star flatten flatten reesizing comment

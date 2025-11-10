@@ -6,7 +6,7 @@ import ProgressBar from "../../components/progressBar/ProgressBar";
 
 const Overview = () => {
   return (
-    <div className="h-[calc(100vh-176px)]">
+    <div className="h-[calc(100vh-162px)] mt-[40px]">
       <div className="flex flex-col justify-between h-full">
         <div>
           <OverviewCard
