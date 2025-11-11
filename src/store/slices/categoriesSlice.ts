@@ -23,7 +23,6 @@ export const fetchCategories = createAsyncThunk(
         // query: "fintrabit.instruments.category.name._unique",
       query: "fintrabit.instrument_categories[type=\"static\"].name"
       });
-      console.log("categories/fetchCategories",response)
 
       if (response.status === 'success' && response.data) {
         return response.data;

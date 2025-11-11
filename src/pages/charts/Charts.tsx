@@ -96,7 +96,6 @@ const Charts = () => {
         tabs={tabs}
         paddingLeft="20px"
         paddingRight="20px"
-        marginBottom="10px"
       />
       {active === "Chart" && (
         <ChartComponent

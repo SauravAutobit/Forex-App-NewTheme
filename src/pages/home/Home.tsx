@@ -3,7 +3,11 @@ import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 import SearchBar from "../../components/searchBar/SearchBar";
 import Favourites from "../favourites/Favourites";
 import type { OutletContextType } from "../../layout/MainLayout";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../store/store";
+import { fetchCategories } from "../../store/slices/categoriesSlice";
+import { useEffect } from "react";
 
 const Home = () => {
   const { favoriteItems, setFavoriteItems } =
@@ -12,6 +16,7 @@ const Home = () => {
     useOutletContext<OutletContextType>();
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const addFavourites = () => {
     setIsFlag((prev) => ({
@@ -37,19 +42,40 @@ const Home = () => {
     navigate("/app/charts");
   };
 
-  const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
+  // const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
+
+  const { data: categories, status: categoriesStatus } = useSelector(
+    (state: RootState) => state.categories
+  );
+
+  console.log("STATE CATEGORY", categories, categoriesStatus);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const apiStatus = useSelector(
+    (state: RootState) => state.websockets.apiStatus
+  );
+
+  useEffect(() => {
+    if (apiStatus === "connected" && pathname === "/app/home") {
+      dispatch(fetchCategories());
+    }
+  }, [apiStatus, dispatch, pathname]);
 
   return (
-    <div className="px-5 py-2.5 mt-[50px]">
-      <SearchBar />
-      <MarketsNavbar
-        active={active}
-        setActive={setActive}
-        favourite={isFlag.favourites?.status}
-        tabs={tabs}
-        marginBottom="10px"
-        marginTop="10px"
-      />
+    <div className="mt-[95px] mb-10">
+      <div
+        className="w-full px-5 bg-primaryBg"
+        style={{ position: "fixed", top: "56px", left: "0", zIndex: 1000 }}
+      >
+        <SearchBar />
+        <MarketsNavbar
+          active={active}
+          setActive={setActive}
+          favourite={isFlag.favourites?.status}
+          tabs={["Favorites", ...categories]}
+        />
+      </div>
+
       {active === "Favorites" ? (
         <Favourites
           addFavourite={addFavourites}

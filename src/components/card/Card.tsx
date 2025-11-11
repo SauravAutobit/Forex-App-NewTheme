@@ -85,7 +85,7 @@ const Card = ({
 
   return (
     <div
-      className="text-primary py-2.5 border-b border-primary"
+      className="text-primary px-5 py-2.5 border-b border-primary"
       onClick={onClick}
       //   style={{ border: theme === "dark" ? "" : "1px solid #C2C2C2" }}
     >

@@ -1,10 +1,7 @@
 import { useLocation, useOutletContext } from "react-router-dom";
 import filter from "../../assets/icons/filter.svg";
 import type { OutletContextType } from "../../layout/MainLayout";
-import { useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../store/store";
-import { fetchCategories } from "../../store/slices/categoriesSlice";
+import { useEffect, useRef } from "react";
 
 interface MarketsNavbarProps {
   active: string;
@@ -34,8 +31,6 @@ export default function MarketsNavbar({
   const visibleTabs =
     favourite === true ? tabs.filter((tab) => tab !== "Favorites") : tabs;
 
-  const dispatch = useDispatch<AppDispatch>();
-
   useEffect(() => {
     if (activeTabRef.current) {
       activeTabRef.current.scrollIntoView({
@@ -45,17 +40,6 @@ export default function MarketsNavbar({
       });
     }
   }, [active]); // Dependency array: run this effect whenever the active tab changes
-
-  const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
-  );
-
-  useEffect(() => {
-    if (apiStatus === "connected" && pathname === "/app/home") {
-      dispatch(fetchCategories());
-    }
-  }, [apiStatus, dispatch, pathname]);
-
   return (
     <>
       <div
@@ -63,10 +47,9 @@ export default function MarketsNavbar({
         style={{
           marginTop,
           marginBottom,
-          position: "fixed",
-          top: "56px",
-          // background: "yellow",
-          zIndex: 1000,
+          // position: "fixed",
+          // top: "56px",
+          // zIndex: 1000,
         }}
       >
         <div className="flex items-center overflow-x-auto no-scrollbar">
@@ -95,7 +78,7 @@ export default function MarketsNavbar({
         </div>
 
         {pathname === "/app/home" && !isFlag.favourites.status && (
-          <img src={filter} alt="filter" className="mr-10" />
+          <img src={filter} alt="filter" />
         )}
       </div>
     </>
