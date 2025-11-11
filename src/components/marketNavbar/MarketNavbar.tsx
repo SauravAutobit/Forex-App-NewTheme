@@ -41,43 +41,49 @@ export default function MarketsNavbar({
     }
   }, [active]); // Dependency array: run this effect whenever the active tab changes
 
+  console.log("NAVABR", pathname);
   return (
-    <div
-      className="w-full h-[40px] bg-primaryBg flex items-center gap-2"
-      style={{
-        marginTop,
-        marginBottom,
-        position: "fixed",
-        top: "56px",
-        // background: "yellow",
-        zIndex: 1000,
-      }}
-    >
-      <div className="flex items-center overflow-x-auto no-scrollbar">
-        {/* Tabs container */}
-        <div className="flex space-x-10" style={{ paddingLeft, paddingRight }}>
-          {visibleTabs.map((tab) => {
-            const isActive = active === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActive(tab)}
-                // ⬅️ 3. Conditionally assign the ref to the active button
-                ref={isActive ? activeTabRef : null}
-                className={`whitespace-nowrap transition-all ${
-                  isActive ? "text-white font-secondary" : "text-[#505050]"
-                }`}
-              >
-                {tab}
-              </button>
-            );
-          })}
+    <>
+      <div
+        className="w-full h-[40px] bg-primaryBg flex items-center gap-2"
+        style={{
+          marginTop,
+          marginBottom,
+          position: "fixed",
+          top: "56px",
+          // background: "yellow",
+          zIndex: 1000,
+        }}
+      >
+        <div className="flex items-center overflow-x-auto no-scrollbar">
+          {/* Tabs container */}
+          <div
+            className="flex space-x-10"
+            style={{ paddingLeft, paddingRight }}
+          >
+            {visibleTabs.map((tab) => {
+              const isActive = active === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActive(tab)}
+                  // ⬅️ 3. Conditionally assign the ref to the active button
+                  ref={isActive ? activeTabRef : null}
+                  className={`whitespace-nowrap transition-all ${
+                    isActive ? "text-white font-secondary" : "text-[#505050]"
+                  }`}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {pathname === "/app/home" && !isFlag.favourites.status && (
-        <img src={filter} alt="filter" />
-      )}
-    </div>
+        {pathname === "/app/home" && !isFlag.favourites.status && (
+          <img src={filter} alt="filter" className="mr-10" />
+        )}
+      </div>
+    </>
   );
 }

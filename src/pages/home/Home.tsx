@@ -40,7 +40,7 @@ const Home = () => {
   const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
 
   return (
-    <div className="px-5 py-2.5">
+    <div className="px-5 py-2.5 mt-[50px]">
       <SearchBar />
       <MarketsNavbar
         active={active}

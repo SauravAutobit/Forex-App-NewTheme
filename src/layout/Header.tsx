@@ -146,6 +146,12 @@ export default function Header({
         }
         break;
 
+      // case "/app/trade":
+      //   actions = (
+      //     // <img src={} alt="" />
+      //   );
+      //   break;
+
       case "/app/newOrder":
         title = "EURUSD";
         subTitle = "+30 (+23.2%)";
