@@ -1,15 +1,15 @@
-// import type { Store } from "@reduxjs/toolkit";
-// import { WebSocketClient } from "./WebSocketClient";
-// import {
-//   setApiStatus,
+import type { Store } from "@reduxjs/toolkit";
+import { WebSocketClient } from "./WebSocketClient";
+import {
+  setApiStatus,
 //   setStreamStatus,
 //   setEventStatus,
-// } from "../store/slices/webSocketSlice";
-// import {
-//   WEBSOCKET_API_URL,
+} from "../store/slices/webSocketSlice";
+import {
+  WEBSOCKET_API_URL,
 //   WEBSOCKET_EVENT_URL,
 //   WEBSOCKET_STREAM_URL,
-// } from "../utils/constants/app.constants";
+} from "../utils//constants/app.constants";
 // import { updateQuoteData } from "../store/slices/quotesSlice";
 // import {
 //   fetchPositions,
@@ -83,45 +83,45 @@
 //   dispatch(fetchOpenOrders())
 // };
 
-// const API_BASE_URL = WEBSOCKET_API_URL; 
+const API_BASE_URL = WEBSOCKET_API_URL; 
 // const STREAM_BASE_URL = WEBSOCKET_STREAM_URL; //import.meta.env.VITE_STREAM_URL;
 // const EVENT_BASE_URL = WEBSOCKET_EVENT_URL;
 
-// let apiClient: WebSocketClient;
-// let streamClient: WebSocketClient;
-// let eventClient: WebSocketClient;
+let apiClient: WebSocketClient;
+let streamClient: WebSocketClient;
+let eventClient: WebSocketClient;
 
 
-// // const getAuthToken = (store: Store<RootState>): string | null => {
-// //     const state = store.getState() as RootState; 
-// //     return state.auth.currentAccount?.token ?? null;
-// // };
+// const getAuthToken = (store: Store<RootState>): string | null => {
+//     const state = store.getState() as RootState; 
+//     return state.auth.currentAccount?.token ?? null;
+// };
 
-// // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
+// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
 
-// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
-// export const initializeSockets = (store: Store) => {
-//   // const token = getAuthToken(store);
-//   const token = AUTH_TOKEN;
-//   if (!token) {
-//     console.error(
-//       "❌ No auth token found. WebSocket connections will not be initialized."
-//     );
-//     return;
-//   }
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
+export const initializeSockets = (store: Store) => {
+  // const token = getAuthToken(store);
+  const token = AUTH_TOKEN;
+  if (!token) {
+    console.error(
+      "❌ No auth token found. WebSocket connections will not be initialized."
+    );
+    return;
+  }
 
-//   // --- API Client Initialization ---
-//   if (!API_BASE_URL) {
-//     console.error(
-//       "❌ VITE_API_WS_URL is not defined. API WebSocket connection will fail."
-//     );
-//   } else if (!apiClient) {
-//     const apiUrlWithToken = `${API_BASE_URL}?t=${token}`;
-//     apiClient = new WebSocketClient(apiUrlWithToken, store, setApiStatus);
-//     console.log("API WebSocket Client Initialized.");
-//   }
+  // --- API Client Initialization ---
+  if (!API_BASE_URL) {
+    console.error(
+      "❌ VITE_API_WS_URL is not defined. API WebSocket connection will fail."
+    );
+  } else if (!apiClient) {
+    const apiUrlWithToken = `${API_BASE_URL}?t=${token}`;
+    apiClient = new WebSocketClient(apiUrlWithToken, store, setApiStatus);
+    console.log("API WebSocket Client Initialized.");
+  }
 
-//   // --- Stream Client Initialization ---
+  // --- Stream Client Initialization ---
 //   if (!STREAM_BASE_URL) {
 //     console.error(
 //       "❌ VITE_STREAM_URL is not defined. Stream WebSocket connection will fail."
@@ -204,7 +204,7 @@
 //     });
 //     console.log("Stream WebSocket Client Initialized.");
 //   }
-//   // --- Event Client Initialization ---
+  // --- Event Client Initialization ---
 //   if (!EVENT_BASE_URL) {
 //     console.error(
 //       "❌ WEBSOCKET_EVENT_URL is not defined. Event WebSocket connection will fail."
@@ -243,9 +243,9 @@
 //     });
 //     console.log("Event WebSocket Client Initialized.");
 //   }
-// };
+};
 
-// // NEW: A single function to subscribe to multiple instruments
+// NEW: A single function to subscribe to multiple instruments
 // export const subscribeToInstruments = (instrumentIds: string[]) => {
 //   if (streamClient) {
 //     const message = {
@@ -264,8 +264,8 @@
 //   }
 // };
 
-// export { apiClient, streamClient, eventClient };
+export { apiClient, streamClient, eventClient };
 
-// // s
-// // From postman
-// //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWYzMGZiM2RiNTJjNjRkOWU4Y2MzNzUyMDA3NzNlNTJmIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.Ll87clShrdkE2x6_KYNpqfsuTpovJq0UwBgHQaaIJX0
+// s
+// From postman
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWYzMGZiM2RiNTJjNjRkOWU4Y2MzNzUyMDA3NzNlNTJmIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.Ll87clShrdkE2x6_KYNpqfsuTpovJq0UwBgHQaaIJX0

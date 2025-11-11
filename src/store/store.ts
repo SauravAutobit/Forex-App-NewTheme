@@ -1,9 +1,12 @@
 import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import chartReducer from "./slices/chartSlice";
+import categoriesReducer from "./slices/categoriesSlice"
+import  webSocketReducer from "./slices/webSocketSlice"
 
-// reducer map
 const rootReducer = {
+  websockets: webSocketReducer,
    chart: chartReducer,
+   categories: categoriesReducer,
 };
 
 // Derive RootState from the reducer map BEFORE creating the listener middleware

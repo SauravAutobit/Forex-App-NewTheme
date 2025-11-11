@@ -53,7 +53,7 @@ export default function Header({
       favourites: { status: true },
     }));
   };
-  console.log("isFlag HEADER", isFlag);
+
   const conditionalRender = () => {
     let title = "";
     let actions = null;

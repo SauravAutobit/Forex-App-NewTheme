@@ -2,6 +2,9 @@ import { useLocation, useOutletContext } from "react-router-dom";
 import filter from "../../assets/icons/filter.svg";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../store/store";
+import { fetchCategories } from "../../store/slices/categoriesSlice";
 
 interface MarketsNavbarProps {
   active: string;
@@ -31,6 +34,8 @@ export default function MarketsNavbar({
   const visibleTabs =
     favourite === true ? tabs.filter((tab) => tab !== "Favorites") : tabs;
 
+  const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
     if (activeTabRef.current) {
       activeTabRef.current.scrollIntoView({
@@ -41,7 +46,16 @@ export default function MarketsNavbar({
     }
   }, [active]); // Dependency array: run this effect whenever the active tab changes
 
-  console.log("NAVABR", pathname);
+  const apiStatus = useSelector(
+    (state: RootState) => state.websockets.apiStatus
+  );
+
+  useEffect(() => {
+    if (apiStatus === "connected" && pathname === "/app/home") {
+      dispatch(fetchCategories());
+    }
+  }, [apiStatus, dispatch, pathname]);
+
   return (
     <>
       <div
