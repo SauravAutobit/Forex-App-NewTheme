@@ -9,6 +9,7 @@ import useLocalStorage from "../utils/useLocalStorage";
 
 export type DrawerState = {
   homeDrawer: boolean;
+  tradeMarketDrawer: boolean;
 };
 
 export type IsFlagType = {
@@ -90,6 +91,7 @@ const MainLayout = () => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState<DrawerState>({
     homeDrawer: false,
+    tradeMarketDrawer: false,
   });
 
   const [active, setActive] = useState("Favorites");

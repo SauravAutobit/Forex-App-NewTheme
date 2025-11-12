@@ -13,6 +13,8 @@ import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
 import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
 import downArrowFilter from "../../assets/icons/downArrowFilter.svg";
+import RadioButton from "../../components/radioButton/RadioButton";
+import Button from "../../components/button/Button";
 
 const menuItems = [{ label: "Instruments" }];
 
@@ -32,6 +34,17 @@ const Trade = () => {
       price: "",
     },
   });
+
+  const [selectedOption, setSelectedOption] = useState("");
+
+  const options = [
+    "All currently Open",
+    "All profitable",
+    "All loosing",
+    "All long",
+    "All short",
+    "Use(-) this if data not available",
+  ];
 
   const navigate = useNavigate();
   const { setIsFlag, isDrawerOpen, setIsDrawerOpen } =
@@ -285,6 +298,61 @@ const Trade = () => {
                   Price
                 </span>
               </div>
+            </div>
+          </div>
+        }
+      </BottomDrawer>
+
+      <BottomDrawer
+        isOpen={isDrawerOpen.tradeMarketDrawer}
+        onClose={() =>
+          setIsDrawerOpen((prev) => ({ ...prev, tradeMarketDrawer: false }))
+        }
+      >
+        {
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-xl font-tertiary mb-2.5 pb-5 border-b border-primary">
+              Which position would you like to close at market prices?
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              {options.map((option, index) => (
+                <div key={option} className="flex items-center justify-between">
+                  <span
+                    className={`${
+                      index === options.length - 1 ? "text-secondary" : ""
+                    }`}
+                  >
+                    {option}
+                  </span>
+                  <div className="flex items-center gap-5">
+                    <span className="font-secondary text-profit">+$0.13</span>
+                    <RadioButton
+                      isChecked={selectedOption === option}
+                      onClick={() => setSelectedOption(option)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between mt-5 mb-2.5">
+              <Button
+                label="cancel"
+                width="176.5px"
+                height="41px"
+                bgColor="#2D2D2D"
+                textColor="#FAFAFA"
+                border="1px solid #505050"
+              />
+              <Button
+                label="Confirm"
+                width="176.5px"
+                height="41px"
+                bgColor="#AEED09"
+                textColor="#2D2D2D"
+                border="1px solid #AEED09"
+              />
             </div>
           </div>
         }
