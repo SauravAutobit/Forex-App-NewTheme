@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
+import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
+import downArrowFilter from "../../assets/icons/downArrowFilter.svg";
 
 const menuItems = [
   { label: "Popularity" },
@@ -31,7 +33,13 @@ const Home = () => {
     setIsDrawerOpen,
   } = useOutletContext<OutletContextType>();
 
-  const [activeFilter, setActiveFilter] = useState("");
+  const [activeFilter, setActiveFilter] = useState({
+    filterOption: "",
+    sort: {
+      alphabetically: "",
+      price: "",
+    },
+  });
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -79,6 +87,39 @@ const Home = () => {
   }, [apiStatus, dispatch, pathname]);
 
   console.log("ACTIVE FILTER", activeFilter);
+
+  const handleSortClick = (type: "alphabetically" | "price") => {
+    setActiveFilter((prev) => {
+      const currentState = prev.sort[type];
+      let nextState: "" | "asc" | "desc" = "";
+
+      if (currentState === "") nextState = "asc";
+      else if (currentState === "asc") nextState = "desc";
+      else nextState = ""; // go back to default
+
+      return {
+        ...prev,
+        sort: {
+          ...prev.sort,
+          [type]: nextState,
+        },
+      };
+    });
+  };
+
+  // helper to get icon based on state
+  const getSortIcon = (state: string, type: "alphabetically" | "price") => {
+    if (state === "asc") return upArrowFilter;
+    if (state === "desc") return downArrowFilter;
+
+    // default icons
+    return type === "price" ? price : alphabets;
+  };
+
+  const capitalizedCategories = categories.map((category) => {
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  });
+
   return (
     <div className="mt-[95px] mb-10">
       <div
@@ -90,7 +131,7 @@ const Home = () => {
           active={active}
           setActive={setActive}
           favourite={isFlag.favourites?.status}
-          tabs={["Favorites", ...categories]}
+          tabs={["Favorites", ...capitalizedCategories]}
         />
       </div>
 
@@ -134,7 +175,15 @@ const Home = () => {
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between text-lg font-tertiary mb-2.5">
               Filters
-              <span className="text-base text-quaternary font-primary">
+              <span
+                className="text-base text-quaternary font-primary"
+                onClick={() =>
+                  setActiveFilter({
+                    filterOption: "",
+                    sort: { alphabetically: "", price: "" },
+                  })
+                }
+              >
                 Clear
               </span>
             </div>
@@ -143,13 +192,22 @@ const Home = () => {
                 <li
                   key={index}
                   className={`px-2.5 py-1.5 rounded-[6px] h-[33px] border border-[#878787] ${
-                    activeFilter === item.label ? "bg-quaternary" : ""
+                    activeFilter.filterOption === item.label
+                      ? "bg-quaternary"
+                      : ""
                   }`}
                 >
                   <button
-                    onClick={() => setActiveFilter(item.label)}
+                    onClick={() =>
+                      setActiveFilter((prev) => ({
+                        ...prev,
+                        filterOption: item.label,
+                      }))
+                    }
                     className={`w-full text-left text-secondary ${
-                      activeFilter === item.label ? "text-[#0C0C0C]" : ""
+                      activeFilter.filterOption === item.label
+                        ? "text-[#0C0C0C]"
+                        : ""
                     }`}
                   >
                     {item.label}
@@ -159,13 +217,44 @@ const Home = () => {
             </ul>
             <div className="text-lg font-tertiary my-2.5">Sort</div>
             <div>
-              <div className="py-2.5 flex items-center gap-2.5">
-                <img src={alphabets} alt="alphabets" />
-                <span className="text-secondary">Alphabatically</span>
+              <div
+                className="py-2.5 flex items-center gap-2.5"
+                onClick={() => handleSortClick("alphabetically")}
+              >
+                <img
+                  src={getSortIcon(
+                    activeFilter.sort.alphabetically,
+                    "alphabetically"
+                  )}
+                  alt="alphabets"
+                />
+                <span
+                  className={`${
+                    activeFilter.sort.alphabetically
+                      ? "text-quaternary"
+                      : "text-secondary"
+                  }`}
+                >
+                  Alphabatically
+                </span>
               </div>
-              <div className="py-2.5 flex items-center gap-2.5">
-                <img src={price} alt="price" />
-                <span className="text-secondary">Price</span>
+              <div
+                className="py-2.5 flex items-center gap-2.5"
+                onClick={() => handleSortClick("price")}
+              >
+                <img
+                  src={getSortIcon(activeFilter.sort.price, "price")}
+                  alt="price"
+                />
+                <span
+                  className={`${
+                    activeFilter.sort.price
+                      ? "text-quaternary"
+                      : "text-secondary"
+                  }`}
+                >
+                  Price
+                </span>
               </div>
             </div>
           </div>
