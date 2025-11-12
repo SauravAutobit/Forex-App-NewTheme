@@ -7,6 +7,7 @@ import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../assets/icons/favrouiteTick.svg";
 import { useLocation, useNavigate } from "react-router-dom";
+import filter from "../assets/icons/filter.svg";
 
 type HeaderProps = {
   isFlag: IsFlagType;
@@ -32,8 +33,8 @@ export default function Header({
   setIsFlag,
   favoriteItems,
   active,
-}: // setIsDrawerOpen,
-HeaderProps) {
+  setIsDrawerOpen,
+}: HeaderProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [star, setStar] = useState(false);
@@ -148,11 +149,17 @@ HeaderProps) {
         }
         break;
 
-      // case "/app/trade":
-      //   actions = (
-      //     // <img src={} alt="" />
-      //   );
-      //   break;
+      case "/app/trade":
+        actions = (
+          <img
+            src={filter}
+            alt="filter"
+            onClick={() => {
+              setIsDrawerOpen((prev) => ({ ...prev, homeDrawer: true }));
+            }}
+          />
+        );
+        break;
 
       case "/app/newOrder":
         title = "EURUSD";

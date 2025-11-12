@@ -86,7 +86,6 @@ const Home = () => {
     }
   }, [apiStatus, dispatch, pathname]);
 
-  console.log("ACTIVE FILTER", activeFilter);
 
   const handleSortClick = (type: "alphabetically" | "price") => {
     setActiveFilter((prev) => {
