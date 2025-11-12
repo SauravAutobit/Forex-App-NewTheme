@@ -24,7 +24,7 @@ export default function MarketsNavbar({
   marginBottom,
   marginTop,
 }: MarketsNavbarProps) {
-  const { isFlag } = useOutletContext<OutletContextType>();
+  const { isFlag, setIsDrawerOpen } = useOutletContext<OutletContextType>();
   const { pathname } = useLocation();
   const activeTabRef = useRef<HTMLButtonElement>(null);
 
@@ -78,7 +78,13 @@ export default function MarketsNavbar({
         </div>
 
         {pathname === "/app/home" && !isFlag.favourites.status && (
-          <img src={filter} alt="filter" />
+          <img
+            src={filter}
+            alt="filter"
+            onClick={() => {
+              setIsDrawerOpen((prev) => ({ ...prev, homeDrawer: true }));
+            }}
+          />
         )}
       </div>
     </>

@@ -5,16 +5,12 @@ import history from "../../assets/icons/history.svg";
 import general from "../../assets/icons/general.svg";
 // import profile from "../../assets/icons/profile.svg";
 import homeSelected from "../../assets/icons/homeSelected.svg";
-
 import tradeSelected from "../../assets/icons/tradeSelected.svg";
-
 import historySelected from "../../assets/icons/historySelected.svg";
-
 import generalSelected from "../../assets/icons/generalSelected.svg";
-
 // import profileSelected from "../../assets/icons/profileSelected.svg";
-
-import { useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import type { DrawerState, IsFlagType } from "../../layout/MainLayout";
 // import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 // import type { DrawerState, IsFlagType } from "../../layout/MainLayout";
 // import { useAppSelector } from "../../store/hook";
@@ -42,27 +38,26 @@ const navLinks = [
   // },
 ];
 
-// interface BottomNavbarProps {
-//   setIsFlag: Dispatch<SetStateAction<IsFlagType>>;
-//   isDrawerOpen: DrawerState;
-// }
+interface BottomNavbarProps {
+  setIsFlag: Dispatch<SetStateAction<IsFlagType>>;
+  isDrawerOpen: DrawerState;
+}
 
-export default function BottomNavbar() {
+export default function BottomNavbar({
+  setIsFlag,
+  isDrawerOpen,
+}: BottomNavbarProps) {
   //   const theme = useAppSelector((state) => state.theme.mode);
-  const [drawer] = useState(false);
+  const [drawer, setDrawer] = useState(false);
 
   // Whenever isDrawerOpen changes, check if any drawer is open
-  //   useEffect(() => {
-  //     if (
-  //       isDrawerOpen.chartDrawer ||
-  //       isDrawerOpen.positonCardDrawer ||
-  //       isDrawerOpen.quotesDrawer
-  //     ) {
-  //       setDrawer(true);
-  //     } else {
-  //       setDrawer(false);
-  //     }
-  //   }, [isDrawerOpen]);
+  useEffect(() => {
+    if (isDrawerOpen.homeDrawer) {
+      setDrawer(true);
+    } else {
+      setDrawer(false);
+    }
+  }, [isDrawerOpen]);
 
   return (
     <>
@@ -85,22 +80,18 @@ export default function BottomNavbar() {
                     isActive ? "text-quaternary" : "text-disabledBottom"
                   }`
                 }
-                // onClick={() =>
-                //   setIsFlag((prev: IsFlagType) => ({
-                //     ...prev,
-                //     quotes: { add: false, edit: false, delete: false },
-                //     trades: { upDown: false },
-                //     drawer: {
-                //       newOrder: false,
-                //       depthOfMarket: false,
-                //       marketStatistics: false,
-                //       properties: false,
-                //       closePosition: false,
-                //       modifyPosition: false,
-                //       openOrders: false,
-                //     },
-                //   }))
-                // }
+                onClick={() =>
+                  setIsFlag((prev: IsFlagType) => ({
+                    ...prev,
+                    favourites: { status: false },
+                    charts: { status: false },
+                    editHistory: { status: false },
+                    closedEdit: { status: false },
+                    marketEdit: { status: false },
+                    newOrder: { status: false },
+                    pendingEdit: { status: false },
+                  }))
+                }
               >
                 {({ isActive }) => (
                   <>

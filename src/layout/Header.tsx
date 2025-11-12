@@ -1,7 +1,7 @@
 import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
-import type { IsFlagType } from "./MainLayout";
+import type { DrawerState, IsFlagType } from "./MainLayout";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
@@ -24,6 +24,7 @@ type HeaderProps = {
     timestamp: string;
   }>;
   active: string;
+  setIsDrawerOpen: Dispatch<SetStateAction<DrawerState>>;
 };
 
 export default function Header({
@@ -31,7 +32,8 @@ export default function Header({
   setIsFlag,
   favoriteItems,
   active,
-}: HeaderProps) {
+}: // setIsDrawerOpen,
+HeaderProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [star, setStar] = useState(false);

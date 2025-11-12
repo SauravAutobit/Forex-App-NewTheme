@@ -82,9 +82,9 @@ const BottomDrawer = ({ isOpen, onClose, children }: BottomDrawerProps) => {
             ref={drawerRef}
             className={`
               fixed bottom-0 left-0 right-0 ${
-                theme === "dark" ? "bg-secondaryBg" : "bg-lightDrawerBg"
-              } backdrop-blur-md text-primary rounded-t-[50px] shadow-xl z-50
-              w-full max-w-[390px] mx-auto
+                theme === "dark" ? "bg-primaryBg" : "bg-lightDrawerBg"
+              } backdrop-blur-md text-primary rounded-t-[10px] shadow-xl z-50
+              w-full max-w-[390px] mx-auto border border-primary
             `}
             variants={drawerVariants}
             initial="hidden"
@@ -96,7 +96,7 @@ const BottomDrawer = ({ isOpen, onClose, children }: BottomDrawerProps) => {
             onTouchEnd={handleTouchEnd}
           >
             {/* Gray top bar inside drawer */}
-            <div className="absolute top-[-6px] left-1/2 transform -translate-x-1/2 z-50 w-28 h-1 bg-gray-600 rounded-full" />
+            {/* <div className="absolute top-[-6px] left-1/2 transform -translate-x-1/2 z-50 w-28 h-1 bg-gray-600 rounded-full" /> */}
 
             <div className="p-2.5 h-full overflow-y-auto relative">
               {children}

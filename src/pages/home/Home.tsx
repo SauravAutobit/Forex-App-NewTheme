@@ -8,12 +8,27 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useEffect } from "react";
+import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
+
+const menuItems = [
+  { label: "New Order", path: "/new-order" },
+  { label: "Chart", path: "/charts" },
+  { label: "Properties", path: "/properties" },
+  { label: "Depth Of Market", path: "/depth-of-market" },
+  { label: "Market Statistics", path: "/market-statistics" },
+];
 
 const Home = () => {
-  const { favoriteItems, setFavoriteItems } =
-    useOutletContext<OutletContextType>();
-  const { isFlag, setIsFlag, active, setActive } =
-    useOutletContext<OutletContextType>();
+  const {
+    favoriteItems,
+    setFavoriteItems,
+    isFlag,
+    setIsFlag,
+    active,
+    setActive,
+    isDrawerOpen,
+    setIsDrawerOpen,
+  } = useOutletContext<OutletContextType>();
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -106,6 +121,33 @@ const Home = () => {
           })}
         </div>
       )}
+      <BottomDrawer
+        isOpen={isDrawerOpen.homeDrawer}
+        onClose={() =>
+          setIsDrawerOpen((prev) => ({ ...prev, homeDrawer: false }))
+        }
+      >
+        {
+          <div className="flex flex-col pt-2.5 pb-2.5">
+            {/* opacity-45 */}
+            <h2 className="text-secondary text-lg font-baseline justify-center mb-4  pl-2.5">
+              {/* {selectedCard.name.toUpperCase()} */} hi
+            </h2>
+            <ul className="flex flex-col gap-6 justify-center items-start">
+              {menuItems.map((item, index) => (
+                <li key={index} className="w-full pl-2.5">
+                  <button
+                    // onClick={() => handleMenuItemClick(item.path)}
+                    className="w-full text-left text-primary hover:text-white"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        }
+      </BottomDrawer>
     </div>
   );
 };

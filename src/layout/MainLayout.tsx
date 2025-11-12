@@ -7,6 +7,10 @@ import useLocalStorage from "../utils/useLocalStorage";
 // import { initializeSockets } from "../services/socketService.ts";
 // import { store } from "../store/store";
 
+export type DrawerState = {
+  homeDrawer: boolean;
+};
+
 export type IsFlagType = {
   favourites: {
     status: boolean;
@@ -65,6 +69,8 @@ export type OutletContextType = {
   >;
   active: string;
   setActive: (tab: string) => void;
+  isDrawerOpen: DrawerState;
+  setIsDrawerOpen: React.Dispatch<React.SetStateAction<DrawerState>>;
 };
 
 const MainLayout = () => {
@@ -82,8 +88,12 @@ const MainLayout = () => {
     editHistory: { status: false },
   });
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState<DrawerState>({
+    homeDrawer: false,
+  });
+
   const [active, setActive] = useState("Favorites");
-  console.log("isFlag", isFlag);
+  console.log("isFlag", isFlag, isDrawerOpen);
   // ⭐️ NEW: State for the list of favorite instruments
   const [favoriteItems, setFavoriteItems] = useState(
     Array.from({ length: 5 }).map((_, index) => ({
@@ -126,6 +136,7 @@ const MainLayout = () => {
         setIsFlag={setIsFlag}
         favoriteItems={favoriteItems}
         active={active}
+        setIsDrawerOpen={setIsDrawerOpen}
       />
       <main
         id="#main-content"
@@ -140,11 +151,13 @@ const MainLayout = () => {
             setFavoriteItems,
             active,
             setActive,
+            isDrawerOpen,
+            setIsDrawerOpen,
           }}
         />
       </main>
 
-      <BottomNavbar />
+      <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
     </div>
   );
