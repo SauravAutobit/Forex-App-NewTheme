@@ -7,15 +7,14 @@ import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 
 const menuItems = [
-  { label: "New Order", path: "/new-order" },
-  { label: "Chart", path: "/charts" },
-  { label: "Properties", path: "/properties" },
-  { label: "Depth Of Market", path: "/depth-of-market" },
-  { label: "Market Statistics", path: "/market-statistics" },
+  { label: "Popularity" },
+  { label: "Daily Changes" },
+  { label: "Daily gain" },
+  { label: "Daily loss" },
 ];
 
 const Home = () => {
@@ -30,6 +29,7 @@ const Home = () => {
     setIsDrawerOpen,
   } = useOutletContext<OutletContextType>();
 
+  const [activeFilter, setActiveFilter] = useState("");
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -76,6 +76,7 @@ const Home = () => {
     }
   }, [apiStatus, dispatch, pathname]);
 
+  console.log("ACTIVE FILTER", activeFilter);
   return (
     <div className="mt-[95px] mb-10">
       <div
@@ -128,17 +129,26 @@ const Home = () => {
         }
       >
         {
-          <div className="flex flex-col pt-2.5 pb-2.5">
-            {/* opacity-45 */}
-            <h2 className="text-secondary text-lg font-baseline justify-center mb-4  pl-2.5">
-              {/* {selectedCard.name.toUpperCase()} */} hi
-            </h2>
-            <ul className="flex flex-col gap-6 justify-center items-start">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between text-lg font-tertiary mb-2.5">
+              Filters
+              <span className="text-base text-quaternary font-primary">
+                Clear
+              </span>
+            </div>
+            <ul className="flex flex-wrap gap-2.5 items-center">
               {menuItems.map((item, index) => (
-                <li key={index} className="w-full pl-2.5">
+                <li
+                  key={index}
+                  className={`px-2.5 py-1.5 rounded-[6px] h-[33px] border border-[#878787] ${
+                    activeFilter === item.label ? "bg-quaternary" : ""
+                  }`}
+                >
                   <button
-                    // onClick={() => handleMenuItemClick(item.path)}
-                    className="w-full text-left text-primary hover:text-white"
+                    onClick={() => setActiveFilter(item.label)}
+                    className={`w-full text-left text-secondary ${
+                      activeFilter === item.label ? "text-[#0C0C0C]" : ""
+                    }`}
                   >
                     {item.label}
                   </button>
