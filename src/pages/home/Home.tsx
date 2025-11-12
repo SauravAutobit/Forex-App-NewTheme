@@ -9,6 +9,8 @@ import type { AppDispatch, RootState } from "../../store/store";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import { useEffect, useState } from "react";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
+import price from "../../assets/icons/price.svg";
+import alphabets from "../../assets/icons/alphabets.svg";
 
 const menuItems = [
   { label: "Popularity" },
@@ -136,7 +138,7 @@ const Home = () => {
                 Clear
               </span>
             </div>
-            <ul className="flex flex-wrap gap-2.5 items-center">
+            <ul className="flex flex-wrap gap-2.5 items-center pb-2.5 border-b border-primary">
               {menuItems.map((item, index) => (
                 <li
                   key={index}
@@ -155,6 +157,17 @@ const Home = () => {
                 </li>
               ))}
             </ul>
+            <div className="text-lg font-tertiary my-2.5">Sort</div>
+            <div>
+              <div className="py-2.5 flex items-center gap-2.5">
+                <img src={alphabets} alt="alphabets" />
+                <span className="text-secondary">Alphabatically</span>
+              </div>
+              <div className="py-2.5 flex items-center gap-2.5">
+                <img src={price} alt="price" />
+                <span className="text-secondary">Price</span>
+              </div>
+            </div>
           </div>
         }
       </BottomDrawer>

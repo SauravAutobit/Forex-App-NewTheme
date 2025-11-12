@@ -98,7 +98,7 @@ const BottomDrawer = ({ isOpen, onClose, children }: BottomDrawerProps) => {
             {/* Gray top bar inside drawer */}
             {/* <div className="absolute top-[-6px] left-1/2 transform -translate-x-1/2 z-50 w-28 h-1 bg-gray-600 rounded-full" /> */}
 
-            <div className="px-2.5 py-5 h-full overflow-y-auto relative">
+            <div className="px-2.5 pt-5 pb-[30px] h-full overflow-y-auto relative">
               {children}
             </div>
           </motion.div>
