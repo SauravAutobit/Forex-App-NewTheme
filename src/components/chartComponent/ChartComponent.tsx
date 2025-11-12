@@ -12,10 +12,12 @@ import type { RootState, AppDispatch } from "../../store/store";
 import { clearChartData, fetchChartData } from "../../store/slices/chartSlice";
 import IndicatorsModal from "../indicatorsModal/IndicatorsModal";
 import InstrumentDropdown from "../instrumentDropdown/InstrumentDropdown";
-import { useLocation } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import TimeframeDropdown, {
   type TimeframeGroup,
 } from "../../components/timeframeSelector/TimeframeSelector";
+import settings from "../../assets/icons/settings.svg";
+import type { OutletContextType } from "../../layout/MainLayout";
 
 type Candle = {
   time: string | number;
@@ -179,7 +181,7 @@ export default function ChartComponent({
 }: ChartComponentProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { pathname } = useLocation();
-
+  const { setIsDrawerOpen } = useOutletContext<OutletContextType>();
   // commented coz using mock data
   // // Theme from Redux — chart picks this automatically
   //   const themeMode = useSelector((s: RootState) => s.theme.mode);
@@ -1037,24 +1039,38 @@ export default function ChartComponent({
     <>
       <div className="flex flex-col relative" style={{ height }}>
         {pathname === "/app/charts" && (
-          <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between mt-2.5">
-            <InstrumentDropdown
-              instruments={instruments ?? []}
-              selectedInstrumentId={selectedInstrumentId!}
-              onSelect={onInstrumentChange!}
-            />
+          <>
+            <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between mt-2.5">
+              <InstrumentDropdown
+                instruments={instruments ?? []}
+                selectedInstrumentId={selectedInstrumentId!}
+                onSelect={onInstrumentChange!}
+              />
 
-            <TimeframeDropdown
-              timeframeGroups={timeframeGroups} // ✅ Passed data
-              selectedTimeframe={selectedTimeframe} // ✅ Passed state
-              onSelect={onTimeframeChange} // ✅ Passed handler
-            />
-            <InstrumentDropdown
-              instruments={instruments ?? []}
-              selectedInstrumentId={selectedInstrumentId!}
-              onSelect={onInstrumentChange!}
-            />
-          </div>
+              <TimeframeDropdown
+                timeframeGroups={timeframeGroups} // ✅ Passed data
+                selectedTimeframe={selectedTimeframe} // ✅ Passed state
+                onSelect={onTimeframeChange} // ✅ Passed handler
+              />
+              <InstrumentDropdown
+                instruments={instruments ?? []}
+                selectedInstrumentId={selectedInstrumentId!}
+                onSelect={onInstrumentChange!}
+              />
+            </div>
+
+            <div
+              className="w-[40px] h-[40px] bg-primaryBg border border-primary rounded-10 absolute top-[70px] left-5 right-0 z-10 flex items-center justify-center"
+              onClick={() =>
+                setIsDrawerOpen((prev) => ({
+                  ...prev,
+                  chartDrawer: true,
+                }))
+              }
+            >
+              <img src={settings} alt="settings" />
+            </div>
+          </>
         )}
 
         <main className="flex-1 flex flex-col gap-2 overflow-auto">
