@@ -2,33 +2,42 @@ import { useState } from "react";
 import tooltip from "../../assets/icons/tooltip.svg";
 import Checkbox from "../checkbox/Checkbox";
 import Counter from "../counter/Counter";
+import { useLocation } from "react-router-dom";
 
-// Define the exact shape of your options
-type OptionKey = "trailingStop" | "breakEven" | "orderExpiration";
-
-interface OptionItem {
+export interface OptionItem {
   label: string;
-  key: OptionKey;
+  key: string;
 }
 
-const CheckList = () => {
-  //   const [isStopLossActive, setIsStopLossActive] = useState(true);
-  const [activeOptions, setActiveOptions] = useState<
-    Record<OptionKey, boolean>
-  >({
-    trailingStop: false,
-    breakEven: false,
-    orderExpiration: false,
-  });
+interface CheckListProps {
+  options: OptionItem[];
+}
 
-  const options: OptionItem[] = [
-    { label: "Trailing stop", key: "trailingStop" },
-    { label: "Break even", key: "breakEven" },
-    { label: "Order expiration", key: "orderExpiration" },
-  ];
+const CheckList = ({ options }: CheckListProps) => {
+  //   const [isStopLossActive, setIsStopLossActive] = useState(true);
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+    () =>
+      options.reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr.key]: false,
+        }),
+        {}
+      )
+  );
+
+  const { pathname } = useLocation();
+
+  const notChartPage = pathname !== "/app/charts";
+
+  // const options: OptionItem[] = [
+  //   { label: "Trailing stop", key: "trailingStop" },
+  //   { label: "Break even", key: "breakEven" },
+  //   { label: "Order expiration", key: "orderExpiration" },
+  // ];
 
   // Toggle the specific option on/off
-  const handleToggle = (key: OptionKey) => {
+  const handleToggle = (key: string) => {
     setActiveOptions((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -46,7 +55,7 @@ const CheckList = () => {
             >
               <div className="flex items-center gap-2.5 text-secondary">
                 {label}
-                <img src={tooltip} alt="tooltip" />
+                {notChartPage && <img src={tooltip} alt="tooltip" />}
               </div>
               <Checkbox
                 isOn={activeOptions[key]}
@@ -55,7 +64,7 @@ const CheckList = () => {
               />
             </div>
 
-            {activeOptions[key] && (
+            {notChartPage && activeOptions[key] && (
               <div className="mb-5">
                 <Counter />
               </div>

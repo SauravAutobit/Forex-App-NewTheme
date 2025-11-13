@@ -22,22 +22,11 @@ import Counter from "../../components/counter/Counter";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
-import RadioButton from "../../components/radioButton/RadioButton";
+import CheckList from "../../components/checkList/CheckList";
 
 const Charts = () => {
   const { active, setActive, isDrawerOpen, setIsDrawerOpen } =
     useOutletContext<OutletContextType>();
-
-  const [selectedOption, setSelectedOption] = useState("");
-
-  const options = [
-    "All currently Open",
-    "All profitable",
-    "All loosing",
-    "All long",
-    "All short",
-    "Use(-) this if data not available",
-  ];
 
   // const [active, setActive] = useState("Chart");
   // //   // Use the typed dispatch hook
@@ -236,48 +225,41 @@ const Charts = () => {
         }
       >
         {
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xl font-tertiary mb-2.5 pb-5 border-b border-primary">
-              Which position would you like to close at market prices?
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between text-xl font-tertiary mb-2.5 pb-5">
+              Chart setting
             </div>
 
-            <div className="flex flex-col gap-2.5">
-              {options.map((option, index) => (
-                <div key={option} className="flex items-center justify-between">
-                  <span
-                    className={`${
-                      index === options.length - 1 ? "text-secondary" : ""
-                    }`}
-                  >
-                    {option}
-                  </span>
-                  <div className="flex items-center gap-5">
-                    <span className="font-secondary text-profit">+$0.13</span>
-                    <RadioButton
-                      isChecked={selectedOption === option}
-                      onClick={() => setSelectedOption(option)}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between mt-5 mb-2.5">
-              <Button
-                label="cancel"
-                width="176.5px"
-                height="41px"
-                bgColor="#2D2D2D"
-                textColor="#FAFAFA"
-                border="1px solid #505050"
+            <div className="flex flex-col gap-[20px] border-b border-primary">
+              <div>Trading flow</div>
+              <CheckList
+                options={[
+                  {
+                    label: "One Touch Trading",
+                    key: "oneTouchTrading",
+                  },
+                ]}
               />
-              <Button
-                label="Confirm"
-                width="176.5px"
-                height="41px"
-                bgColor="#AEED09"
-                textColor="#2D2D2D"
-                border="1px solid #AEED09"
+            </div>
+
+            <div className="flex flex-col gap-[20px] mt-5">
+              <div>Select the trading tools you want to view</div>
+              <CheckList
+                options={[
+                  {
+                    label: "Bid price",
+                    key: "bidPrice",
+                  },
+                  { label: "Ask price", key: "askPrice" },
+                  {
+                    label: "Open orders",
+                    key: "openOrders",
+                  },
+                  {
+                    label: "Pending orders",
+                    key: "pendingOrders",
+                  },
+                ]}
               />
             </div>
           </div>

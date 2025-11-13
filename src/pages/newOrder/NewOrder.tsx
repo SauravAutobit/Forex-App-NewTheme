@@ -26,7 +26,19 @@ const NewOrder = () => {
               </div>
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
-              <CheckList />
+              <CheckList
+                options={[
+                  {
+                    label: "Trailing stop",
+                    key: "trailingStop",
+                  },
+                  { label: "Break even", key: "breakEven" },
+                  {
+                    label: "Order expiration",
+                    key: "orderExpiration",
+                  },
+                ]}
+              />
             </div>
             <div className="mb-9">
               <div className="flex items-center justify-between text-secondary text-sm">
@@ -86,7 +98,19 @@ const NewOrder = () => {
               </div>
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
-              <CheckList />
+              <CheckList
+                options={[
+                  {
+                    label: "Trailing stop",
+                    key: "trailingStop",
+                  },
+                  { label: "Break even", key: "breakEven" },
+                  {
+                    label: "Order expiration",
+                    key: "orderExpiration",
+                  },
+                ]}
+              />
             </div>
             <div className="mb-9">
               <div className="flex items-center justify-between text-secondary text-sm">
@@ -131,7 +155,19 @@ const NewOrder = () => {
               </div>
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
-              <CheckList />
+              <CheckList
+                options={[
+                  {
+                    label: "Trailing stop",
+                    key: "trailingStop",
+                  },
+                  { label: "Break even", key: "breakEven" },
+                  {
+                    label: "Order expiration",
+                    key: "orderExpiration",
+                  },
+                ]}
+              />
             </div>
             <div className="mb-9">
               <div className="flex items-center justify-between text-secondary text-sm">
