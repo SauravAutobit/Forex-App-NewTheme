@@ -1,6 +1,6 @@
 import { useState } from "react";
 import tooltip from "../../assets/icons/tooltip.svg";
-import Checkbox from "../checkbox/Checkbox";
+import Checkbox from "../toggleCheckbox/ToggleCheckbox";
 import Counter from "../counter/Counter";
 import { useLocation } from "react-router-dom";
 

@@ -83,7 +83,19 @@ const MarketEdit = () => {
             <div className="flex flex-col gap-2.5 mt-5">
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
-              <CheckList />
+              <CheckList
+                options={[
+                  {
+                    label: "Trailing stop",
+                    key: "trailingStop",
+                  },
+                  { label: "Break even", key: "breakEven" },
+                  {
+                    label: "Order expiration",
+                    key: "orderExpiration",
+                  },
+                ]}
+              />
             </div>
             <div className="flex items-center justify-between mt-3 mb-2.5">
               <Button

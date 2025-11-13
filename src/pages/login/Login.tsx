@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import logo from "../../assets/icons/logo.svg";
 import eye from "../../assets/icons/eye.svg";
 import { useNavigate } from "react-router-dom";
+import Checkbox from "../../components/checbox/Checbox";
 // import logoLight from "../../assets/icons/logoLight.svg";
 
 const Login = () => {
@@ -15,6 +16,8 @@ const Login = () => {
     console.log("LOGIN");
     navigate("/app");
   };
+
+  const [activeOptions, setActiveOptions] = useState(false);
   return (
     <div className="pt-[85px] flex items-start justify-center min-h-screen bg-primaryBg text-white">
       <div className="w-full max-w-sm p-4 space-y-6">
@@ -27,6 +30,12 @@ const Login = () => {
           />
         </div>
         <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <div className="text-[22px] font-[700]">Welcome back</div>
+            <p className="text-secondary">
+              Enter your credentials to access your account
+            </p>
+          </div>
           <div className="space-y-2">
             <label className="text-sm font-secondary text-secondary">
               Username
@@ -76,6 +85,10 @@ const Login = () => {
           </button>
         </form>
 
+        <Checkbox
+          isChecked={activeOptions}
+          onClick={() => setActiveOptions(!activeOptions)}
+        />
         <div className="text-center text-sm mt-4">
           <span className="text-secondary">Don't have an Account? </span>
           <a href="#" className="font-tertiary hover:underline text-quaternary">

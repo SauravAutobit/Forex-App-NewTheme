@@ -10,7 +10,7 @@ interface CustomToggleSwitchProps {
   size?: "sm" | "md" | "lg";
 }
 
-const Checkbox: React.FC<CustomToggleSwitchProps> = ({
+const ToggleCheckbox: React.FC<CustomToggleSwitchProps> = ({
   isOn,
   handleToggle,
   //   size = "md",
@@ -97,4 +97,4 @@ const Checkbox: React.FC<CustomToggleSwitchProps> = ({
   );
 };
 
-export default Checkbox;
+export default ToggleCheckbox;

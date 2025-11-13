@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/icons/logo.svg";
+// import logo from "../../assets/icons/logo.svg";
 // import logoLight from "../../assets/icons/logoLight.svg";
 // import lightAiStar from "../../assets/icons/lightAiStar.svg";
 import profileSidebar from "../../assets/icons/profileSidebar.svg";
@@ -88,14 +88,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <div>{/* <Theme /> */}</div>
-        <div
+        {/* <div
           className="flex flex-col items-center justify-between"
           // style={{ padding: "12px 16px 13px 16px" }}
         >
-          {/* <img src={theme === "dark" ? logo : logoLight} alt="logo" /> */}
           <p className="text-[8px]">Powered by</p>
           <img src={logo} alt="logo" />
-        </div>
+        </div> */}
       </motion.aside>
     </>
   );
