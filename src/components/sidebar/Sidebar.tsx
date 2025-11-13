@@ -68,7 +68,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           <div>
-            {Array.from({ length: 10 }).map((_, index) => {
+            {Array.from({ length: 8 }).map((_, index) => {
               return (
                 <button
                   key={index}

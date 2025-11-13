@@ -122,7 +122,7 @@ const Home = () => {
   return (
     <div className="mt-[95px] mb-10">
       <div
-        className="w-full px-5 bg-primaryBg"
+        className="w-full px-5"
         style={{ position: "fixed", top: "56px", left: "0", zIndex: 1000 }}
       >
         <SearchBar />

@@ -1,5 +1,5 @@
 import search from "../../assets/icons/search.svg";
-import microphone from "../../assets/icons/microphone.svg";
+// import microphone from "../../assets/icons/microphone.svg";
 
 const SearchBar = () => {
   return (
@@ -9,7 +9,7 @@ const SearchBar = () => {
         placeholder="Search"
         className="w-full h-full border-none outline-none bg-inherit text-secondary"
       />
-      <img src={microphone} alt="microphone" />
+      {/* <img src={microphone} alt="microphone" /> */}
     </div>
   );
 };
