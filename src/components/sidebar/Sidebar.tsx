@@ -8,6 +8,7 @@ import profileSidebar from "../../assets/icons/profileSidebar.svg";
 // import { useAppSelector } from "../../store/hook";
 import avatar from "../../assets/icons/avatar.jpg";
 import Button from "../button/Button";
+import AccountList from "../accountList/AccountList";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -53,14 +54,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="font-secondary">Olivia Rhye</div>
           </div>
 
-          <div className="flex items-center justify-between py-3 px-4">
+          {/* <div className="flex items-center justify-between py-3 px-4">
             <div>
               <div className="font-secondary">Trading Account</div>
               <div className="text-secondary">12521065</div>
             </div>
 
             <div className="text-quaternary text-xs">Switch Account</div>
-          </div>
+          </div> */}
+          <AccountList />
 
           <div className="flex items-center justify-between pb-2.5">
             <Button

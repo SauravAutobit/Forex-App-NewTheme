@@ -2,15 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
-interface CustomRadioButtonProps {
+interface RadioButtonProps {
   isChecked: boolean;
   onClick: () => void;
 }
 
-const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
-  isChecked,
-  onClick,
-}) => {
+const RadioButton: React.FC<RadioButtonProps> = ({ isChecked, onClick }) => {
   return (
     <motion.div
       className={`rounded-full cursor-pointer flex items-center justify-center transition-colors duration-200 w-[16px] h-[16px]`}
@@ -38,4 +35,4 @@ const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
   );
 };
 
-export default CustomRadioButton;
+export default RadioButton;
