@@ -1,10 +1,9 @@
-// import ClosedCard from "../../components/closedCard/ClosedCard";
 import DateCalender from "../../components/dateCalender/DateCalender";
 import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
-import Logout from "../../components/logout/Logout";
+// import Logout from "../../components/logout/Logout";
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
@@ -85,27 +84,6 @@ const tabsData: TabItem[] = [
           addedCount={0}
           totalCount={0}
         />
-        {/* {Array.from({ length: 10 }).map((_, index) => {
-          return (
-            <ClosedCard
-              key={index}
-              code={`EURUSD ${index}`}
-              bid={1678.256369}
-              ask={1078.256369}
-              high={253659}
-              low={235698}
-              ltp={30}
-              close={23.22}
-              pip={"5asa"}
-              timestamp={"15:23:00"}
-              onClick={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-              // active={active}
-              // favourites={isFlag.favourites?.status}
-            />
-          );
-        })} */}
       </div>
     ),
   },
@@ -141,7 +119,7 @@ const General = () => {
         className="max-w-md mx-auto py-2.5"
       />
       <DateCalender />
-      <Logout />
+      {/* <Logout /> */}
     </div>
   );
 };
