@@ -1,4 +1,5 @@
 // import ClosedCard from "../../components/closedCard/ClosedCard";
+import DateCalender from "../../components/dateCalender/DateCalender";
 import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
@@ -138,6 +139,7 @@ const General = () => {
         // onTabChange={handleTabChange} // New handler for URL update
         className="max-w-md mx-auto py-2.5"
       />
+      <DateCalender />
     </div>
   );
 };
