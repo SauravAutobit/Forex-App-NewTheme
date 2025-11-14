@@ -22,7 +22,9 @@ import Counter from "../../components/counter/Counter";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
-import CheckList from "../../components/checkList/CheckList";
+import CheckList, {
+  type OptionItem,
+} from "../../components/checkList/CheckList";
 
 const Charts = () => {
   const { active, setActive, isDrawerOpen, setIsDrawerOpen } =
@@ -35,7 +37,7 @@ const Charts = () => {
     { label: "One Touch Trading", key: "oneTouchTrading" },
   ];
 
-  const chartToolOptions = [
+  const chartOptions = [
     {
       label: "Bid price",
       key: "bidPrice",
@@ -50,22 +52,15 @@ const Charts = () => {
       key: "pendingOrders",
     },
   ];
+  const makeInitialState = (list: OptionItem[]) =>
+    Object.fromEntries(list.map((item) => [item.key, false]));
 
-  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
-    () =>
-      tradingOptions.reduce(
-        (acc, curr) => ({
-          ...acc,
-          [curr.key]: false,
-        }),
-        {}
-      )
+  const [activeOptions, setActiveOptions] = useState(
+    makeInitialState(tradingOptions)
   );
 
-  const [chartToolsOptions, setChartToolsOptions] = useState<
-    Record<string, boolean>
-  >(() =>
-    chartToolOptions.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {})
+  const [chartToolsOptions, setChartToolsOptions] = useState(
+    makeInitialState(chartOptions)
   );
 
   // //   const allActiveQuotes = useSelector(
@@ -329,7 +324,7 @@ const Charts = () => {
               <CheckList
                 activeOptions={chartToolsOptions}
                 setActiveOptions={setChartToolsOptions}
-                options={chartToolOptions}
+                options={chartOptions}
               />
             </div>
           </div>
