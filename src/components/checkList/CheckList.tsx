@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 import tooltip from "../../assets/icons/tooltip.svg";
 import Checkbox from "../toggleCheckbox/ToggleCheckbox";
 import Counter from "../counter/Counter";
@@ -11,30 +11,32 @@ export interface OptionItem {
 
 interface CheckListProps {
   options: OptionItem[];
+  activeOptions: Record<string, boolean>;
+  setActiveOptions: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }
 
-const CheckList = ({ options }: CheckListProps) => {
+const CheckList = ({
+  options,
+  activeOptions,
+  setActiveOptions,
+}: CheckListProps) => {
   //   const [isStopLossActive, setIsStopLossActive] = useState(true);
-  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
-    () =>
-      options.reduce(
-        (acc, curr) => ({
-          ...acc,
-          [curr.key]: false,
-        }),
-        {}
-      )
-  );
+  // const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+  //   () =>
+  //     options.reduce(
+  //       (acc, curr) => ({
+  //         ...acc,
+  //         [curr.key]: false,
+  //       }),
+  //       {}
+  //     )
+  // );
 
   const { pathname } = useLocation();
 
   const notChartPage = pathname !== "/app/charts";
-
-  // const options: OptionItem[] = [
-  //   { label: "Trailing stop", key: "trailingStop" },
-  //   { label: "Break even", key: "breakEven" },
-  //   { label: "Order expiration", key: "orderExpiration" },
-  // ];
 
   // Toggle the specific option on/off
   const handleToggle = (key: string) => {

@@ -7,6 +7,7 @@ import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import CheckList from "../../components/checkList/CheckList";
 import Counter from "../../components/counter/Counter";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface TabItem {
   id: string;
@@ -15,6 +16,29 @@ interface TabItem {
 }
 
 const MarketEdit = () => {
+  const editOptions = [
+    {
+      label: "Trailing stop",
+      key: "trailingStop",
+    },
+    { label: "Break even", key: "breakEven" },
+    {
+      label: "Order expiration",
+      key: "orderExpiration",
+    },
+  ];
+
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+    () =>
+      editOptions.reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr.key]: false,
+        }),
+        {}
+      )
+  );
+
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
       { label: "Open  time", value: "2025/10/17  14:12:33" },
@@ -84,17 +108,9 @@ const MarketEdit = () => {
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
-                options={[
-                  {
-                    label: "Trailing stop",
-                    key: "trailingStop",
-                  },
-                  { label: "Break even", key: "breakEven" },
-                  {
-                    label: "Order expiration",
-                    key: "orderExpiration",
-                  },
-                ]}
+                activeOptions={activeOptions}
+                setActiveOptions={setActiveOptions}
+                options={editOptions}
               />
             </div>
             <div className="flex items-center justify-between mt-3 mb-2.5">

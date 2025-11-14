@@ -1048,9 +1048,9 @@ export default function ChartComponent({
               />
 
               <TimeframeDropdown
-                timeframeGroups={timeframeGroups} // ✅ Passed data
-                selectedTimeframe={selectedTimeframe} // ✅ Passed state
-                onSelect={onTimeframeChange} // ✅ Passed handler
+                timeframeGroups={timeframeGroups} // Passed data
+                selectedTimeframe={selectedTimeframe} // Passed state
+                onSelect={onTimeframeChange} // Passed handler
               />
               <InstrumentDropdown
                 instruments={instruments ?? []}

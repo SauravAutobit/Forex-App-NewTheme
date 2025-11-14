@@ -2,6 +2,7 @@ import Counter from "../../components/counter/Counter";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import CheckList from "../../components/checkList/CheckList";
 import Button from "../../components/button/Button";
+import { useState } from "react";
 
 interface TabItem {
   id: string;
@@ -11,6 +12,30 @@ interface TabItem {
 
 const NewOrder = () => {
   // const value = <span>4.563</span>;
+
+  const editOptions = [
+    {
+      label: "Trailing stop",
+      key: "trailingStop",
+    },
+    { label: "Break even", key: "breakEven" },
+    {
+      label: "Order expiration",
+      key: "orderExpiration",
+    },
+  ];
+
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+    () =>
+      editOptions.reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr.key]: false,
+        }),
+        {}
+      )
+  );
+
   const tabsData: TabItem[] = [
     {
       id: "market order",
@@ -27,17 +52,9 @@ const NewOrder = () => {
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
-                options={[
-                  {
-                    label: "Trailing stop",
-                    key: "trailingStop",
-                  },
-                  { label: "Break even", key: "breakEven" },
-                  {
-                    label: "Order expiration",
-                    key: "orderExpiration",
-                  },
-                ]}
+                activeOptions={activeOptions}
+                setActiveOptions={setActiveOptions}
+                options={editOptions}
               />
             </div>
             <div className="mb-9">
@@ -99,17 +116,9 @@ const NewOrder = () => {
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
-                options={[
-                  {
-                    label: "Trailing stop",
-                    key: "trailingStop",
-                  },
-                  { label: "Break even", key: "breakEven" },
-                  {
-                    label: "Order expiration",
-                    key: "orderExpiration",
-                  },
-                ]}
+                activeOptions={activeOptions}
+                setActiveOptions={setActiveOptions}
+                options={editOptions}
               />
             </div>
             <div className="mb-9">
@@ -156,17 +165,9 @@ const NewOrder = () => {
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
-                options={[
-                  {
-                    label: "Trailing stop",
-                    key: "trailingStop",
-                  },
-                  { label: "Break even", key: "breakEven" },
-                  {
-                    label: "Order expiration",
-                    key: "orderExpiration",
-                  },
-                ]}
+                activeOptions={activeOptions}
+                setActiveOptions={setActiveOptions}
+                options={editOptions}
               />
             </div>
             <div className="mb-9">

@@ -53,7 +53,7 @@ const Overview = () => {
 
         <div
           className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-          style={{ position: "fixed", bottom: "65px", left: 0, zIndex: 1000 }}
+          style={{ position: "fixed", bottom: "65px", left: 0 }}
         >
           <Button
             label={"Sell"}

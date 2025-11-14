@@ -17,10 +17,10 @@ const Info = () => {
     ],
   };
   return (
-    <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
+    <div className="h-[calc(100vh-250px)] mt-5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
-          <div className="text-[26px] font-secondary mt-2.5">Gold on Spot</div>
+          <div className="text-[26px] font-secondary">Gold on Spot</div>
           <p className="text-secondary">
             Figma ipsum component variant main layer. Frame comment editor text
             opacity fill library italic star. Star flatten flatten reesizing
@@ -35,7 +35,7 @@ const Info = () => {
 
         <div
           className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-          style={{ position: "fixed", bottom: "65px", left: 0, zIndex: 1000 }}
+          style={{ position: "fixed", bottom: "65px", left: 0 }}
         >
           <Button
             label={"Sell"}

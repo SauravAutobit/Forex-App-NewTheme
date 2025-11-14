@@ -4,7 +4,7 @@ import Counter from "../counter/Counter";
 
 const Calender = () => {
   return (
-    <div className="h-[calc(100vh-260px)] px-5 mt-[50px] overflow-auto">
+    <div className="h-[calc(100vh-260px)] px-5 mt-2.5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="">
           <div>
@@ -202,11 +202,10 @@ const Calender = () => {
               </div>
             </div>
           </div>
-        
         </div>
         <div
           className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-          style={{ position: "fixed", bottom: "65px", left: 0, zIndex: 1000 }}
+          style={{ position: "fixed", bottom: "65px", left: 0 }}
         >
           <Button
             label={"Sell"}

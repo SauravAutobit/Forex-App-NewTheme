@@ -31,6 +31,42 @@ const Charts = () => {
   // const [active, setActive] = useState("Chart");
   // //   // Use the typed dispatch hook
   const dispatch = useDispatch<AppDispatch>();
+  const tradingOptions = [
+    { label: "One Touch Trading", key: "oneTouchTrading" },
+  ];
+
+  const chartToolOptions = [
+    {
+      label: "Bid price",
+      key: "bidPrice",
+    },
+    { label: "Ask price", key: "askPrice" },
+    {
+      label: "Open orders",
+      key: "openOrders",
+    },
+    {
+      label: "Pending orders",
+      key: "pendingOrders",
+    },
+  ];
+
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+    () =>
+      tradingOptions.reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr.key]: false,
+        }),
+        {}
+      )
+  );
+
+  const [chartToolsOptions, setChartToolsOptions] = useState<
+    Record<string, boolean>
+  >(() =>
+    chartToolOptions.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {})
+  );
 
   // //   const allActiveQuotes = useSelector(
   // //     (state: RootState) => state.quotes.quotes
@@ -89,9 +125,20 @@ const Charts = () => {
   }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
 
   // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
-  const height = "calc(100vh - 160px)";
+  const height = `calc(100vh - ${
+    activeOptions.oneTouchTrading === true ? "250px" : "160px"
+  })`;
+  // 250 160
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
+
+  console.log("active options", activeOptions);
+  // useEffect(() => {
+  //   const height = `calc(100vh - ${
+  //     activeOptions.oneTouchTrading === true ? "250px" : "160px"
+  //   })`;
+  // }, [activeOptions]);
+
   return (
     <div className="relative">
       <MarketsNavbar
@@ -102,16 +149,50 @@ const Charts = () => {
         paddingRight="20px"
       />
       {active === "Chart" && (
-        <ChartComponent
-          height={height}
-          instruments={instrumentsForDropdown}
-          selectedInstrumentId={selectedInstrumentId}
-          selectedTimeframe={selectedTimeframe} // ✅ Passing state
-          onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
-          timeframeGroups={mockTimeframes} // ✅ Passing the mock data
-          stopLossPrice={null}
-          targetPrice={null}
-        />
+        <>
+          <ChartComponent
+            height={height}
+            instruments={instrumentsForDropdown}
+            selectedInstrumentId={selectedInstrumentId}
+            selectedTimeframe={selectedTimeframe} // ✅ Passing state
+            onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
+            timeframeGroups={mockTimeframes} // ✅ Passing the mock data
+            stopLossPrice={null}
+            targetPrice={null}
+          />
+
+          {activeOptions.oneTouchTrading === true && (
+            <div
+              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
+              style={{
+                position: "fixed",
+                bottom: "65px",
+                left: 0,
+              }}
+            >
+              <Button
+                label={"Sell"}
+                width="82px"
+                height="44px"
+                bgColor="#FE0000"
+                textColor="#FAFAFA"
+                fontWeight={600}
+                textShadow="0px 0px 10px 0px #950101"
+              />
+              <Counter label="Take Profit" />
+
+              <Button
+                label={"Buy"}
+                width="82px"
+                height="44px"
+                bgColor="#02F511"
+                textShadow="0px 0px 10px 0px #008508"
+                textColor="#FAFAFA"
+                fontWeight={600}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {active === "Overview" && <Overview />}
@@ -121,7 +202,7 @@ const Charts = () => {
       {active === "Info" && <Info />}
 
       {active === "Positions" && (
-        <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
+        <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {Array.from({ length: 10 }).map((_, index) => {
@@ -141,7 +222,6 @@ const Charts = () => {
                 position: "fixed",
                 bottom: "65px",
                 left: 0,
-                zIndex: 1000,
               }}
             >
               <Button
@@ -170,7 +250,7 @@ const Charts = () => {
       )}
 
       {active === "Orders" && (
-        <div className="h-[calc(100vh-250px)] mt-[40px] overflow-auto">
+        <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {Array.from({ length: 10 }).map((_, index) => {
@@ -190,7 +270,6 @@ const Charts = () => {
                 position: "fixed",
                 bottom: "65px",
                 left: 0,
-                zIndex: 1000,
               }}
             >
               <Button
@@ -233,33 +312,24 @@ const Charts = () => {
             <div className="flex flex-col gap-[20px] border-b border-primary">
               <div>Trading flow</div>
               <CheckList
-                options={[
-                  {
-                    label: "One Touch Trading",
-                    key: "oneTouchTrading",
-                  },
-                ]}
+                activeOptions={activeOptions}
+                setActiveOptions={setActiveOptions}
+                // options={[
+                //   {
+                //     label: "One Touch Trading",
+                //     key: "oneTouchTrading",
+                //   },
+                // ]}
+                options={tradingOptions}
               />
             </div>
 
             <div className="flex flex-col gap-[20px] mt-5">
               <div>Select the trading tools you want to view</div>
               <CheckList
-                options={[
-                  {
-                    label: "Bid price",
-                    key: "bidPrice",
-                  },
-                  { label: "Ask price", key: "askPrice" },
-                  {
-                    label: "Open orders",
-                    key: "openOrders",
-                  },
-                  {
-                    label: "Pending orders",
-                    key: "pendingOrders",
-                  },
-                ]}
+                activeOptions={chartToolsOptions}
+                setActiveOptions={setChartToolsOptions}
+                options={chartToolOptions}
               />
             </div>
           </div>
