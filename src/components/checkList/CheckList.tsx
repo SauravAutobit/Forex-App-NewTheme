@@ -79,29 +79,3 @@ const CheckList = ({
 };
 
 export default CheckList;
-
-//  <div>
-//       {options.map(({ label, key }) => (
-//         <div key={key} className="first:mt-2.5 mb-5 last:mb-0">
-//           {/* Option + Checkbox Row */}
-//           <div className="flex items-center justify-between mb-2.5">
-//             <div className="flex items-center gap-2.5 text-secondary">
-//               {label}
-//               <img src={tooltip} alt="tooltip" />
-//             </div>
-//             <Checkbox
-//               isOn={activeOptions[key]}
-//               handleToggle={() => handleToggle(key)}
-//               size="md"
-//             />
-//           </div>
-
-//           {/* Conditionally show counter if active */}
-//           {activeOptions[key] && (
-//             <div className="ml-6">
-//               <Counter />
-//             </div>
-//           )}
-//         </div>
-//       ))}
-//     </div>
