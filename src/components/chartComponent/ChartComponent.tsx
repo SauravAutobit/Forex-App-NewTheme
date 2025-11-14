@@ -1040,7 +1040,7 @@ export default function ChartComponent({
       <div className="flex flex-col relative" style={{ height }}>
         {pathname === "/app/charts" && (
           <>
-            <div className="absolute top-0 left-0 right-0 z-10 px-5 flex justify-between mt-2.5">
+            <div className="absolute top-0 left-0 right-0 z-30 px-5 flex justify-between mt-2.5">
               <InstrumentDropdown
                 instruments={instruments ?? []}
                 selectedInstrumentId={selectedInstrumentId!}
@@ -1060,7 +1060,7 @@ export default function ChartComponent({
             </div>
 
             <div
-              className="w-[40px] h-[40px] bg-primaryBg border border-primary rounded-10 absolute top-[70px] left-5 right-0 z-10 flex items-center justify-center"
+              className="w-[40px] h-[40px] bg-primaryBg border border-primary rounded-10 absolute top-[90px] left-5 right-0 z-10 flex items-center justify-center"
               onClick={() =>
                 setIsDrawerOpen((prev) => ({
                   ...prev,
