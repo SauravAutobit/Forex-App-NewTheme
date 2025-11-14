@@ -25,6 +25,7 @@ import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 import CheckList, {
   type OptionItem,
 } from "../../components/checkList/CheckList";
+import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
 
 const Charts = () => {
   const { active, setActive, isDrawerOpen, setIsDrawerOpen } =
@@ -120,19 +121,14 @@ const Charts = () => {
   }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
 
   // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
-  const height = `calc(100vh - ${
-    activeOptions.oneTouchTrading === true ? "250px" : "160px"
-  })`;
+  const height = `calc(100vh - 160px)`;
   // 250 160
+
+  // const heightWithButtons = "calc(100vh - 250px)";
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
 
   console.log("active options", activeOptions);
-  // useEffect(() => {
-  //   const height = `calc(100vh - ${
-  //     activeOptions.oneTouchTrading === true ? "250px" : "160px"
-  //   })`;
-  // }, [activeOptions]);
 
   return (
     <div className="relative">
@@ -145,47 +141,21 @@ const Charts = () => {
       />
       {active === "Chart" && (
         <>
-          <ChartComponent
-            height={height}
-            instruments={instrumentsForDropdown}
-            selectedInstrumentId={selectedInstrumentId}
-            selectedTimeframe={selectedTimeframe} // ✅ Passing state
-            onTimeframeChange={setSelectedTimeframe} // ✅ Passing setter
-            timeframeGroups={mockTimeframes} // ✅ Passing the mock data
-            stopLossPrice={null}
-            targetPrice={null}
-          />
-
-          {activeOptions.oneTouchTrading === true && (
-            <div
-              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-              style={{
-                position: "fixed",
-                bottom: "65px",
-                left: 0,
-              }}
-            >
-              <Button
-                label={"Sell"}
-                width="82px"
-                height="44px"
-                bgColor="#FE0000"
-                textColor="#FAFAFA"
-                fontWeight={600}
-                textShadow="0px 0px 10px 0px #950101"
-              />
-              <Counter label="Take Profit" />
-
-              <Button
-                label={"Buy"}
-                width="82px"
-                height="44px"
-                bgColor="#02F511"
-                textShadow="0px 0px 10px 0px #008508"
-                textColor="#FAFAFA"
-                fontWeight={600}
-              />
-            </div>
+          {!activeOptions.oneTouchTrading ? (
+            <ChartComponent
+              height={height}
+              instruments={instrumentsForDropdown}
+              selectedInstrumentId={selectedInstrumentId}
+              selectedTimeframe={selectedTimeframe} //  Passing state
+              onTimeframeChange={setSelectedTimeframe} //  Passing setter
+              timeframeGroups={mockTimeframes} //  Passing the mock data
+              stopLossPrice={null}
+              targetPrice={null}
+            />
+          ) : (
+            <>
+              <ChartsWithButtons />
+            </>
           )}
         </>
       )}
