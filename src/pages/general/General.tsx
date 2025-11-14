@@ -4,6 +4,7 @@ import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
+import Logout from "../../components/logout/Logout";
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
@@ -140,6 +141,7 @@ const General = () => {
         className="max-w-md mx-auto py-2.5"
       />
       <DateCalender />
+      <Logout />
     </div>
   );
 };

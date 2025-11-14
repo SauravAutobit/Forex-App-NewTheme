@@ -1,3 +1,4 @@
+import "./DateCalender.css";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -36,8 +37,9 @@ const DateCalender = () => {
         >
           Last 14 days
         </span>
-      </div>{" "}
+      </div>
       <DatePicker
+        className="calender"
         selected={selectedDate}
         onChange={(date: Date | null) => {
           if (!date) return;
