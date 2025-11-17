@@ -26,7 +26,9 @@
 //   const { messages, status } = useAppSelector(
 //     (state: RootState) => state.aiChat
 //   );
-//   const theme = useAppSelector((state: RootState) => state.theme.mode);
+//   //   const theme = useAppSelector((state: RootState) => state.theme.mode);
+
+//   const theme = "dark";
 //   const dispatch = useAppDispatch();
 
 //   const [typingText, setTypingText] = useState("");
