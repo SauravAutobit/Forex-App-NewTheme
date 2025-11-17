@@ -4,39 +4,41 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "../button/Button";
 
-const DateCalender = () => {
+interface DateCalenderProps {
+  activeTab: string;
+}
+
+const DateCalender = ({ activeTab }: DateCalenderProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   // const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("Last 1 days");
+  const [selectedTab, setSelectedTab] = useState("");
+
+  const dateFilters =
+    activeTab === "date"
+      ? ["Last 1 day", "Last 7 days", "Last 14 days"]
+      : ["Last 1 month", "Last 3 months"];
+
   return (
-    <div className="w-[325px] h-[429.83px] bg-[#181818] rounded-20 p-5 flex flex-col items-center">
-      <div className="w-full flex items-center justify-between mb-[40px]">
-        <span
-          className={`flex items-center justify-center rounded-[4px] w-[89.35px] h-[28.96px] font-tertiary text-sm ${
-            selectedTab === "Last 1 days" ? "bg-[#AEED09] text-[#2D2D2D]" : ""
-          }`}
-          onClick={() => setSelectedTab("Last 1 days")}
-        >
-          Last 1 days
-        </span>
-
-        <span
-          className={`flex items-center justify-center rounded-[4px] w-[89.35px] h-[28.96px] font-tertiary text-sm ${
-            selectedTab === "Last 7 days" ? "bg-[#AEED09] text-[#2D2D2D]" : ""
-          }`}
-          onClick={() => setSelectedTab("Last 7 days")}
-        >
-          Last 7 days
-        </span>
-
-        <span
-          className={`flex items-center justify-center rounded-[4px] w-[89.35px] h-[28.96px] font-tertiary text-sm ${
-            selectedTab === "Last 14 days" ? "bg-[#AEED09] text-[#2D2D2D]" : ""
-          }`}
-          onClick={() => setSelectedTab("Last 14 days")}
-        >
-          Last 14 days
-        </span>
+    // h-[429.83px]
+    <div className="w-[325px] bg-[#181818] rounded-20 p-5 flex flex-col items-center">
+      <div
+        className={`${
+          activeTab === "date" ? "w-full" : "gap-1"
+        } flex items-center justify-between mb-[40px]`}
+      >
+        {dateFilters.map((label) => (
+          <span
+            key={label}
+            className={`flex items-center justify-center rounded-[4px] ${
+              activeTab === "date" ? "w-[89.35px]" : "w-[116.2px]"
+            } h-[28.96px] font-tertiary text-sm ${
+              selectedTab === label ? "bg-[#AEED09] text-[#2D2D2D]" : ""
+            }`}
+            onClick={() => setSelectedTab(label)}
+          >
+            {label}
+          </span>
+        ))}
       </div>
       <DatePicker
         className="calender"

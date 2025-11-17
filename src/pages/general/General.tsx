@@ -1,9 +1,10 @@
+import { useState } from "react";
 import DateCalender from "../../components/dateCalender/DateCalender";
 import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
-// import Logout from "../../components/logout/Logout";
+import Logout from "../../components/logout/Logout";
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
@@ -91,6 +92,7 @@ const tabsData: TabItem[] = [
 
 const General = () => {
   // const activeTabId = searchParams.get("tab") || "position"; // Default to 'position'
+  const [activeTab, setActiveTab] = useState("date");
 
   const profitBalanceProps: ProfitBalanceProps = {
     showProfitLoss: true,
@@ -117,9 +119,10 @@ const General = () => {
         // defaultActiveTab={activeTabId} // Use state from URL
         // onTabChange={handleTabChange} // New handler for URL update
         className="max-w-md mx-auto py-2.5"
+        onActiveTabChange={setActiveTab}
       />
-      <DateCalender />
-      {/* <Logout /> */}
+      <DateCalender activeTab={activeTab} />
+      <Logout />
     </div>
   );
 };

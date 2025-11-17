@@ -14,6 +14,7 @@ interface MobileTabsProps {
   tabs: TabItem[];
   defaultActiveTab?: string;
   onTabChange?: (tabId: string) => void;
+  onActiveTabChange?: (tabId: string) => void; // 👈 NEW
   className?: string;
   activeColor?: string; // Text color for active tab (e.g., 'text-black')
   inactiveColor?: string; // Text color for inactive tabs (e.g., 'text-gray-400')
@@ -46,6 +47,7 @@ const NavigationTabs = ({
   tabs,
   defaultActiveTab,
   onTabChange,
+  onActiveTabChange,
   className = "",
   activeColor = "text-tertiary", // Changed default to black for better contrast on neon background
   inactiveColor = "text-fifth",
@@ -72,15 +74,29 @@ const NavigationTabs = ({
   //   onTabChange?.(tabId);
   // };
 
+  // const handleTabClick = (tabId: string) => {
+  //   const newIndex = tabs.findIndex((tab) => tab.id === tabId);
+  //   if (newIndex !== -1) {
+  //     // Calculate direction: 1 for forward (right), -1 for backward (left)
+  //     const newDirection = newIndex > previousIndex.current ? 1 : -1;
+  //     setDirection(newDirection);
+  //     previousIndex.current = newIndex; // Update previous index
+  //     setActiveTab(tabId);
+  //     onTabChange?.(tabId);
+  //   }
+  // };
+
   const handleTabClick = (tabId: string) => {
     const newIndex = tabs.findIndex((tab) => tab.id === tabId);
+
     if (newIndex !== -1) {
-      // Calculate direction: 1 for forward (right), -1 for backward (left)
       const newDirection = newIndex > previousIndex.current ? 1 : -1;
+
       setDirection(newDirection);
-      previousIndex.current = newIndex; // Update previous index
+      previousIndex.current = newIndex;
       setActiveTab(tabId);
       onTabChange?.(tabId);
+      onActiveTabChange?.(tabId);
     }
   };
 
