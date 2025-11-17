@@ -86,7 +86,6 @@ const Home = () => {
     }
   }, [apiStatus, dispatch, pathname]);
 
-
   const handleSortClick = (type: "alphabetically" | "price") => {
     setActiveFilter((prev) => {
       const currentState = prev.sort[type];
@@ -205,7 +204,7 @@ const Home = () => {
                     }
                     className={`w-full text-left text-secondary ${
                       activeFilter.filterOption === item.label
-                        ? "text-[#0C0C0C]"
+                        ? "text-[black]"
                         : ""
                     }`}
                   >
