@@ -1,24 +1,24 @@
-// import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { AppRoutes } from "./utils/AppRoutes";
-// import { useSelector } from "react-redux";
-// import type { RootState } from "./store/store";
+import { useSelector } from "react-redux";
+import type { RootState } from "./store/store";
 // import Splash from "./pages/splash/Splash"; // ✅ Import Splash
 
 export default function App() {
-  // const theme = useSelector((state: RootState) => state.theme.mode);
+  const theme = useSelector((state: RootState) => state.theme.mode);
   // const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const root = document.documentElement; // <html> tag
+  useEffect(() => {
+    const root = document.documentElement; // <html> tag
 
-  //   root.setAttribute("data-theme", theme);
-  //   if (theme === "light") {
-  //     root.classList.remove("dark");
-  //   } else {
-  //     root.classList.add("dark");
-  //   }
-  // }, [theme]);
+    root.setAttribute("data-theme", theme);
+    if (theme === "light") {
+      root.classList.remove("dark");
+    } else {
+      root.classList.add("dark");
+    }
+  }, [theme]);
 
   // useEffect(() => {
   //   // Simulate loading time

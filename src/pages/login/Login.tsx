@@ -8,11 +8,15 @@ import google from "../../assets/icons/google.svg";
 import apple from "../../assets/icons/apple.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import NeonGlowBackground from "../../components/neonGlowBackground/NeonGlowBackground";
+import { useAppSelector } from "../../store/hook";
 
 const Login = () => {
   const [email, setEmail] = useState("asdasd@gmail.com");
   const [password, setPassword] = useState("asdasd");
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
+  console.log("THEME LOGIN", theme);
   const navigate = useNavigate();
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
