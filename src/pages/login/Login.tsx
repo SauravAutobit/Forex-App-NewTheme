@@ -17,7 +17,6 @@ const Login = () => {
 
   const theme = useAppSelector((state) => state.theme.mode);
 
-  console.log("THEME LOGIN", theme);
   const navigate = useNavigate();
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

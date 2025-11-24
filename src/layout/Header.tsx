@@ -8,6 +8,9 @@ import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../assets/icons/favrouiteTick.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import filter from "../assets/icons/filter.svg";
+import menuLight from "../assets/icons/menuLight.svg";
+import { useAppSelector } from "../store/hook";
+import backLight from "../assets/icons/backLight.svg";
 
 type HeaderProps = {
   isFlag: IsFlagType;
@@ -211,6 +214,8 @@ export default function Header({
     );
   };
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">
       {/* Back button logic: Only show the back button (to exit selection mode) 
@@ -238,7 +243,7 @@ export default function Header({
             navigate("home");
           }}
         >
-          <img src={back} alt="back" />
+          <img src={theme === "dark" ? back : backLight} alt="back" />
         </button>
       ) : (
         <button
@@ -247,7 +252,7 @@ export default function Header({
             document.dispatchEvent(new CustomEvent("openSidebar"));
           }}
         >
-          <img src={menu} alt="menu" />
+          <img src={theme === "dark" ? menu : menuLight} alt="menu" />
         </button>
       )}
       {/* Render the title and actions based on the current path/state */}
