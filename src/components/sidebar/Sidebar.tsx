@@ -9,6 +9,8 @@ import Theme from "../theme/Theme";
 import avatar from "../../assets/icons/avatar.jpg";
 import Button from "../button/Button";
 import AccountList from "../accountList/AccountList";
+import { useAppSelector } from "../../store/hook";
+import aiLight from "../../assets/icons/aiLight.svg";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,7 +20,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
-  //   const theme = useAppSelector((state) => state.theme.mode);
+  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <>
@@ -51,7 +53,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 right: "24px",
               }}
             ></div>
-            <div className="font-secondary">Olivia Rhye</div>
+            <div className="font-secondary text-primary">Olivia Rhye</div>
           </div>
 
           <AccountList />
@@ -59,12 +61,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <div className="flex items-center justify-between pb-2.5">
             <Button
               label="Trade"
-              border="1px solid #AEED09"
+              border={theme === "dark" ? "1px solid #AEED09" : ""}
               bgColor="inherit"
-              textColor="#AEED09"
+              textColor={theme === "dark" ? "#AEED09" : "#2D2D2D"}
+              boxShadow={theme === "dark" ? "" : "0px 2px 4px 0px #00000040"}
             />
 
-            <Button label="Deposit" />
+            <Button label="Deposit" textColor="#2D2D2D" />
           </div>
 
           <div>
@@ -73,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <div>
             {Array.from({ length: 8 }).map((_, index) => {
               return (
-                <button 
+                <button
                   key={index}
                   onClick={() => {
                     onClose();
@@ -82,7 +85,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   className="w-full text-left py-2.5 px-4 rounded hover:bg-gray-800 flex items-center gap-3 text-primary"
                 >
                   {/* <img src={theme === "dark" ? aiStar : lightAiStar} alt="aiStar" /> */}
-                  <img src={profileSidebar} alt="profileSidebar" />
+                  <img
+                    src={theme === "dark" ? profileSidebar : aiLight}
+                    alt="profileSidebar"
+                  />
                   View profile
                 </button>
               );

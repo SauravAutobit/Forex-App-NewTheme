@@ -15,6 +15,7 @@ interface ButtonProps {
   fontWeight?: number;
   fontSize?: string;
   textShadow?: string;
+  boxShadow?: string;
 }
 
 const Button = ({
@@ -31,6 +32,7 @@ const Button = ({
   fontWeight = 400,
   fontSize = "14px",
   textShadow,
+  boxShadow,
 }: ButtonProps) => {
   const buttonStyles = {
     width,
@@ -42,6 +44,7 @@ const Button = ({
     fontWeight,
     fontSize,
     textShadow,
+    boxShadow,
   };
 
   if (btnRoute) {

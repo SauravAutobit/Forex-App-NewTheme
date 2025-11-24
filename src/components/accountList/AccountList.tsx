@@ -1,5 +1,6 @@
 import { useState } from "react";
 import RadioButton from "../radioButton/RadioButton";
+import { useAppSelector } from "../../store/hook";
 
 const AccountList = () => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
@@ -31,6 +32,8 @@ const AccountList = () => {
       account: "12521065",
     },
   ];
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <div className="flex flex-col items-center text-primary">
       <div className="w-full cursor-pointer" onClick={handleCardClick}>
@@ -40,7 +43,13 @@ const AccountList = () => {
             <div className="text-secondary">12521065</div>
           </div>
 
-          <div className="text-quaternary text-xs">Switch Account</div>
+          <div
+            className={`${
+              theme === "dark" ? "text-quaternary" : "text-primary"
+            } text-xs`}
+          >
+            Switch Account
+          </div>
         </div>
       </div>
 
