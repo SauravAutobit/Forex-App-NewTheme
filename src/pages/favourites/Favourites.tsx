@@ -7,6 +7,8 @@ import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 import { SwipeableList, SwipeableListItem } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
+import noFavouritesLight from "../../assets/icons/noFavouritesLight.svg";
+import { useAppSelector } from "../../store/hook";
 
 interface FavoriteItemType
   extends Omit<CardProps, "onClick" | "active" | "favourites"> {
@@ -23,15 +25,22 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
   const { isFlag } = useOutletContext<OutletContextType>();
   const [active] = useState("Favorites");
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   if (items.length === 0) {
     return (
       <div className="flex flex-col gap-2.5 items-center justify-center pt-[156px]">
-        <img src={noFavourites} alt="noFavourites" />
-        <p>Add your Favourite Instrument here.</p>
+        <img
+          src={theme === "dark" ? noFavourites : noFavouritesLight}
+          alt="noFavourites"
+        />
+        <p className="text-primary">Add your Favourite Instrument here.</p>
         <Button
+          textColor="#2D2D2D"
           label="Add Instrument"
           width="129px"
           height="41px"
+          boxShadow="0px 2px 4px 0px #00000040"
           onClick={addFavourite}
         />
       </div>

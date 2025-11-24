@@ -42,6 +42,8 @@ export default function Header({
   const navigate = useNavigate();
   const [star, setStar] = useState(false);
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   // Function to handle the "Confirm" click and exit selection mode
   const handleConfirm = () => {
     // 🚨 Add logic here to save selected items if needed
@@ -209,12 +211,16 @@ export default function Header({
         </div>
 
         {/* Render actions */}
-        <div className="flex gap-4 text-quaternary">{actions}</div>
+        <div
+          className={`flex gap-4 ${
+            theme === "dark" ? "text-[#AEED09]" : "text-[#2D2D2D]"
+          }`}
+        >
+          {actions}
+        </div>
       </>
     );
   };
-
-  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">

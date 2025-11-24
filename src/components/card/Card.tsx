@@ -3,6 +3,9 @@ import cardIcon from "../../assets/icons/cardIcon.svg";
 import notFavouriteTick from "../../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../../assets/icons/favrouiteTick.svg";
 import { formatPrice, usePrevious } from "../../utils/helperFunctions";
+import notFavouriteTickLight from "../../assets/icons/notFavrouiteTickLight.svg";
+import favouriteTickLight from "../../assets/icons/favrouiteTickLight.svg";
+import { useAppSelector } from "../../store/hook";
 
 // Interface for the EURUSDCard's props, based on the QuoteData structure
 // ✅ CHANGED: Props are now clear and match the data
@@ -44,6 +47,7 @@ const Card = ({
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
 
   const [star, setStar] = useState(false);
+  const theme = useAppSelector((state) => state.theme.mode);
 
   // ✅ Get the previous values
   const prevAsk = usePrevious(ask);
@@ -83,6 +87,14 @@ const Card = ({
   const changeSign = change >= 0 ? "+" : "";
   // console.log("change", change, percentageChange, changeColor, changeSign);
 
+  const iconSrc =
+    theme === "light"
+      ? star
+        ? favouriteTickLight
+        : notFavouriteTickLight
+      : star
+      ? favouriteTick
+      : notFavouriteTick;
   return (
     <div
       className="text-primary px-5 py-2.5 border-b border-primary"
@@ -172,16 +184,14 @@ const Card = ({
         </div>
         {active !== "Favorites" && favourites === true ? (
           <img
-            src={star === false ? notFavouriteTick : favouriteTick}
-            alt="notFavouriteTick"
+            src={iconSrc}
+            alt="favouriteStar"
             onClick={(e) => {
-              e.stopPropagation(); // ⭐️ Stop click event from triggering the parent card's onClick/swipe
+              e.stopPropagation(); // Stop click event from triggering the parent card's onClick/swipe
               setStar(!star);
             }}
           />
-        ) : (
-          ""
-        )}
+        ) : null}
       </div>
     </div>
   );
