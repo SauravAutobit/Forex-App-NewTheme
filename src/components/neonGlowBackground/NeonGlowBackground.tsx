@@ -1,9 +1,12 @@
 import React from "react";
+import { useAppSelector } from "../../store/hook";
 
 const NeonGlowBackground: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const mainBgColor = "#0c0c0c";
+  const theme = useAppSelector((state) => state.theme.mode);
+
+  const mainBgColor = theme === "dark" ? "#0c0c0c" : "#F5F5F5";
   //   const neonColor = "#7cfc00"; // Neon Green
 
   const neonColor = "#AEED0980";

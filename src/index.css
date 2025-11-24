@@ -86,11 +86,12 @@
   --btn-common: #f9f9f9;
 
   /* text color */
-  --primary-color: #353535;
-  --secondary-color: #636363;
+  --primary-color: #2d2d2d;
+  --secondary-color: #878787;
 
   --tertiary-color: #6184d8;
-  --quaternary-color: #484b6a;
+  /* --quaternary-color: #484b6a; */
+  --quaternary-color: #aeed09;
   --disabled-bottom: #00000033;
 
   /* profit & loss */

@@ -9,6 +9,7 @@ import apple from "../../assets/icons/apple.svg";
 import facebook from "../../assets/icons/facebook.svg";
 import NeonGlowBackground from "../../components/neonGlowBackground/NeonGlowBackground";
 import { useAppSelector } from "../../store/hook";
+import appleLight from "../../assets/icons/appleLight.svg";
 
 const Login = () => {
   const [email, setEmail] = useState("asdasd@gmail.com");
@@ -40,15 +41,15 @@ const Login = () => {
           </div>
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <div className="text-[22px] font-[700]">Welcome back</div>
+              <div className="text-[22px] font-[700] text-primary">
+                Welcome back
+              </div>
               <p className="text-secondary">
                 Enter your credentials to access your account
               </p>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-secondary text-secondary">
-                Username
-              </label>
+              <label className="font-tertiary text-primary">Username</label>
               <input
                 type="text" // Assuming API takes 'username' (which is the 'email' state here)
                 placeholder="Enter Username"
@@ -60,9 +61,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-secondary text-secondary">
-                Password
-              </label>
+              <label className="font-tertiary text-primary">Password</label>
               <div className="relative">
                 <input
                   type="password"
@@ -79,12 +78,12 @@ const Login = () => {
             </div>
 
             <div className="flex justify-end text-sm">
-              <a href="#" className="hover:underline text-quaternary">
+              <a href="#" className="hover:underline text-primary">
                 Forgot Password?
               </a>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-primary">
               <Checkbox
                 isChecked={activeOptions}
                 onClick={() => setActiveOptions(!activeOptions)}
@@ -96,7 +95,7 @@ const Login = () => {
               type="submit"
               className="w-full p-3 rounded-10 bg-quaternary font-secondary hover:bg-gray-300 focus:outline-none"
               // style={{ color: theme === "dark" ? "#303030" : "#FAFAFA" }}
-              style={{ color: "#303030" }}
+              style={{ color: "#0C0C0C" }}
             >
               Login
             </button>
@@ -104,33 +103,64 @@ const Login = () => {
 
           <div className="flex flex-col items-center mt-[48px]">
             <div className="flex items-center gap-3">
-              <div className="h-px w-10 bg-gray-600 my-2"></div>
+              <div
+                className={`h-px w-10 my-2 ${
+                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
+                }`}
+              ></div>
               <span className="text-secondary font-secondary text-sm">
                 or sign up with
               </span>
-              <div className="h-px w-10 bg-gray-600 my-2"></div>
+              <div
+                className={`h-px w-10 my-2  ${
+                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
+                }`}
+              ></div>
             </div>
             <div className="flex items-center gap-1 mt-3.5">
-              <div className="flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] border border-[#FAFAFA]">
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
                 <img src={google} alt="google" />
                 Google
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] border border-[#FAFAFA]">
-                <img src={apple} alt="google" />
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
+                <img src={theme === "dark" ? apple : appleLight} alt="apple" />
                 Apple
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] border border-[#FAFAFA]">
-                <img src={facebook} alt="google" />
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
+                <img src={facebook} alt="facebook" />
                 Facebook
               </div>
             </div>
           </div>
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 text-primary">
             <span>Don't have an Account? </span>
-            <a href="#" className="font-[700] hover:underline text-quaternary">
+            <a
+              href="#"
+              className={`font-[700] hover:underline ${
+                theme === "dark" ? "text-quaternary" : "text-primary"
+              }`}
+            >
               Sign up here
             </a>
           </div>
