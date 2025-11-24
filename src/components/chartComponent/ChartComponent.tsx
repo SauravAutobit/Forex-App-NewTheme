@@ -183,12 +183,9 @@ export default function ChartComponent({
   const { pathname } = useLocation();
   const { setIsDrawerOpen } = useOutletContext<OutletContextType>();
   // commented coz using mock data
-  // // Theme from Redux — chart picks this automatically
-  //   const themeMode = useSelector((s: RootState) => s.theme.mode);
-  //   const dark = themeMode === "dark";
-
-  // mock data
-  const dark = "dark";
+  // Theme from Redux — chart picks this automatically
+  const themeMode = useSelector((s: RootState) => s.theme.mode);
+  const dark = themeMode === "dark";
 
   // main chart-type state: only one of these at a time
   const [chartType, setChartType] = useState<"candles" | "line" | "area">(
@@ -208,13 +205,10 @@ export default function ChartComponent({
     (state: RootState) => state.chart.data
   ) as Candle[];
   const chartStatus = useSelector((state: RootState) => state.chart.status);
-  // commented coz using mock data
-  // const apiStatus = useSelector(
-  //   (state: RootState) => state.websockets.apiStatus
-  // );
 
-  // mock data
-  const apiStatus = "connected";
+  const apiStatus = useSelector(
+    (state: RootState) => state.websockets.apiStatus
+  );
 
   const mainRef = useRef<HTMLDivElement | null>(null);
   const chart = useRef<IChartApi | null>(null);

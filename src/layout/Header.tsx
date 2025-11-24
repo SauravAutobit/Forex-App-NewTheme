@@ -11,6 +11,8 @@ import filter from "../assets/icons/filter.svg";
 import menuLight from "../assets/icons/menuLight.svg";
 import { useAppSelector } from "../store/hook";
 import backLight from "../assets/icons/backLight.svg";
+import notFavouriteTickLight from "../assets/icons/notFavrouiteTickLight.svg";
+import favouriteTickLight from "../assets/icons/favrouiteTickLight.svg";
 
 type HeaderProps = {
   isFlag: IsFlagType;
@@ -62,6 +64,15 @@ export default function Header({
     }));
   };
 
+  const iconSrc =
+    theme === "light"
+      ? star
+        ? favouriteTickLight
+        : notFavouriteTickLight
+      : star
+      ? favouriteTick
+      : notFavouriteTick;
+
   const conditionalRender = () => {
     let title = "";
     let actions = null;
@@ -111,7 +122,7 @@ export default function Header({
           actions = (
             <div className="flex items-center gap-5">
               <img
-                src={star === false ? notFavouriteTick : favouriteTick}
+                src={iconSrc}
                 alt="notFavouriteTick"
                 onClick={(e) => {
                   e.stopPropagation(); // ⭐️ Stop click event from triggering the parent card's onClick/swipe
@@ -120,7 +131,9 @@ export default function Header({
               />
               <div className="flex items-center gap-[7px]">
                 <button
-                  className="w-[23px] h-[23px] bg-loss rounded-20 text-secondary flex justify-center items-center text-tertiary"
+                  className={`w-[23px] h-[23px] bg-loss rounded-20 flex justify-center items-center ${
+                    theme === "dark" ? "text-[#2D2D2D]" : "text-[#FAFAFA]"
+                  }`}
                   onClick={() => {
                     navigate("newOrder");
                   }}
@@ -128,7 +141,9 @@ export default function Header({
                   S
                 </button>
                 <button
-                  className="w-[23px] h-[23px] bg-profit rounded-20 text-secondary flex justify-center items-center text-tertiary"
+                  className={`w-[23px] h-[23px] bg-profit rounded-20 flex justify-center items-center ${
+                    theme === "dark" ? "text-[#2D2D2D]" : "text-[#FAFAFA]"
+                  }`}
                   onClick={() => {
                     navigate("newOrder");
                   }}
