@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ProfitLossClose from "../profitLossClose/ProfitLossClose";
 import DateChanger from "../dateChanger/DateChanger";
+import { useAppSelector } from "../../store/hook";
 // import { useAppSelector } from "../../store/hook";
 
 interface TabItem {
@@ -49,8 +50,8 @@ const NavigationTabs = ({
   onTabChange,
   onActiveTabChange,
   className = "",
-  activeColor = "text-tertiary", // Changed default to black for better contrast on neon background
-  inactiveColor = "text-fifth",
+  activeColor = "text-[#2D2D2D]", // Changed default to black for better contrast on neon background
+  inactiveColor = "text-[#505050]",
 }: MobileTabsProps) => {
   const [activeTab, setActiveTab] = useState(
     defaultActiveTab || tabs[0]?.id || ""
@@ -109,13 +110,18 @@ const NavigationTabs = ({
   // 🎯 Define the active indicator color (your neon green/yellow)
   // Ensure this color is defined in your Tailwind config or is a utility class
   //   const indicatorBg = "bg-primary-neon"; // Assuming 'bg-primary-neon' is your bright color
+  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <div className={`w-full ${className}`}>
       {/* Tab Navigation Container (The 'Pill' Background) */}
 
       <div className="px-5">
-        <div className={`relative flex rounded-10 bg-cardBg h-[37px]`}>
+        <div
+          className={`relative flex rounded-10 bg-cardBg h-[37px] ${
+            theme === "dark" ? "bg-[#181818]" : "bg-[#E5E5E5]"
+          }`}
+        >
           {/* Active Tab Indicator (The Moving Background) */}
           {tabs[activeTabIndex] && (
             <motion.div
