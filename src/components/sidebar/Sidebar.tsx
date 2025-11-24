@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 // import logoLight from "../../assets/icons/logoLight.svg";
 // import lightAiStar from "../../assets/icons/lightAiStar.svg";
 import profileSidebar from "../../assets/icons/profileSidebar.svg";
-// import Theme from "../theme/Theme";
+import Theme from "../theme/Theme";
 // import { useAppSelector } from "../../store/hook";
 import avatar from "../../assets/icons/avatar.jpg";
 import Button from "../button/Button";
@@ -68,9 +68,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           <div>
+            <Theme />
+          </div>
+          <div>
             {Array.from({ length: 8 }).map((_, index) => {
               return (
-                <button
+                <button 
                   key={index}
                   onClick={() => {
                     onClose();
@@ -87,7 +90,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
         </div>
 
-        <div>{/* <Theme /> */}</div>
         {/* <div
           className="flex flex-col items-center justify-between"
           // style={{ padding: "12px 16px 13px 16px" }}
