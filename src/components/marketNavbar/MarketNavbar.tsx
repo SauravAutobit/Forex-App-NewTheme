@@ -2,6 +2,8 @@ import { useLocation, useOutletContext } from "react-router-dom";
 import filter from "../../assets/icons/filter.svg";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useEffect, useRef } from "react";
+import filterLight from "../../assets/icons/filterLight.svg";
+import { useAppSelector } from "../../store/hook";
 
 interface MarketsNavbarProps {
   active: string;
@@ -40,6 +42,9 @@ export default function MarketsNavbar({
       });
     }
   }, [active]); // Dependency array: run this effect whenever the active tab changes
+
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <>
       <div
@@ -67,7 +72,7 @@ export default function MarketsNavbar({
                   // ⬅️ 3. Conditionally assign the ref to the active button
                   ref={isActive ? activeTabRef : null}
                   className={`whitespace-nowrap transition-all ${
-                    isActive ? "text-white font-secondary" : "text-[#505050]"
+                    isActive ? "text-primary font-secondary" : "text-[#505050]"
                   }`}
                 >
                   {tab}
@@ -79,7 +84,7 @@ export default function MarketsNavbar({
 
         {pathname === "/app/home" && !isFlag.favourites.status && (
           <img
-            src={filter}
+            src={theme === "dark" ? filter : filterLight}
             alt="filter"
             onClick={() => {
               setIsDrawerOpen((prev) => ({ ...prev, homeDrawer: true }));
