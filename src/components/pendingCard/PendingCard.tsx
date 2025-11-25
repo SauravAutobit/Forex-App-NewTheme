@@ -1,6 +1,8 @@
 import rightArrow from "../../assets/icons/rightArrow.svg";
 import cardIcon from "../../assets/icons/cardIcon.svg";
 import { useLocation } from "react-router-dom";
+import { useAppSelector } from "../../store/hook";
+import rightArrowLight from "../../assets/icons/rightArrowLight.svg";
 
 export interface CardProps {
   code: string;
@@ -21,6 +23,8 @@ const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
   const { pathname } = useLocation();
 
   const pendingEdit = pathname === "/app/pendingEdit";
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <div
       className="text-primary px-5 py-2.5 border-b border-primary"
@@ -34,10 +38,18 @@ const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="my-1 font-tertiary">{code.toUpperCase()}</h2>
-              <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+              <span
+                className={`w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px] ${
+                  theme === "dark" ? "" : "border border-[#878787]"
+                }`}
+              >
                 TP
               </span>{" "}
-              <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+              <span
+                className={`w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px] ${
+                  theme === "dark" ? "" : "border border-[#878787]"
+                }`}
+              >
                 SL
               </span>
             </div>{" "}
@@ -52,7 +64,10 @@ const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
           <div>
             <div className="flex items-center gap-2.5 text-secondary">
               0.0670
-              <img src={rightArrow} alt="rightArrow" />
+              <img
+                src={theme === "dark" ? rightArrow : rightArrowLight}
+                alt="rightArrow"
+              />
               <span className="font-tertiary text-primary">0.0690</span>
             </div>
             {/* Right: Bid Price (Green) */}
@@ -63,7 +78,11 @@ const PendingCard = ({ code, timestamp, onClick }: CardProps) => {
                 </div>
               </div>
 
-              <div className="w-px bg-[#FAFAFA]"></div>
+              <div
+                className={`w-px ${
+                  theme === "dark" ? "bg-[#FAFAFA]" : "bg-[#2d2d2d]"
+                } `}
+              ></div>
 
               {/* Middle: Ask Price (Red) */}
               <div className="text-right pl-2">
