@@ -139,7 +139,7 @@ const HistoryCard = ({
         </div>
         <div className="text-right text-primary">
           <div className="no-underline">{formatSlTp(sl)}</div>
-          <div className="mt-2 no-underline ml-[-32px]">{dateTimeString}</div>
+          <div className="mt-2 no-underline ml-[-34px]">{dateTimeString}</div>
           <div className="mt-2 no-underline">{tid}</div>
         </div>
         {/* Right Column Group */}
@@ -226,7 +226,7 @@ const HistoryCard = ({
                   {isHistoryPosition && (
                     <div className="flex items-center gap-3">
                       <span className={`text-secondary pl-2 text-sm`}>
-                        {formatPriceOrEmpty(topLeftPrice)} &gt;
+                        {formatPriceOrEmpty(topLeftPrice)} &gt;{" "}
                         {formatPriceOrEmpty(topRightPrice)}
                       </span>
                     </div>
