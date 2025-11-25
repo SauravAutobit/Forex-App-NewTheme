@@ -158,7 +158,7 @@ export default function Header({
         } else if (active !== "Chart") {
           actions = (
             <img
-              src={star === false ? notFavouriteTick : favouriteTick}
+              src={iconSrc}
               alt="notFavouriteTick"
               onClick={(e) => {
                 e.stopPropagation();

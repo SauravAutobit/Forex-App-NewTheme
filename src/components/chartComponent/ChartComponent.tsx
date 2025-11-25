@@ -18,6 +18,7 @@ import TimeframeDropdown, {
 } from "../../components/timeframeSelector/TimeframeSelector";
 import settings from "../../assets/icons/settings.svg";
 import type { OutletContextType } from "../../layout/MainLayout";
+import settingsLight from "../../assets/icons/settingsLight.svg";
 
 type Candle = {
   time: string | number;
@@ -332,7 +333,7 @@ export default function ChartComponent({
         width: mainRef.current.clientWidth,
         height: mainRef.current.clientHeight,
         layout: {
-          background: { color: dark ? "#0c0c0c" : "#FFFFFF" },
+          background: { color: dark ? "#0c0c0c" : "#F5F5F5" },
           textColor: dark ? "#D9D9D9" : "#191919",
         },
         grid: {
@@ -498,7 +499,7 @@ export default function ChartComponent({
     try {
       chart.current.applyOptions({
         layout: {
-          background: { color: dark ? "#0c0c0c" : "#FFFFFF" },
+          background: { color: dark ? "#0c0c0c" : "#F5F5F5" },
           textColor: dark ? "#D9D9D9" : "#191919",
         },
         grid: {
@@ -1062,7 +1063,7 @@ export default function ChartComponent({
                 }))
               }
             >
-              <img src={settings} alt="settings" />
+              <img src={dark ? settings : settingsLight} alt="settings" />
             </div>
           </>
         )}

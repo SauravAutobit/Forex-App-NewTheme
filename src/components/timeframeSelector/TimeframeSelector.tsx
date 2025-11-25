@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppSelector } from "../../store/hook";
 
 // Define the structure for a single time frame option
 type TimeframeOption = {
@@ -61,12 +62,16 @@ const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
     },
   };
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   // Common styling for the grid buttons
   const buttonClassName = (value: string) =>
     `m-1 rounded-md transition-colors duration-200 w-[40px] h-[40px] 
      ${
        value === selectedTimeframe
-         ? "bg-quaternary text-tertiary"
+         ? `bg-quaternary ${
+             theme === "dark" ? "text-tertiary" : "text-primary"
+           }`
          : "bg-cardBg text-primary border border-primary"
      }`;
 
