@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import cardIcon from "../../assets/icons/cardIcon.svg";
 import arrow from "../../assets/icons/arrow.svg";
+import { useAppSelector } from "../../store/hook";
 
 export interface CardProps {
   code: string;
@@ -22,6 +23,8 @@ const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
 
   const closedEdit = pathname === "/app/closedEdit";
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <div
       className="text-primary px-5 py-2.5 border-b border-primary"
@@ -35,7 +38,13 @@ const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
 
           <div>
             {!closedEdit && (
-              <div className="text-quaternary font-secondary">25/06/2025</div>
+              <div
+                className={`font-secondary ${
+                  theme === "dark" ? "text-quaternary" : "text-primary"
+                }`}
+              >
+                25/06/2025
+              </div>
             )}
             <div className="flex items-center gap-2.5">
               <h2 className="my-1 font-tertiary">{code.toUpperCase()}</h2>
@@ -61,7 +70,11 @@ const ClosedCard = ({ code, timestamp, onClick }: CardProps) => {
               {closedEdit ? (
                 <img src={arrow} alt="arrow" />
               ) : (
-                <div className="w-px bg-[#FAFAFA]"></div>
+                <div
+                  className={`w-px ${
+                    theme === "dark" ? "bg-[#FAFAFA]" : "bg-[#2d2d2d]"
+                  }`}
+                ></div>
               )}
 
               {/* Middle: Ask Price (Red) */}
