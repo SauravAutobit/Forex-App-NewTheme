@@ -1,3 +1,5 @@
+import { useAppSelector } from "../../store/hook";
+
 interface DateChangerProps {
   text: string;
   date: string;
@@ -15,6 +17,8 @@ const DateChanger = ({
   secondaryDate,
   height = "41px",
 }: DateChangerProps) => {
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <div
       className={
@@ -24,12 +28,24 @@ const DateChanger = ({
     >
       <div className="w-full flex items-center justify-between">
         <p className="text-sm text-secondary">{text}</p>
-        <p className="text-quaternary font-secondary">{date}</p>
+        <p
+          className={`font-secondary ${
+            theme === "dark" ? "text-quaternary" : "text-primary"
+          }`}
+        >
+          {date}
+        </p>
       </div>
       {dualDate && (
         <div className="w-full flex items-center justify-between mt-1">
           <p className="text-sm text-secondary">{secondaryText}</p>
-          <p className="text-quaternary font-secondary">{secondaryDate}</p>
+          <p
+            className={`font-secondary ${
+              theme === "dark" ? "text-quaternary" : "text-primary"
+            }`}
+          >
+            {secondaryDate}
+          </p>
         </div>
       )}
     </div>

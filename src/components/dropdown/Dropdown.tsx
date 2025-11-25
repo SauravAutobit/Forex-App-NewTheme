@@ -6,10 +6,11 @@ import downArrow from "../../assets/icons/downArrow.svg";
 // import { useDispatch } from "react-redux";
 // import { addInstrumentToQuotes } from "../../store/slices/quotesSlice";
 import { motion, AnimatePresence, easeInOut } from "framer-motion";
-// import { useAppSelector } from "../../store/hook";
 // import lightdropdownArrow from "../../assets/icons/lightdropdownArrow.svg";
 // import ClosedCard from "../closedCard/ClosedCard";
 import MarketCard from "../marketCard/MarketCard";
+import { useAppSelector } from "../../store/hook";
+import downArrowLight from "../../assets/icons/downArrowLight.svg";
 
 interface Instrument {
   id: string;
@@ -57,7 +58,7 @@ const Dropddown = ({ instruments }: DropdownProps) => {
     closed: { opacity: 0, y: 10 },
     open: { opacity: 1, y: 0 },
   };
-  //   const theme = useAppSelector((state) => state.theme.mode);
+  const theme = useAppSelector((state) => state.theme.mode);
   instruments.length = 10;
   return (
     <>
@@ -82,7 +83,7 @@ const Dropddown = ({ instruments }: DropdownProps) => {
         {/* ------- */}
 
         <motion.img
-          src={downArrow}
+          src={theme === "dark" ? downArrow : downArrowLight}
           alt="downArrow"
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
@@ -122,6 +123,8 @@ const Dropddown = ({ instruments }: DropdownProps) => {
                       pip={"5asa"}
                       timestamp={"15:23:00"}
                       border={false}
+                      paddingLeft="0"
+                      paddingRight="0"
                       onClick={function (): void {
                         throw new Error("Function not implemented.");
                       }}

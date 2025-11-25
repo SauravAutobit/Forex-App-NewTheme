@@ -19,9 +19,18 @@ export interface CardProps {
   active?: string;
   favourites?: boolean;
   border?: boolean;
+  paddingLeft?: string;
+  paddingRight?: string;
 }
 
-const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
+const MarketCard = ({
+  code,
+  timestamp,
+  onClick,
+  border = true,
+  paddingLeft = "20px",
+  paddingRight = "20px",
+}: CardProps) => {
   const { pathname } = useLocation();
 
   const marketEdit = pathname === "/app/marketEdit";
@@ -30,11 +39,11 @@ const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
 
   return (
     <div
-      className={`text-primary py-2.5 px-5 ${
+      className={`text-primary py-2.5 ${
         border === true ? "border-b border-primary" : ""
       }`}
       onClick={onClick}
-      //   style={{ border: theme === "dark" ? "" : "1px solid #C2C2C2" }}
+      style={{ paddingLeft, paddingRight }}
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
