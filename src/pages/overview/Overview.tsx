@@ -27,7 +27,7 @@ const Overview = () => {
           <OverviewPerformance />
 
           <div className="px-5 mt-5">
-            <div className="mb-2.5">Market sentiment</div>
+            <div className="mb-2.5 text-primary">Market sentiment</div>
             {/* Scenario 1: Matches your screenshot (60% Buy, 40% Sell) */}
             <ProgressBar
               timeframe="5 minutes (M5)"

@@ -56,7 +56,7 @@ const OverviewCard = ({ code, bid, ask, ltp, close, onClick }: CardProps) => {
             <div className="flex justify-between items-center text-secondary text-xs"></div>
             <h2 className="my-1">{code.toUpperCase()}</h2>
             <p className={`ml-[-43px] mt-1 ${changeColor}`}>
-              <span className="font-tertiary text-[28px] text-[#FAFAFA] mr-1.5">
+              <span className="font-tertiary text-[28px] text-primary mr-1.5">
                 15048.12
               </span>
               {changeSign}

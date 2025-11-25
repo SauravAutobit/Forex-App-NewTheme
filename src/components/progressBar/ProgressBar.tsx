@@ -23,7 +23,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className="text-white font-secondary mt-5 first:mt-0">
       {/* Timeframe Label */}
-      <p className="mb-1">{timeframe}</p>
+      <p className="mb-1 text-primary">{timeframe}</p>
 
       {/* Progress Bar Container */}
       <div className="relative h-[22px] w-full rounded-[4px] overflow-hidden flex shadow-inner shadow-black/50">

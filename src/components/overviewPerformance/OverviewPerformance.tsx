@@ -1,6 +1,6 @@
 const OverviewPerformance = () => {
   return (
-    <div className="px-5 mt-2.5">
+    <div className="text-primary px-5 mt-2.5">
       Performance
       <div className="flex items-center justify-between flex-wrap mt-2.5">
         <div className="p-2.5 w-[104.33px] h-[62px] rounded-10 bg-[#FE00004D] border border-loss">
