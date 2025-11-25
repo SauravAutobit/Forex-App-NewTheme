@@ -3,6 +3,7 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "../button/Button";
+import { useAppSelector } from "../../store/hook";
 
 interface DateCalenderProps {
   activeTab: string;
@@ -18,9 +19,15 @@ const DateCalender = ({ activeTab }: DateCalenderProps) => {
       ? ["Last 1 day", "Last 7 days", "Last 14 days"]
       : ["Last 1 month", "Last 3 months"];
 
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     // h-[429.83px]
-    <div className="w-[325px] bg-[#181818] rounded-20 p-5 flex flex-col items-center">
+    <div
+      className={`w-[325px] rounded-20 p-5 flex flex-col items-center ${
+        theme === "dark" ? "bg-[#181818]" : "bg-[#E5E5E5]"
+      }`}
+    >
       <div
         className={`${
           activeTab === "date" ? "w-full" : "gap-1"
@@ -78,7 +85,7 @@ const DateCalender = ({ activeTab }: DateCalenderProps) => {
           fontSize="16px"
           fontWeight={600}
         />
-        <Button
+        <Button 
           label="Apply"
           width="130.86px"
           height="42.36px"
