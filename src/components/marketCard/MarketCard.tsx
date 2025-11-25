@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import cardIcon from "../../assets/icons/cardIcon.svg";
 import arrow from "../../assets/icons/arrow.svg";
+import { useAppSelector } from "../../store/hook";
 
 // Interface for the EURUSDCard's props, based on the QuoteData structure
 // ✅ CHANGED: Props are now clear and match the data
@@ -24,6 +25,9 @@ const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
   const { pathname } = useLocation();
 
   const marketEdit = pathname === "/app/marketEdit";
+
+  const theme = useAppSelector((state) => state.theme.mode);
+
   return (
     <div
       className={`text-primary py-2.5 px-5 ${
@@ -60,7 +64,11 @@ const MarketCard = ({ code, timestamp, onClick, border = true }: CardProps) => {
               {marketEdit ? (
                 <img src={arrow} alt="arrow" />
               ) : (
-                <div className="w-px bg-[#FAFAFA]"></div>
+                <div
+                  className={`w-px ${
+                    theme === "dark" ? "bg-[#FAFAFA]" : "bg-[#2D2D2D]"
+                  }`}
+                ></div>
               )}
 
               {/* Middle: Ask Price (Red) */}
