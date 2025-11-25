@@ -7,18 +7,16 @@ import notFavouriteTickLight from "../../assets/icons/notFavrouiteTickLight.svg"
 import favouriteTickLight from "../../assets/icons/favrouiteTickLight.svg";
 import { useAppSelector } from "../../store/hook";
 
-// Interface for the EURUSDCard's props, based on the QuoteData structure
-// ✅ CHANGED: Props are now clear and match the data
 export interface CardProps {
   code: string;
   bid: number;
   ask: number;
   high: number;
   low: number;
-  ltp: number; // ✅ Now used for calculation
-  close: number; // ✅ FIX: Added 'close' for the calculation
+  ltp: number;
+  close: number;
   pip?: number | string;
-  timestamp: string; // ✅ FIX: Moved to its own line
+  timestamp: string;
   onClick: () => void;
   active?: string;
   favourites?: boolean;

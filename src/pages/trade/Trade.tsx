@@ -15,6 +15,7 @@ import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
 import downArrowFilter from "../../assets/icons/downArrowFilter.svg";
 import RadioButton from "../../components/radioButton/RadioButton";
 import Button from "../../components/button/Button";
+import { useAppSelector } from "../../store/hook";
 
 const menuItems = [{ label: "Instruments" }];
 
@@ -36,6 +37,8 @@ const Trade = () => {
   });
 
   const [selectedOption, setSelectedOption] = useState("");
+
+  const theme = useAppSelector((state) => state.theme.mode);
 
   const options = [
     "All currently Open",
@@ -320,7 +323,13 @@ const Trade = () => {
                 <div key={option} className="flex items-center justify-between">
                   <span
                     className={`${
-                      index === options.length - 1 ? "text-secondary" : ""
+                      theme === "dark"
+                        ? index === options.length - 1
+                          ? "text-secondary"
+                          : ""
+                        : index === options.length - 1
+                        ? "text-[#505050]"
+                        : ""
                     }`}
                   >
                     {option}
@@ -341,8 +350,8 @@ const Trade = () => {
                 label="cancel"
                 width="176.5px"
                 height="41px"
-                bgColor="#2D2D2D"
-                textColor="#FAFAFA"
+                bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
+                textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
                 border="1px solid #505050"
               />
               <Button
@@ -352,6 +361,7 @@ const Trade = () => {
                 bgColor="#AEED09"
                 textColor="#2D2D2D"
                 border="1px solid #AEED09"
+                fontWeight={500}
               />
             </div>
           </div>

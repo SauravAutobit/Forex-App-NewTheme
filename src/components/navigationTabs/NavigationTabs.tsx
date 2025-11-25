@@ -118,7 +118,7 @@ const NavigationTabs = ({
 
       <div className="px-5">
         <div
-          className={`relative flex rounded-10 bg-cardBg h-[37px] ${
+          className={`relative flex rounded-10 h-[37px] ${
             theme === "dark" ? "bg-[#181818]" : "bg-[#E5E5E5]"
           }`}
         >

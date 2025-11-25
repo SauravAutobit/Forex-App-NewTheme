@@ -58,6 +58,7 @@ const InstrumentInfoCard = ({
                   width="62px"
                   height="19px"
                   fontSize="10px"
+                  textColor="#2D2D2D"
                 />
               </div>
               <h1 className={`font-tertiary`}>12569598</h1>
@@ -113,7 +114,7 @@ const InstrumentInfoCard = ({
                 </div>
               ))}
             <div
-              className="flex justify-end items-center cursor-pointer text-primary text-quaternary"
+              className="flex justify-end items-center cursor-pointer text-primary"
               onClick={(e) => {
                 e.stopPropagation(); // Prevents the outer div's click handler from firing
                 toggleDetails();
