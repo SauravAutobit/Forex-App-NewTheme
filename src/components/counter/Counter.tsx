@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useAppSelector } from "../../store/hook";
 // import { useAppSelector } from "../../store/hook";
 
 interface CounterProps {
@@ -71,8 +72,7 @@ const Counter: React.FC<CounterProps> = ({
       setInputValue(String(parsedValue));
     }
   };
-  //   const theme = useAppSelector((state) => state.theme.mode);
-  const theme = "dark";
+  const theme = useAppSelector((state) => state.theme.mode);
 
   const chartsPage = pathname === "/app/charts";
   return (
@@ -88,7 +88,9 @@ const Counter: React.FC<CounterProps> = ({
         <button
           onClick={handleDecrement}
           disabled={value <= min}
-          className="flex items-center justify-center w-12 h-12 bg-[#242424]  disabled:cursor-not-allowed transition-colors duration-200"
+          className={`flex items-center justify-center w-12 h-12 disabled:cursor-not-allowed transition-colors duration-200  ${
+            theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
+          }`}
         >
           <Minus
             className={`w-5 h-5 ${
@@ -100,10 +102,10 @@ const Counter: React.FC<CounterProps> = ({
         <div
           className={`flex-1 flex items-center flex-col justify-center px-4 ${
             chartsPage ? "py-1" : "py-3"
-          } text-center bg-cardBg`}
+          } text-center ${theme === "dark" ? "bg-cardBg" : "bg-[#F1F1F1]"}`}
         >
           {pathname === "/app/charts" && (
-            <span className={`text-xs text-secondary`}>Price:</span>
+            <span className={`text-xs text-primary`}>Price:</span>
           )}
           <input
             type="text"
@@ -123,7 +125,9 @@ const Counter: React.FC<CounterProps> = ({
         <button
           onClick={handleIncrement}
           disabled={value >= max}
-          className="flex items-center justify-center w-12 h-12 bg-[#242424] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          className={`flex items-center justify-center w-12 h-12 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
+            theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
+          }`}
         >
           <Plus
             className={`w-5 h-5 ${

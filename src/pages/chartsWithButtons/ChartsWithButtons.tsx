@@ -3,8 +3,8 @@ import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
 import { fetchChartData } from "../../store/slices/chartSlice";
 import ChartComponent from "../../components/chartComponent/ChartComponent";
-import type { AppDispatch } from "../../store/store";
-import { useDispatch } from "react-redux";
+import type { AppDispatch, RootState } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
 import { mockInstruments, mockTimeframes } from "../../mockData";
 
 const ChartsWithButtons = () => {
@@ -63,6 +63,7 @@ const ChartsWithButtons = () => {
   }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
 
   const height = `calc(100vh - 250px)`;
+  const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
     <div>
@@ -88,10 +89,10 @@ const ChartsWithButtons = () => {
           label={"Sell"}
           width="82px"
           height="44px"
-          bgColor="#FE0000"
+          bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
           textColor="#FAFAFA"
           fontWeight={600}
-          textShadow="0px 0px 10px 0px #950101"
+          textShadow={theme === "dark" ? "0px 0px 10px 0px #950101" : ""}
         />
         <Counter label="Take Profit" />
 
@@ -99,8 +100,8 @@ const ChartsWithButtons = () => {
           label={"Buy"}
           width="82px"
           height="44px"
-          bgColor="#02F511"
-          textShadow="0px 0px 10px 0px #008508"
+          bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
+          textShadow={theme === "dark" ? "0px 0px 10px 0px #008508" : ""}
           textColor="#FAFAFA"
           fontWeight={600}
         />

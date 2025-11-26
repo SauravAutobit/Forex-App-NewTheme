@@ -1,4 +1,6 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 
 interface ProgressBarProps {
   timeframe: string; // e.g., "5 minutes (M5)"
@@ -16,9 +18,11 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const buyWidth = `${buyPercentage}%`;
   const sellWidth = `${sellPercentage}%`;
 
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   // Define custom colors for the trading app look
-  const buyColor = "#02F511"; // Neon Green
-  const sellColor = "#FF0000"; // Bright Red
+  const buyColor = theme === "dark" ? "#02F511" : "#00B22D"; // Neon Green
+  const sellColor = theme === "dark" ? "#FF0000" : "#DD3C48"; // Bright Red
 
   return (
     <div className="text-white font-secondary mt-5 first:mt-0">
@@ -34,9 +38,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         >
           {/* Buy Percentage Label */}
           <span
-            className="absolute left-2 top-1/2 -translate-y-1/2 text-secondary text-sm font-tertiary"
-            // Ensure visibility for small percentages
-            style={{ color: "#2d2d2d" }}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 text-sm font-tertiary ${
+              theme === "dark" ? "#2d2d2d" : "#FAFAFA"
+            }`}
           >
             {buyPercentage}%
           </span>
@@ -49,9 +53,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         >
           {/* Sell Percentage Label */}
           <span
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-secondary text-sm font-tertiary"
-            // Ensure visibility for small percentages
-            style={{ color: "#2d2d2d" }}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 text-sm font-tertiary ${
+              theme === "dark" ? "#2d2d2d" : "#FAFAFA"
+            }`}
           >
             {sellPercentage}%
           </span>

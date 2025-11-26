@@ -188,6 +188,8 @@ export default function ChartComponent({
   const themeMode = useSelector((s: RootState) => s.theme.mode);
   const dark = themeMode === "dark";
 
+  const TV_UP = dark ? "#02F511" : "#00B22D";
+  const TV_DOWN = dark ? "#FE0000" : "#DD3C48";
   // main chart-type state: only one of these at a time
   const [chartType, setChartType] = useState<"candles" | "line" | "area">(
     "candles"
