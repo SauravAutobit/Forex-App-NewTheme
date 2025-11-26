@@ -3,6 +3,10 @@ import downArrowWhite from "../../assets/icons/downArrowWhite.svg";
 import EditOrderList, {
   type ProfitBalanceProps,
 } from "../editOrderList/EditOrderList";
+import downArrowWhiteLight from "../../assets/icons/downArrowWhiteLight.svg";
+import type { RootState } from "../../store/store";
+import { useSelector } from "react-redux";
+
 interface HistoryCardPropsStatic {
   index?: number;
   // NEW PROPS for the tutorial feature
@@ -22,6 +26,8 @@ const EditHistoryDetail = ({
   const toggleDetails = () => {
     setIsDetailsVisible((s) => !s);
   };
+
+  const theme = useSelector((s: RootState) => s.theme.mode);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -63,7 +69,7 @@ const EditHistoryDetail = ({
               {/* Trading Name and Prices/Status */}
               <div className={`flex w-full justify-between`}>
                 <div className="flex items-center">
-                  <div>
+                  <div className="text-primary">
                     {type !== "pending"
                       ? "Order Closed"
                       : "Pending ordercreated"}
@@ -76,7 +82,10 @@ const EditHistoryDetail = ({
               {type !== "pending" && (
                 <div className="text-loss whitespace-nowrap">-$0.45</div>
               )}
-              <img src={downArrowWhite} alt="downArrowWhite" />
+              <img
+                src={theme === "dark" ? downArrowWhite : downArrowWhiteLight}
+                alt="downArrowWhite"
+              />
             </div>
 
             <div className="flex justify-between items-center">

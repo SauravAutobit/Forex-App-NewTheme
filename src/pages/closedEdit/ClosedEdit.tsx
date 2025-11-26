@@ -53,6 +53,7 @@ const ClosedEdit = () => {
             <EditOrderList
               {...profitBalanceProps}
               onClick={editHistoryHandler}
+              lastListColor={true}
             />
           </div>
         </div>

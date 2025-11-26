@@ -8,6 +8,8 @@ import CheckList from "../../components/checkList/CheckList";
 import Counter from "../../components/counter/Counter";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 
 interface TabItem {
   id: string;
@@ -16,6 +18,8 @@ interface TabItem {
 }
 
 const MarketEdit = () => {
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   const editOptions = [
     {
       label: "Trailing stop",
@@ -63,12 +67,13 @@ const MarketEdit = () => {
       id: "info",
       label: "Info",
       content: (
-        <div className="px-5 h-[calc(100vh-234px)]">
+        <div className="px-5 h-[calc(100vh-250px)]">
           <div className="flex flex-col justify-between h-full">
             <div>
               <EditOrderList
                 {...profitBalanceProps}
                 onClick={editHistoryHandler}
+                lastListColor={true}
               />
             </div>
             <div className="flex items-center justify-between mt-3 mb-2.5">
@@ -76,8 +81,8 @@ const MarketEdit = () => {
                 label="Show Chart"
                 width="169.5px"
                 height="44px"
-                bgColor="#2D2D2D"
-                textColor="#FAFAFA"
+                bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
+                textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
                 border="1px solid #505050"
               />
               <Button
@@ -89,7 +94,7 @@ const MarketEdit = () => {
                 }
                 width="169.5px"
                 height="44px"
-                bgColor="#FE0000"
+                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                 textColor="#FAFAFA"
                 fontWeight={500}
               />
@@ -102,7 +107,7 @@ const MarketEdit = () => {
       id: "edit",
       label: "Edit",
       content: (
-        <div className="px-5 h-[calc(100vh-234px)]">
+        <div className="px-5 h-[calc(100vh-250px)]">
           <div className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-2.5 mt-5">
               <Counter label="Take Profit" />
@@ -118,16 +123,18 @@ const MarketEdit = () => {
                 label="Discard"
                 width="169.5px"
                 height="44px"
-                bgColor="#505050"
-                textColor="#FAFAFA"
-                border="1px solid #505050"
+                bgColor={theme === "dark" ? "#505050" : "#E5E5E5"}
+                textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
+                border={
+                  theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
+                }
               />
               <Button
                 label="Confirm"
                 textShadow="1px 1px 3.5px 0px #02900B"
                 width="169.5px"
                 height="44px"
-                bgColor="#02F511"
+                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                 textColor="#FAFAFA"
                 fontWeight={500}
               />

@@ -5,6 +5,8 @@ import EditOrderList, {
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import Button from "../../components/button/Button";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 
 const PendingEdit = () => {
   const profitBalanceProps: ProfitBalanceProps = {
@@ -26,6 +28,8 @@ const PendingEdit = () => {
   const editHistoryHandler = () => {
     navigate("/app/editHistory", { state: { type: "pending" } });
   };
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   return (
     <div className="h-[calc(100vh-122px)]">
       <div className="flex flex-col justify-between h-full">
@@ -51,6 +55,7 @@ const PendingEdit = () => {
             <EditOrderList
               {...profitBalanceProps}
               onClick={editHistoryHandler}
+              lastListColor={true}
             />
           </div>
         </div>
@@ -59,8 +64,8 @@ const PendingEdit = () => {
             label="Show Chart"
             width="169.5px"
             height="44px"
-            bgColor="#2D2D2D"
-            textColor="#FAFAFA"
+            bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
+            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
             border="1px solid #505050"
           />
           <Button
@@ -72,7 +77,7 @@ const PendingEdit = () => {
             }
             width="169.5px"
             height="44px"
-            bgColor="#FE0000"
+            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
             textColor="#FAFAFA"
             fontWeight={500}
           />
