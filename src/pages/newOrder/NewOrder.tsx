@@ -3,6 +3,8 @@ import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import CheckList from "../../components/checkList/CheckList";
 import Button from "../../components/button/Button";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 
 interface TabItem {
   id: string;
@@ -12,6 +14,7 @@ interface TabItem {
 
 const NewOrder = () => {
   // const value = <span>4.563</span>;
+  const theme = useSelector((s: RootState) => s.theme.mode);
 
   const editOptions = [
     {
@@ -76,7 +79,7 @@ const NewOrder = () => {
                   }
                   width="169.5px"
                   height="44px"
-                  bgColor="#FE0000"
+                  bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                   textColor="#FAFAFA"
                   fontWeight={600}
                 />
@@ -91,7 +94,7 @@ const NewOrder = () => {
                   }
                   width="169.5px"
                   height="44px"
-                  bgColor="#02F511"
+                  bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                   textColor="#FAFAFA"
                   fontWeight={600}
                 />
@@ -140,7 +143,7 @@ const NewOrder = () => {
                   }
                   width="353px"
                   height="44px"
-                  bgColor="#FE0000"
+                  bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                   textColor="#FAFAFA"
                   fontWeight={600}
                 />
@@ -189,7 +192,7 @@ const NewOrder = () => {
                   }
                   width="353px"
                   height="44px"
-                  bgColor="#02F511"
+                  bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                   textColor="#FAFAFA"
                   fontWeight={600}
                 />

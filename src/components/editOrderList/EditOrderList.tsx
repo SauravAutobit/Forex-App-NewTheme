@@ -9,12 +9,14 @@ export interface ProfitBalanceProps {
   balanceItems?: BalanceDetail[];
   marginTop?: string;
   onClick?: () => void;
+  fontWeight?: number;
 }
 
 const EditOrderList = ({
   balanceItems = [],
   marginTop,
   onClick,
+  fontWeight,
 }: ProfitBalanceProps) => {
   const { pathname } = useLocation();
 
@@ -43,7 +45,7 @@ const EditOrderList = ({
                 }}
                 onClick={onClick}
               >
-                <span className="text-primary font-tertiary">
+                <span className="text-primary" style={{ fontWeight }}>
                   {balance.label}
                 </span>
                 <span

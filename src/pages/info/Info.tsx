@@ -36,7 +36,7 @@ const Info = () => {
             Star flatten flatten reesizing comment flows align. Subtract.
           </p>
           <div className="mb-2.5">
-            <EditOrderList {...profitBalanceProps} />
+            <EditOrderList {...profitBalanceProps} fontWeight={600} />
           </div>
         </div>
 
