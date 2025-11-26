@@ -118,11 +118,13 @@ const Home = () => {
     return category.charAt(0).toUpperCase() + category.slice(1);
   });
 
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   return (
     <div className="mt-[95px] mb-10">
       <div
-        className="w-full px-5"
-        style={{ position: "fixed", top: "56px", left: "0", zIndex: 1000 }}
+        className="w-full px-5 bg-primaryBg"
+        style={{ position: "fixed", top: "56px", left: "0" }}
       >
         <SearchBar />
         <MarketsNavbar
@@ -174,7 +176,9 @@ const Home = () => {
             <div className="flex items-center justify-between text-lg font-tertiary mb-2.5">
               Filters
               <span
-                className="text-base text-quaternary font-primary"
+                className={`text-lg font-primary ${
+                  theme === "dark" ? "text-quaternary" : "text-primary"
+                }`}
                 onClick={() =>
                   setActiveFilter({
                     filterOption: "",
