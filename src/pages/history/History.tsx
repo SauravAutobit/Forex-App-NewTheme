@@ -42,7 +42,7 @@ const History = ({ onDismissTutorial, showTutorial }: HistoryProps) => {
       label: "Position",
       content: (
         // The first card needs the tutorial props. The rest don't.
-        <div className="mt-2.5">
+        <div>
           {/* {showTutorial && (
             <div className="absolute top-[30px] right-[45px] z-100">
               <DirectionArrow />
@@ -67,7 +67,7 @@ const History = ({ onDismissTutorial, showTutorial }: HistoryProps) => {
       id: "order",
       label: "Order",
       content: (
-        <div className="mt-2.5">
+        <div>
           <HistoryCard
             label="Orders"
             onCardClick={() => {}}
@@ -80,7 +80,7 @@ const History = ({ onDismissTutorial, showTutorial }: HistoryProps) => {
       id: "deal",
       label: "Deal",
       content: (
-        <div className="mt-2.5">
+        <div>
           <HistoryCard
             label="Deals"
             onCardClick={() => {}}
@@ -96,7 +96,7 @@ const History = ({ onDismissTutorial, showTutorial }: HistoryProps) => {
       <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
       <NavigationTabs
         tabs={tabsData}
-        className="max-w-md mx-auto py-2.5 mb-2.5"
+        className="max-w-md mx-auto pb-2.5 mb-2.5"
       />
     </div>
   );

@@ -187,7 +187,7 @@ const NavigationTabs = ({
       )}
 
       {/* Tab Content */}
-      <div className="mt-4 relative overflow-hidden">
+      <div className="mt-3 relative overflow-hidden">
         <AnimatePresence mode="wait" initial={false} custom={direction}>
           {tabs.map(
             (tab) =>

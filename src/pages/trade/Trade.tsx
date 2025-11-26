@@ -208,7 +208,7 @@ const Trade = () => {
         tabs={tabsData}
         // defaultActiveTab={activeTabId} // Use state from URL
         // onTabChange={handleTabChange} // New handler for URL update
-        className="max-w-md mx-auto py-2.5"
+        className="max-w-md mx-auto pb-2.5"
       />
       <BottomDrawer
         isOpen={isDrawerOpen.homeDrawer}

@@ -10,7 +10,7 @@ const ProfitLossClose = () => {
   const theme = useAppSelector((state) => state.theme.mode);
 
   return (
-    <div className="px-5 pt-5 pb-2.5 flex items-center justify-between">
+    <div className="px-5 pt-5 flex items-center justify-between">
       <div className="text-secondary">
         Floating Profit :{" "}
         <span
