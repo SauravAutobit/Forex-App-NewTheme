@@ -1,8 +1,8 @@
 // src/pages/Charts/Charts.tsx
 
 import { useState, useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux"; // 1. Import useDispatch
-import type { AppDispatch } from "../../store/store"; // 2. Import AppDispatch
+import { useDispatch, useSelector } from "react-redux"; // 1. Import useDispatch
+import type { AppDispatch, RootState } from "../../store/store"; // 2. Import AppDispatch
 // import { useOutletContext } from "react-router-dom";
 import ChartComponent from "../../components/chartComponent/ChartComponent";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
@@ -130,6 +130,8 @@ const Charts = () => {
 
   console.log("active options", activeOptions);
 
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   return (
     <div className="relative">
       <MarketsNavbar
@@ -193,7 +195,7 @@ const Charts = () => {
                 label={"Sell"}
                 width="82px"
                 height="44px"
-                bgColor="#FE0000"
+                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                 textColor="#FAFAFA"
                 fontWeight={600}
                 textShadow="0px 0px 10px 0px #950101"
@@ -204,7 +206,7 @@ const Charts = () => {
                 label={"Buy"}
                 width="82px"
                 height="44px"
-                bgColor="#02F511"
+                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                 textShadow="0px 0px 10px 0px #008508"
                 textColor="#FAFAFA"
                 fontWeight={600}
@@ -241,7 +243,7 @@ const Charts = () => {
                 label={"Sell"}
                 width="82px"
                 height="44px"
-                bgColor="#FE0000"
+                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                 textColor="#FAFAFA"
                 fontWeight={600}
                 textShadow="0px 0px 10px 0px #950101"
@@ -252,7 +254,7 @@ const Charts = () => {
                 label={"Buy"}
                 width="82px"
                 height="44px"
-                bgColor="#02F511"
+                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                 textShadow="0px 0px 10px 0px #008508"
                 textColor="#FAFAFA"
                 fontWeight={600}
