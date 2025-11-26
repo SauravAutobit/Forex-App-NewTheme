@@ -1,8 +1,10 @@
+import { useSelector } from "react-redux";
 import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
 import EditOrderList, {
   type ProfitBalanceProps,
 } from "../../components/editOrderList/EditOrderList";
+import type { RootState } from "../../store/store";
 
 const Info = () => {
   const profitBalanceProps: ProfitBalanceProps = {
@@ -16,11 +18,16 @@ const Info = () => {
       { label: "Order execution mode", value: "Market" },
     ],
   };
+
+  const theme = useSelector((s: RootState) => s.theme.mode);
+
   return (
     <div className="h-[calc(100vh-250px)] mt-5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
-          <div className="text-[26px] font-secondary">Gold on Spot</div>
+          <div className="text-[26px] font-secondary text-primary">
+            Gold on Spot
+          </div>
           <p className="text-secondary">
             Figma ipsum component variant main layer. Frame comment editor text
             opacity fill library italic star. Star flatten flatten reesizing
@@ -41,7 +48,7 @@ const Info = () => {
             label={"Sell"}
             width="82px"
             height="44px"
-            bgColor="#FE0000"
+            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
             textColor="#FAFAFA"
             fontWeight={600}
             textShadow="0px 0px 10px 0px #950101"
@@ -52,7 +59,7 @@ const Info = () => {
             label={"Buy"}
             width="82px"
             height="44px"
-            bgColor="#02F511"
+            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
             textShadow="0px 0px 10px 0px #008508"
             textColor="#FAFAFA"
             fontWeight={600}

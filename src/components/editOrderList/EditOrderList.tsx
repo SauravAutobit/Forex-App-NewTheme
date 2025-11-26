@@ -19,6 +19,7 @@ const EditOrderList = ({
   const { pathname } = useLocation();
 
   const editHistory = pathname === "/app/editHistory";
+
   return (
     <div>
       <div
@@ -42,9 +43,11 @@ const EditOrderList = ({
                 }}
                 onClick={onClick}
               >
-                <span>{balance.label}</span>
+                <span className="text-primary font-tertiary">
+                  {balance.label}
+                </span>
                 <span
-                  className={`${
+                  className={`text-primary ${
                     balance.value === "-$8.46" ? "text-[#FE0000]" : ""
                   }`}
                 >
