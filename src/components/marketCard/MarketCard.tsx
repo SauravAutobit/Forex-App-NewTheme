@@ -3,8 +3,6 @@ import cardIcon from "../../assets/icons/cardIcon.svg";
 import arrow from "../../assets/icons/arrow.svg";
 import { useAppSelector } from "../../store/hook";
 
-// Interface for the EURUSDCard's props, based on the QuoteData structure
-// ✅ CHANGED: Props are now clear and match the data
 export interface CardProps {
   code: string;
   bid: number;

@@ -12,7 +12,7 @@ const Theme = () => {
     dispatch(toggleTheme());
   };
   return (
-    <div className="p-4">
+    <div className="p-4 flex justify-between">
       <div className="mb-4 text-primary">Change Theme</div>
       <div>
         <label className="switch">
