@@ -99,22 +99,7 @@ const MainLayout = () => {
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag, isDrawerOpen);
   // ⭐️ NEW: State for the list of favorite instruments
-  const [favoriteItems, setFavoriteItems] = useState(
-    Array.from({ length: 5 }).map((_, index) => ({
-      // Using 5 to keep the list short for testing
-      id: index,
-      code: `EUR/GBP ${index}`,
-      bid: 1678.256369 + index,
-      ask: 1078.256369 + index,
-      high: 253659 + index,
-      low: 235698 - index,
-      ltp: 30 + index,
-      close: 23.22 + index / 10,
-      pip: "5asa",
-      timestamp: "15:23:00",
-      // Add other necessary properties
-    }))
-  );
+  const [favoriteItems, setFavoriteItems] = useState([]);
 
   useEffect(() => {
     console.log("useffect first");

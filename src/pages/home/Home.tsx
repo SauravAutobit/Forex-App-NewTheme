@@ -86,24 +86,18 @@ const Home = () => {
       ...prev,
       favourites: { status: true },
     }));
+
+    if (categories.length > 0) {
+      const firstCategory =
+        categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
+      setActive(firstCategory);
+    }
   };
 
   const removeFavorite = (id: number) => {
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  // If active is "Favorites" and we're navigating back from the charts, switch to a default category
-  if (
-    active === "Favorites" &&
-    isFlag.favourites?.status === true &&
-    categories.length > 0
-  ) {
-    // Switch to the first available category, e.g., "Forex"
-    setActive(categories[0].charAt(0).toUpperCase() + categories[0].slice(1));
-  } else if (active === "Favorites" && isFlag.favourites?.status === true) {
-    // Handle case where no categories are loaded yet
-    setActive("Forex");
-  }
 
   const handleCardClick = (instrumentId: string) => {
     // Dispatch the action to set the selected instrument ID
@@ -133,25 +127,8 @@ const Home = () => {
         dispatch(fetchInstrumentsByCategory(category));
       });
 
-      // Set the initial active tab to the first category if it's currently "Favorites" or uninitialized
-      if (
-        active === "Favorites" ||
-        active === "" ||
-        !categories
-          .map((c) => c.charAt(0).toUpperCase() + c.slice(1))
-          .includes(active)
-      ) {
-        setActive(
-          categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
-        );
-      }
     }
   }, [categories, categoriesStatus, dispatch, active, setActive]);
-
-  // 3. Keep selected instrument data up-to-date (Optional: For real-time updates)
-  // You would typically use a separate websocket listener for real-time updates,
-  // but for now, the data fetching handles the initial load.
-  // ...
 
   // --- Filter/Sort Logic ---
 
