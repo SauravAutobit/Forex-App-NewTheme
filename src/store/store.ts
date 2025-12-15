@@ -3,6 +3,7 @@ import chartReducer from "./slices/chartSlice";
 import categoriesReducer from "./slices/categoriesSlice";
 import webSocketReducer from "./slices/webSocketSlice";
 import loadingReducer from "./slices/loadingSlice";
+import instrumentsReducer from "./slices/instrumentsSlice";
 import themeReducer, { toggleTheme } from "./slices/themeSlice";
 
 const rootReducer = {
@@ -10,6 +11,7 @@ const rootReducer = {
   chart: chartReducer,
   categories: categoriesReducer,
   loading: loadingReducer,
+    instruments: instrumentsReducer,
   theme: themeReducer,
 };
 

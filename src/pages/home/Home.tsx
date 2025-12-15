@@ -13,6 +13,7 @@ import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
 import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
 import downArrowFilter from "../../assets/icons/downArrowFilter.svg";
+import { fetchInstrumentsByCategory } from "../../store/slices/instrumentsSlice";
 
 const menuItems = [
   { label: "Popularity" },
@@ -73,7 +74,18 @@ const Home = () => {
     (state: RootState) => state.categories
   );
 
-  console.log("STATE CATEGORY", categories, categoriesStatus);
+  const { data: instrumentsData, status: instrumentsStatus } = useSelector(
+    (state: RootState) => state.instruments
+  );
+
+  console.log(
+    "STATE CATEGORY",
+    categories,
+    categoriesStatus,
+    "INST",
+    instrumentsData,
+    instrumentsStatus
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   const apiStatus = useSelector(
@@ -85,6 +97,18 @@ const Home = () => {
       dispatch(fetchCategories());
     }
   }, [apiStatus, dispatch, pathname]);
+
+  useEffect(() => {
+    if (categoriesStatus === "succeeded" && categories.length > 0) {
+      // When in "Add" mode, force a fetch for every category
+      categories.forEach((category) => {
+        // We dispatch the fetch regardless of what's in instrumentsData[category]
+        // to ensure we get the latest list from the server.
+        dispatch(fetchInstrumentsByCategory(category));
+      });
+    }
+    // Note: When not in canAdd mode, this effect does nothing, preserving existing data.
+  }, [categories, categoriesStatus, dispatch]);
 
   const handleSortClick = (type: "alphabetically" | "price") => {
     setActiveFilter((prev) => {

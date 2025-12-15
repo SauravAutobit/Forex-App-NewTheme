@@ -97,9 +97,11 @@ let eventClient: WebSocketClient;
 //     return state.auth.currentAccount?.token ?? null;
 // };
 
-// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
+// wss://api.fintrabit.com/ws test token
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
 
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
+//swastiik token
+// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
 export const initializeSockets = (store: Store) => {
   // const token = getAuthToken(store);
   const token = AUTH_TOKEN;
