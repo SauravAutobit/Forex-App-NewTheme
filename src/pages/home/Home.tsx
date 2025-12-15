@@ -13,7 +13,12 @@ import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
 import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
 import downArrowFilter from "../../assets/icons/downArrowFilter.svg";
-import { fetchInstrumentsByCategory } from "../../store/slices/instrumentsSlice";
+import {
+  fetchInstrumentsByCategory,
+  setSelectedInstrument,
+} from "../../store/slices/instrumentsSlice";
+// Import the Instrument type for correct typing
+import type { Instrument } from "../../store/slices/instrumentsSlice";
 
 const menuItems = [
   { label: "Popularity" },
@@ -28,7 +33,7 @@ const Home = () => {
     setFavoriteItems,
     isFlag,
     setIsFlag,
-    active,
+    active, // This is the active tab name (e.g., "Forex", "Crypto")
     setActive,
     isDrawerOpen,
     setIsDrawerOpen,
@@ -43,7 +48,39 @@ const Home = () => {
   });
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
 
+  // --- Redux State Selectors ---
+  const { data: categories, status: categoriesStatus } = useSelector(
+    (state: RootState) => state.categories
+  );
+  const { data: instrumentsData, status: instrumentsStatus } = useSelector(
+    (state: RootState) => state.instruments
+  );
+  const theme = useSelector((s: RootState) => s.theme.mode);
+  const apiStatus = useSelector(
+    (state: RootState) => state.websockets.apiStatus
+  );
+
+  console.log(
+    "category",
+    categories,
+    categoriesStatus,
+    "INSTURMENT",
+    instrumentsData,
+    instrumentsStatus
+  );
+  // -----------------------------
+
+  // Helper to get the actual lowercase category name from the capitalized active tab
+  const activeCategoryName = active === "Favorites" ? null : active;
+
+  // Select the instruments for the currently active category
+  const currentCategoryInstruments: Instrument[] = activeCategoryName
+    ? instrumentsData[activeCategoryName] || []
+    : [];
+
+  // --- Handlers ---
   const addFavourites = () => {
     setIsFlag((prev) => ({
       ...prev,
@@ -55,12 +92,23 @@ const Home = () => {
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  if (active === "Favorites" && isFlag.favourites?.status === true) {
+  // If active is "Favorites" and we're navigating back from the charts, switch to a default category
+  if (
+    active === "Favorites" &&
+    isFlag.favourites?.status === true &&
+    categories.length > 0
+  ) {
+    // Switch to the first available category, e.g., "Forex"
+    setActive(categories[0].charAt(0).toUpperCase() + categories[0].slice(1));
+  } else if (active === "Favorites" && isFlag.favourites?.status === true) {
+    // Handle case where no categories are loaded yet
     setActive("Forex");
   }
 
-  const handleCardClick = () => {
-    // Handle card click event
+  const handleCardClick = (instrumentId: string) => {
+    // Dispatch the action to set the selected instrument ID
+    dispatch(setSelectedInstrument(instrumentId));
+
     setIsFlag((prev) => ({
       ...prev,
       charts: { status: true },
@@ -68,47 +116,44 @@ const Home = () => {
     navigate("/app/charts");
   };
 
-  // const tabs = ["Favorites", "Forex", "Crypto", "Indices", "Stocks", "Metals"];
+  // --- Effects ---
 
-  const { data: categories, status: categoriesStatus } = useSelector(
-    (state: RootState) => state.categories
-  );
-
-  const { data: instrumentsData, status: instrumentsStatus } = useSelector(
-    (state: RootState) => state.instruments
-  );
-
-  console.log(
-    "STATE CATEGORY",
-    categories,
-    categoriesStatus,
-    "INST",
-    instrumentsData,
-    instrumentsStatus
-  );
-  const dispatch = useDispatch<AppDispatch>();
-
-  const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
-  );
-
+  // 1. Fetch Categories when connected
   useEffect(() => {
     if (apiStatus === "connected" && pathname === "/app/home") {
       dispatch(fetchCategories());
     }
   }, [apiStatus, dispatch, pathname]);
 
+  // 2. Fetch Instruments for all categories once categories are available
   useEffect(() => {
     if (categoriesStatus === "succeeded" && categories.length > 0) {
-      // When in "Add" mode, force a fetch for every category
       categories.forEach((category) => {
-        // We dispatch the fetch regardless of what's in instrumentsData[category]
-        // to ensure we get the latest list from the server.
+        // Dispatch fetch for all categories to populate the instrumentsData state
         dispatch(fetchInstrumentsByCategory(category));
       });
+
+      // Set the initial active tab to the first category if it's currently "Favorites" or uninitialized
+      if (
+        active === "Favorites" ||
+        active === "" ||
+        !categories
+          .map((c) => c.charAt(0).toUpperCase() + c.slice(1))
+          .includes(active)
+      ) {
+        setActive(
+          categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
+        );
+      }
     }
-    // Note: When not in canAdd mode, this effect does nothing, preserving existing data.
-  }, [categories, categoriesStatus, dispatch]);
+  }, [categories, categoriesStatus, dispatch, active, setActive]);
+
+  // 3. Keep selected instrument data up-to-date (Optional: For real-time updates)
+  // You would typically use a separate websocket listener for real-time updates,
+  // but for now, the data fetching handles the initial load.
+  // ...
+
+  // --- Filter/Sort Logic ---
 
   const handleSortClick = (type: "alphabetically" | "price") => {
     setActiveFilter((prev) => {
@@ -142,7 +187,7 @@ const Home = () => {
     return category.charAt(0).toUpperCase() + category.slice(1);
   });
 
-  const theme = useSelector((s: RootState) => s.theme.mode);
+  // --- Rendering ---
 
   return (
     <div className="mt-[95px] mb-10">
@@ -155,6 +200,7 @@ const Home = () => {
           active={active}
           setActive={setActive}
           favourite={isFlag.favourites?.status}
+          // Use capitalized categories from Redux state
           tabs={["Favorites", ...capitalizedCategories]}
         />
       </div>
@@ -166,29 +212,57 @@ const Home = () => {
           removeItem={removeFavorite}
         />
       ) : (
-        // className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4"
+        // Display instruments for the active category
         <div>
-          {Array.from({ length: 10 }).map((_, index) => {
-            return (
-              <Card
-                key={index}
-                code={`EUR/GBP ${index}`}
-                bid={1678.256369}
-                ask={1078.256369}
-                high={253659}
-                low={235698}
-                ltp={30}
-                close={23.22}
-                pip={"5asa"}
-                timestamp={"15:23:00"}
-                onClick={handleCardClick}
-                active={active}
-                favourites={isFlag.favourites?.status}
-              />
-            );
-          })}
+          {currentCategoryInstruments.length > 0 ? (
+            currentCategoryInstruments.map((instrument) => {
+              // Extract data, safely handle missing quotes/data
+              const quotes = instrument.dinamic_data?.quotes;
+              const bid = quotes?.bid?.[0] ?? 0;
+              const ask = quotes?.ask?.[0] ?? 0;
+              const high = quotes?.high?.[0] ?? 0;
+              const low = quotes?.low?.[0] ?? 0;
+              const ltp = quotes?.ltp?.[0] ?? 0;
+              // Note: `close` and `pip` seem to be missing or require more complex calculation based on your Redux state
+              const close = quotes?.close?.[0] ?? 0; // Assuming 'close' exists
+              const timestamp = quotes?.ltpt?.[0]
+                ? new Date(quotes.ltpt[0]).toLocaleTimeString()
+                : "N/A";
+
+              // The Card component receives a fixed `pip` and `close` in your original code,
+              // so you may need to adjust the Card props based on actual data structure.
+              // The example below uses dummy/placeholder values for props not easily derived.
+
+              return (
+                <Card
+                  key={instrument.id}
+                  code={instrument.trading_name} // e.g., "EUR/GBP"
+                  bid={bid}
+                  ask={ask}
+                  high={high}
+                  low={low}
+                  ltp={ltp}
+                  close={close} // Placeholder
+                  pip={"N/A"} // Placeholder
+                  timestamp={timestamp}
+                  onClick={() => handleCardClick(instrument.id)} // Pass instrument ID to handler
+                  active={active}
+                  favourites={isFlag.favourites?.status}
+                />
+              );
+            })
+          ) : (
+            // Optional: Loading or No Data State
+            <p className="text-center mt-5 text-secondary">
+              {instrumentsStatus === "loading"
+                ? `Loading ${active} instruments...`
+                : `No instruments found for ${active}.`}
+            </p>
+          )}
         </div>
       )}
+
+      {/* The BottomDrawer component remains unchanged */}
       <BottomDrawer
         isOpen={isDrawerOpen.homeDrawer}
         onClose={() =>

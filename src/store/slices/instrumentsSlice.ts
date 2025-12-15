@@ -7,6 +7,8 @@ import {
 import { apiClient } from "../../services/socketService";
 
 export interface Instrument {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dinamic_data: any;
   id: string;
   name: string;
   trading_name: string;
