@@ -49,7 +49,7 @@ const Card = ({
   const { favouriteInstrument, setFavouriteInstrument } =
     useOutletContext<OutletContextType>();
   const [star, setStar] = useState(false);
-  console.log("favouriteInstrument", favouriteInstrument);
+
   const theme = useAppSelector((state) => state.theme.mode);
 
   // ✅ Get the previous values
