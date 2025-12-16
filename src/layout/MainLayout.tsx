@@ -140,6 +140,7 @@ const MainLayout = () => {
         favoriteItems={favoriteItems}
         setFavoriteItems={setFavoriteItems}
         favouriteInstrument={favouriteInstrument}
+        setFavouriteInstrument={setFavouriteInstrument}
         active={active}
         setIsDrawerOpen={setIsDrawerOpen}
       />

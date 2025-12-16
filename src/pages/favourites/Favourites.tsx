@@ -18,7 +18,8 @@ interface FavoriteItemType
 interface FavouritesProps {
   addFavourite: () => void;
   items: FavoriteItemType[];
-  removeItem: (id: string) => void;
+  // ✅ FIXED: Update type to accept both id and code
+  removeItem: (id: string, code: string) => void;
 }
 
 const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
@@ -63,10 +64,9 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
               trailingActions={TrailingActions()}
               onSwipeEnd={() => {
                 console.log(`Item ${item.id} removed via full swipe.`);
-                removeItem(item.id);
+                // ✅ FIXED: Pass item.code as the second argument
+                removeItem(item.id, item.code);
               }}
-              // 3. Optional: Add a delay to let the animation finish
-              // swipeDelay={200}
             >
               <Card
                 code={item.code}
@@ -78,7 +78,7 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
                 close={item.close}
                 pip={item.pip}
                 timestamp={item.timestamp}
-                onClick={function (): void {
+                onClick={() => {
                   console.log(`Card ${item.id} clicked`);
                 }}
                 active={active}

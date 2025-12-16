@@ -50,6 +50,7 @@ type HeaderProps = {
   favouriteInstrument: string[];
   active: string;
   setIsDrawerOpen: Dispatch<SetStateAction<DrawerState>>;
+  setFavouriteInstrument: Dispatch<SetStateAction<string[]>>;
 };
 
 export default function Header({
@@ -58,6 +59,7 @@ export default function Header({
   favoriteItems,
   setFavoriteItems,
   favouriteInstrument,
+  setFavouriteInstrument,
   active,
   setIsDrawerOpen,
 }: HeaderProps) {
@@ -72,71 +74,61 @@ export default function Header({
     (state: RootState) => state.instruments.data
   );
 
+  // ✅ SIMPLIFIED: Handle Confirm
   const handleConfirm = () => {
-    // Flatten all instruments from all categories
+    // 1. Flatten all available instruments
     const allInstruments = Object.values(instrumentsData).flat();
 
-    const uniqueInstrumentsMap = new Map<string, Instrument>();
+    // 2. Filter instruments that match the selected codes (favouriteInstrument)
+    // We use a Map to ensure we don't get duplicates if instrumentsData has them
+    const uniqueMap = new Map();
 
     allInstruments.forEach((inst) => {
-      // Only process selected instruments
       if (favouriteInstrument.includes(inst.trading_name)) {
-        if (!uniqueInstrumentsMap.has(inst.trading_name)) {
-          // First time seeing this instrument, add it
-          uniqueInstrumentsMap.set(inst.trading_name, inst);
-        } else {
-          // We already have this instrument. Let's see if the new one is "better".
-          const existing = uniqueInstrumentsMap.get(inst.trading_name)!;
-
-          const hasValidId = (inst: Instrument) =>
-            inst.id !== null && inst.id !== undefined && inst.id !== "";
-          const hasValidPrice = (inst: Instrument) => {
-            const bid = inst.dinamic_data?.quotes?.bid?.[0];
-            return bid !== undefined && bid !== 0;
-          };
-
-          // Heuristic: Prefer instrument with a valid ID if the existing one doesn't have one
-          if (!hasValidId(existing) && hasValidId(inst)) {
-            uniqueInstrumentsMap.set(inst.trading_name, inst);
-          }
-          // Heuristic: Prefer instrument with non-zero pricing if IDs are comparable (or both missing)
-          else if (!hasValidPrice(existing) && hasValidPrice(inst)) {
-            uniqueInstrumentsMap.set(inst.trading_name, inst);
-          }
+        // Only add if not already added (deduplication)
+        if (!uniqueMap.has(inst.trading_name)) {
+          uniqueMap.set(inst.trading_name, inst);
         }
       }
     });
 
-    // Map the unique instruments to the required object structure
-    const selectedObjects = Array.from(uniqueInstrumentsMap.values()).map(
-      (inst) => {
-        const quotes = inst.dinamic_data?.quotes;
-        return {
-          id: inst.id,
-          code: inst.trading_name,
-          bid: quotes?.bid?.[0] ?? 0,
-          ask: quotes?.ask?.[0] ?? 0,
-          high: quotes?.high?.[0] ?? 0,
-          low: quotes?.low?.[0] ?? 0,
-          ltp: quotes?.ltp?.[0] ?? 0,
-          close: quotes?.close?.[0] ?? 0,
-          pip: "N/A", // or derive if possible
-          timestamp: quotes?.ltpt?.[0]
-            ? new Date(quotes.ltpt[0]).toLocaleTimeString()
-            : "N/A",
-        };
-      }
-    );
+    // 3. Transform to FavoriteItem format
+    const newFavoriteObjects = Array.from(uniqueMap.values()).map((inst) => {
+      const quotes = inst.dinamic_data?.quotes;
+      return {
+        id: inst.id,
+        code: inst.trading_name,
+        bid: quotes?.bid?.[0] ?? 0,
+        ask: quotes?.ask?.[0] ?? 0,
+        high: quotes?.high?.[0] ?? 0,
+        low: quotes?.low?.[0] ?? 0,
+        ltp: quotes?.ltp?.[0] ?? 0,
+        close: quotes?.close?.[0] ?? 0,
+        pip: "N/A",
+        timestamp: quotes?.ltpt?.[0]
+          ? new Date(quotes.ltpt[0]).toLocaleTimeString()
+          : "N/A",
+      };
+    });
 
-    setFavoriteItems(selectedObjects);
+    setFavoriteItems(newFavoriteObjects);
+
+    // Close selection mode
     setIsFlag((prev) => ({
       ...prev,
       favourites: { status: false },
     }));
   };
 
-  // Function to enter the "Add to Favourites" selection mode (triggered by the '+' icon)
+  // ✅ FIXED: Sync state when entering selection mode
   const handleEnterSelectionMode = () => {
+    // 1. Extract codes from currently saved favorites
+    const existingCodes = favoriteItems?.map((item) => item.code) || [];
+
+    // 2. Update the selection state so stars appear correctly
+    setFavouriteInstrument(existingCodes);
+
+    // 3. Open selection mode
     setIsFlag((prev) => ({
       ...prev,
       favourites: { status: true },

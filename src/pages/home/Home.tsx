@@ -37,6 +37,7 @@ const Home = () => {
     setActive,
     isDrawerOpen,
     setIsDrawerOpen,
+    setFavouriteInstrument,
   } = useOutletContext<OutletContextType>();
 
   const [activeFilter, setActiveFilter] = useState({
@@ -61,7 +62,7 @@ const Home = () => {
   const apiStatus = useSelector(
     (state: RootState) => state.websockets.apiStatus
   );
-  
+
   // Helper to get the actual lowercase category name from the capitalized active tab
   const activeCategoryName = active === "Favorites" ? null : active;
 
@@ -84,8 +85,12 @@ const Home = () => {
     }
   };
 
-  const removeFavorite = (id: string) => {
+  const removeFavorite = (id: string | number, code: string) => {
+    // 1. Remove from the Object List (UI)
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
+
+    // 2. ✅ IMPORTANT: Remove from the ID List (Logic)
+    setFavouriteInstrument((prevCodes) => prevCodes.filter((c) => c !== code));
   };
 
   const handleCardClick = (instrumentId: string) => {
