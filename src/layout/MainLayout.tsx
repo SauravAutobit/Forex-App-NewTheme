@@ -42,7 +42,7 @@ export type OutletContextType = {
   isFlag: IsFlagType;
   setIsFlag: React.Dispatch<React.SetStateAction<IsFlagType>>;
   favoriteItems: Array<{
-    id: number;
+    id: string;
     code: string;
     bid: number;
     ask: number;
@@ -56,7 +56,7 @@ export type OutletContextType = {
   setFavoriteItems: React.Dispatch<
     React.SetStateAction<
       Array<{
-        id: number;
+        id: string;
         code: string;
         bid: number;
         ask: number;
@@ -100,10 +100,25 @@ const MainLayout = () => {
 
   const [active, setActive] = useState("Favorites");
   console.log("isFlag", isFlag, isDrawerOpen);
+
   // ⭐️ NEW: State for the list of favorite instruments
-  const [favoriteItems, setFavoriteItems] = useState([]);
+  const [favoriteItems, setFavoriteItems] = useLocalStorage<
+    Array<{
+      id: string;
+      code: string;
+      bid: number;
+      ask: number;
+      high: number;
+      low: number;
+      ltp: number;
+      close: number;
+      pip: string;
+      timestamp: string;
+    }>
+  >("favoriteItems", []);
 
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
+
   useEffect(() => {
     console.log("useffect first");
     if (pathname === "/app/home") {
@@ -127,6 +142,8 @@ const MainLayout = () => {
         isFlag={isFlag}
         setIsFlag={setIsFlag}
         favoriteItems={favoriteItems}
+        setFavoriteItems={setFavoriteItems}
+        favouriteInstrument={favouriteInstrument}
         active={active}
         setIsDrawerOpen={setIsDrawerOpen}
       />

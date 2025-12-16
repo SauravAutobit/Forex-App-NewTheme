@@ -94,10 +94,9 @@ const Home = () => {
     }
   };
 
-  const removeFavorite = (id: number) => {
+  const removeFavorite = (id: string) => {
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
-
 
   const handleCardClick = (instrumentId: string) => {
     // Dispatch the action to set the selected instrument ID
@@ -126,7 +125,6 @@ const Home = () => {
         // Dispatch fetch for all categories to populate the instrumentsData state
         dispatch(fetchInstrumentsByCategory(category));
       });
-
     }
   }, [categories, categoriesStatus, dispatch, active, setActive]);
 

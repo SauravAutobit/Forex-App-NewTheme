@@ -12,13 +12,13 @@ import { useAppSelector } from "../../store/hook";
 
 interface FavoriteItemType
   extends Omit<CardProps, "onClick" | "active" | "favourites"> {
-  id: number;
+  id: string;
 }
 
 interface FavouritesProps {
   addFavourite: () => void;
   items: FavoriteItemType[];
-  removeItem: (id: number) => void;
+  removeItem: (id: string) => void;
 }
 
 const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {

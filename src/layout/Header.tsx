@@ -1,12 +1,14 @@
 import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
-import type { DrawerState, IsFlagType, OutletContextType } from "./MainLayout";
+import type { DrawerState, IsFlagType } from "./MainLayout";
 import { useState, type Dispatch, type SetStateAction } from "react";
+import type { RootState } from "../store/store";
+import type { Instrument } from "../store/slices/instrumentsSlice";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../assets/icons/favrouiteTick.svg";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import filter from "../assets/icons/filter.svg";
 import menuLight from "../assets/icons/menuLight.svg";
 import { useAppSelector } from "../store/hook";
@@ -18,7 +20,7 @@ type HeaderProps = {
   isFlag: IsFlagType;
   setIsFlag: Dispatch<SetStateAction<IsFlagType>>;
   favoriteItems?: Array<{
-    id: number;
+    id: string;
     code: string;
     bid: number;
     ask: number;
@@ -29,6 +31,23 @@ type HeaderProps = {
     pip: string;
     timestamp: string;
   }>;
+  setFavoriteItems: Dispatch<
+    SetStateAction<
+      Array<{
+        id: string;
+        code: string;
+        bid: number;
+        ask: number;
+        high: number;
+        low: number;
+        ltp: number;
+        close: number;
+        pip: string;
+        timestamp: string;
+      }>
+    >
+  >;
+  favouriteInstrument: string[];
   active: string;
   setIsDrawerOpen: Dispatch<SetStateAction<DrawerState>>;
 };
@@ -37,6 +56,8 @@ export default function Header({
   isFlag,
   setIsFlag,
   favoriteItems,
+  setFavoriteItems,
+  favouriteInstrument,
   active,
   setIsDrawerOpen,
 }: HeaderProps) {
@@ -46,13 +67,68 @@ export default function Header({
 
   const theme = useAppSelector((state) => state.theme.mode);
 
-  const { favouriteInstrument, setFavoriteItems } =
-    useOutletContext<OutletContextType>();
   // Function to handle the "Confirm" click and exit selection mode
+  const instrumentsData = useAppSelector(
+    (state: RootState) => state.instruments.data
+  );
+
   const handleConfirm = () => {
-    // 🚨 Add logic here to save selected items if needed
-    // For now, we just exit the selection mode
-    setFavoriteItems(favouriteInstrument);
+    // Flatten all instruments from all categories
+    const allInstruments = Object.values(instrumentsData).flat();
+
+    const uniqueInstrumentsMap = new Map<string, Instrument>();
+
+    allInstruments.forEach((inst) => {
+      // Only process selected instruments
+      if (favouriteInstrument.includes(inst.trading_name)) {
+        if (!uniqueInstrumentsMap.has(inst.trading_name)) {
+          // First time seeing this instrument, add it
+          uniqueInstrumentsMap.set(inst.trading_name, inst);
+        } else {
+          // We already have this instrument. Let's see if the new one is "better".
+          const existing = uniqueInstrumentsMap.get(inst.trading_name)!;
+
+          const hasValidId = (inst: Instrument) =>
+            inst.id !== null && inst.id !== undefined && inst.id !== "";
+          const hasValidPrice = (inst: Instrument) => {
+            const bid = inst.dinamic_data?.quotes?.bid?.[0];
+            return bid !== undefined && bid !== 0;
+          };
+
+          // Heuristic: Prefer instrument with a valid ID if the existing one doesn't have one
+          if (!hasValidId(existing) && hasValidId(inst)) {
+            uniqueInstrumentsMap.set(inst.trading_name, inst);
+          }
+          // Heuristic: Prefer instrument with non-zero pricing if IDs are comparable (or both missing)
+          else if (!hasValidPrice(existing) && hasValidPrice(inst)) {
+            uniqueInstrumentsMap.set(inst.trading_name, inst);
+          }
+        }
+      }
+    });
+
+    // Map the unique instruments to the required object structure
+    const selectedObjects = Array.from(uniqueInstrumentsMap.values()).map(
+      (inst) => {
+        const quotes = inst.dinamic_data?.quotes;
+        return {
+          id: inst.id,
+          code: inst.trading_name,
+          bid: quotes?.bid?.[0] ?? 0,
+          ask: quotes?.ask?.[0] ?? 0,
+          high: quotes?.high?.[0] ?? 0,
+          low: quotes?.low?.[0] ?? 0,
+          ltp: quotes?.ltp?.[0] ?? 0,
+          close: quotes?.close?.[0] ?? 0,
+          pip: "N/A", // or derive if possible
+          timestamp: quotes?.ltpt?.[0]
+            ? new Date(quotes.ltpt[0]).toLocaleTimeString()
+            : "N/A",
+        };
+      }
+    );
+
+    setFavoriteItems(selectedObjects);
     setIsFlag((prev) => ({
       ...prev,
       favourites: { status: false },
@@ -242,8 +318,8 @@ export default function Header({
 
   return (
     <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">
-      {/* Back button logic: Only show the back button (to exit selection mode) 
-          when isFlag.favourites.status is true. Otherwise, show the menu. */}
+      {/* Back button logic: Only show the back button (to exit selection mode)
+when isFlag.favourites.status is true. Otherwise, show the menu. */}
       {isFlag.favourites?.status === true ||
       isFlag.charts?.status === true ||
       isFlag.newOrder?.status === true ||
