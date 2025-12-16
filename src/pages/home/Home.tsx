@@ -61,17 +61,7 @@ const Home = () => {
   const apiStatus = useSelector(
     (state: RootState) => state.websockets.apiStatus
   );
-
-  console.log(
-    "category",
-    categories,
-    categoriesStatus,
-    "INSTURMENT",
-    instrumentsData,
-    instrumentsStatus
-  );
-  // -----------------------------
-
+  
   // Helper to get the actual lowercase category name from the capitalized active tab
   const activeCategoryName = active === "Favorites" ? null : active;
 

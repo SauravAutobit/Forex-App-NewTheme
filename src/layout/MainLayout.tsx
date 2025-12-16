@@ -99,7 +99,6 @@ const MainLayout = () => {
   });
 
   const [active, setActive] = useState("Favorites");
-  console.log("isFlag", isFlag, isDrawerOpen);
 
   // ⭐️ NEW: State for the list of favorite instruments
   const [favoriteItems, setFavoriteItems] = useLocalStorage<
@@ -120,12 +119,9 @@ const MainLayout = () => {
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log("useffect first");
     if (pathname === "/app/home") {
-      console.log("useffect second");
       setActive("Favorites");
     } else if (pathname === "/app/charts") {
-      console.log("useffect third");
       setActive("Chart");
     }
   }, [pathname]);
