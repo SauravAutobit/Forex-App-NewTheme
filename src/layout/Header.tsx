@@ -15,6 +15,7 @@ import { useAppSelector } from "../store/hook";
 import backLight from "../assets/icons/backLight.svg";
 import notFavouriteTickLight from "../assets/icons/notFavrouiteTickLight.svg";
 import favouriteTickLight from "../assets/icons/favrouiteTickLight.svg";
+import { useSelector } from "react-redux";
 
 type HeaderProps = {
   isFlag: IsFlagType;
@@ -51,6 +52,7 @@ type HeaderProps = {
   active: string;
   setIsDrawerOpen: Dispatch<SetStateAction<DrawerState>>;
   setFavouriteInstrument: Dispatch<SetStateAction<string[]>>;
+  setActive: Dispatch<SetStateAction<string>>;
 };
 
 export default function Header({
@@ -62,6 +64,7 @@ export default function Header({
   setFavouriteInstrument,
   active,
   setIsDrawerOpen,
+  setActive,
 }: HeaderProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -72,6 +75,10 @@ export default function Header({
   // Function to handle the "Confirm" click and exit selection mode
   const instrumentsData = useAppSelector(
     (state: RootState) => state.instruments.data
+  );
+
+  const { data: categories } = useSelector(
+    (state: RootState) => state.categories
   );
 
   // ✅ SIMPLIFIED: Handle Confirm
@@ -123,6 +130,12 @@ export default function Header({
   // ✅ FIXED: Sync state when entering selection mode
   const handleEnterSelectionMode = () => {
     // 1. Extract codes from currently saved favorites
+    if (categories.length > 0) {
+      const firstCategory =
+        categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
+      setActive(firstCategory);
+    }
+
     const existingCodes = favoriteItems?.map((item) => item.code) || [];
 
     // 2. Update the selection state so stars appear correctly
