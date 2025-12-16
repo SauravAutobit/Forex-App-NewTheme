@@ -6,6 +6,8 @@ import { formatPrice, usePrevious } from "../../utils/helperFunctions";
 import notFavouriteTickLight from "../../assets/icons/notFavrouiteTickLight.svg";
 import favouriteTickLight from "../../assets/icons/favrouiteTickLight.svg";
 import { useAppSelector } from "../../store/hook";
+import type { OutletContextType } from "../../layout/MainLayout";
+import { useOutletContext } from "react-router-dom";
 
 export interface CardProps {
   code: string;
@@ -44,7 +46,10 @@ const Card = ({
   const [askColor, setAskColor] = useState("text-primary"); // Start neutral
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
 
+  const { favouriteInstrument, setFavouriteInstrument } =
+    useOutletContext<OutletContextType>();
   const [star, setStar] = useState(false);
+  console.log("favouriteInstrument", favouriteInstrument);
   const theme = useAppSelector((state) => state.theme.mode);
 
   // ✅ Get the previous values
@@ -186,6 +191,14 @@ const Card = ({
             alt="favouriteStar"
             onClick={(e) => {
               e.stopPropagation(); // Stop click event from triggering the parent card's onClick/swipe
+              setFavouriteInstrument((prev) => {
+                console.log("prev", prev);
+                if (prev.includes(code)) {
+                  return prev.filter((item) => item !== code);
+                } else {
+                  return [...prev, code];
+                }
+              });
               setStar(!star);
             }}
           />

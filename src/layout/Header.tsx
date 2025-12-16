@@ -1,12 +1,12 @@
 import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
-import type { DrawerState, IsFlagType } from "./MainLayout";
+import type { DrawerState, IsFlagType, OutletContextType } from "./MainLayout";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../assets/icons/favrouiteTick.svg";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import filter from "../assets/icons/filter.svg";
 import menuLight from "../assets/icons/menuLight.svg";
 import { useAppSelector } from "../store/hook";
@@ -46,10 +46,13 @@ export default function Header({
 
   const theme = useAppSelector((state) => state.theme.mode);
 
+  const { favouriteInstrument, setFavoriteItems } =
+    useOutletContext<OutletContextType>();
   // Function to handle the "Confirm" click and exit selection mode
   const handleConfirm = () => {
     // 🚨 Add logic here to save selected items if needed
     // For now, we just exit the selection mode
+    setFavoriteItems(favouriteInstrument);
     setIsFlag((prev) => ({
       ...prev,
       favourites: { status: false },

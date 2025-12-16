@@ -73,6 +73,8 @@ export type OutletContextType = {
   setActive: (tab: string) => void;
   isDrawerOpen: DrawerState;
   setIsDrawerOpen: React.Dispatch<React.SetStateAction<DrawerState>>;
+  favouriteInstrument: string[];
+  setFavouriteInstrument: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const MainLayout = () => {
@@ -101,6 +103,7 @@ const MainLayout = () => {
   // ⭐️ NEW: State for the list of favorite instruments
   const [favoriteItems, setFavoriteItems] = useState([]);
 
+  const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
   useEffect(() => {
     console.log("useffect first");
     if (pathname === "/app/home") {
@@ -142,6 +145,8 @@ const MainLayout = () => {
             setActive,
             isDrawerOpen,
             setIsDrawerOpen,
+            favouriteInstrument,
+            setFavouriteInstrument,
           }}
         />
       </main>
