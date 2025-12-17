@@ -4,7 +4,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import type { DrawerState, IsFlagType } from "./MainLayout";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import type { RootState } from "../store/store";
-import type { Instrument } from "../store/slices/instrumentsSlice";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
 import favouriteTick from "../assets/icons/favrouiteTick.svg";

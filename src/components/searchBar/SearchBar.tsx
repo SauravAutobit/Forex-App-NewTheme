@@ -1,8 +1,13 @@
 import search from "../../assets/icons/search.svg";
 import { useAppSelector } from "../../store/hook";
-// import microphone from "../../assets/icons/microphone.svg";
 
-const SearchBar = () => {
+// Define the interface for props
+interface SearchBarProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const SearchBar = ({ value, onChange }: SearchBarProps) => {
   const theme = useAppSelector((state) => state.theme.mode);
 
   return (
@@ -10,11 +15,13 @@ const SearchBar = () => {
       <img src={search} alt="search" />
       <input
         placeholder="Search"
+        // Bind value and onChange
+        value={value}
+        onChange={onChange}
         className={`w-full h-full border-none outline-none bg-inherit ${
           theme === "dark" ? "text-secondary" : "text-[#555454]"
         }`}
       />
-      {/* <img src={microphone} alt="microphone" /> */}
     </div>
   );
 };

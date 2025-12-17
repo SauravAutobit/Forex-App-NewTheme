@@ -33,12 +33,15 @@ const Home = () => {
     setFavoriteItems,
     isFlag,
     setIsFlag,
-    active, // This is the active tab name (e.g., "Forex", "Crypto")
+    active,
     setActive,
     isDrawerOpen,
     setIsDrawerOpen,
     setFavouriteInstrument,
   } = useOutletContext<OutletContextType>();
+
+  // --- Search State ---
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [activeFilter, setActiveFilter] = useState({
     filterOption: "",
@@ -72,6 +75,12 @@ const Home = () => {
     : [];
 
   // --- Handlers ---
+
+  // Handle Search Input
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   const addFavourites = () => {
     setIsFlag((prev) => ({
       ...prev,
@@ -86,17 +95,12 @@ const Home = () => {
   };
 
   const removeFavorite = (id: string | number, code: string) => {
-    // 1. Remove from the Object List (UI)
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
-
-    // 2. ✅ IMPORTANT: Remove from the ID List (Logic)
     setFavouriteInstrument((prevCodes) => prevCodes.filter((c) => c !== code));
   };
 
   const handleCardClick = (instrumentId: string) => {
-    // Dispatch the action to set the selected instrument ID
     dispatch(setSelectedInstrument(instrumentId));
-
     setIsFlag((prev) => ({
       ...prev,
       charts: { status: true },
@@ -106,18 +110,20 @@ const Home = () => {
 
   // --- Effects ---
 
-  // 1. Fetch Categories when connected
+  // Reset search query when switching tabs (Optional UX preference)
+  useEffect(() => {
+    setSearchQuery("");
+  }, [active]);
+
   useEffect(() => {
     if (apiStatus === "connected" && pathname === "/app/home") {
       dispatch(fetchCategories());
     }
   }, [apiStatus, dispatch, pathname]);
 
-  // 2. Fetch Instruments for all categories once categories are available
   useEffect(() => {
     if (categoriesStatus === "succeeded" && categories.length > 0) {
       categories.forEach((category) => {
-        // Dispatch fetch for all categories to populate the instrumentsData state
         dispatch(fetchInstrumentsByCategory(category));
       });
     }
@@ -132,7 +138,7 @@ const Home = () => {
 
       if (currentState === "") nextState = "asc";
       else if (currentState === "asc") nextState = "desc";
-      else nextState = ""; // go back to default
+      else nextState = "";
 
       return {
         ...prev,
@@ -144,12 +150,9 @@ const Home = () => {
     });
   };
 
-  // helper to get icon based on state
   const getSortIcon = (state: string, type: "alphabetically" | "price") => {
     if (state === "asc") return upArrowFilter;
     if (state === "desc") return downArrowFilter;
-
-    // default icons
     return type === "price" ? price : alphabets;
   };
 
@@ -157,20 +160,31 @@ const Home = () => {
     return category.charAt(0).toUpperCase() + category.slice(1);
   });
 
+  // --- Search Filtering Logic ---
+
+  // Filter regular instruments based on search query
+  const filteredInstruments = currentCategoryInstruments.filter((inst) =>
+    inst.trading_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter favorite items based on search query
+  const filteredFavorites = favoriteItems.filter((item) =>
+    item.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // --- Rendering ---
 
   return (
     <div className="mt-[95px] mb-10">
       <div
         className="w-full px-5 bg-primaryBg"
-        style={{ position: "fixed", top: "56px", left: "0" }}
+        style={{ position: "fixed", top: "56px", left: "0", zIndex: 10 }} // Added zIndex for safety
       >
-        <SearchBar />
+        <SearchBar value={searchQuery} onChange={handleSearchChange} />
         <MarketsNavbar
           active={active}
           setActive={setActive}
           favourite={isFlag.favourites?.status}
-          // Use capitalized categories from Redux state
           tabs={["Favorites", ...capitalizedCategories]}
         />
       </div>
@@ -178,61 +192,58 @@ const Home = () => {
       {active === "Favorites" ? (
         <Favourites
           addFavourite={addFavourites}
-          items={favoriteItems}
+          // Pass the filtered list instead of the full list
+          items={filteredFavorites}
           removeItem={removeFavorite}
         />
       ) : (
         // Display instruments for the active category
         <div>
-          {currentCategoryInstruments.length > 0 ? (
-            currentCategoryInstruments.map((instrument) => {
-              // Extract data, safely handle missing quotes/data
+          {filteredInstruments.length > 0 ? (
+            filteredInstruments.map((instrument) => {
               const quotes = instrument.dinamic_data?.quotes;
               const bid = quotes?.bid?.[0] ?? 0;
               const ask = quotes?.ask?.[0] ?? 0;
               const high = quotes?.high?.[0] ?? 0;
               const low = quotes?.low?.[0] ?? 0;
               const ltp = quotes?.ltp?.[0] ?? 0;
-              // Note: `close` and `pip` seem to be missing or require more complex calculation based on your Redux state
-              const close = quotes?.close?.[0] ?? 0; // Assuming 'close' exists
+              const close = quotes?.close?.[0] ?? 0;
               const timestamp = quotes?.ltpt?.[0]
                 ? new Date(quotes.ltpt[0]).toLocaleTimeString()
                 : "N/A";
 
-              // The Card component receives a fixed `pip` and `close` in your original code,
-              // so you may need to adjust the Card props based on actual data structure.
-              // The example below uses dummy/placeholder values for props not easily derived.
-
               return (
                 <Card
                   key={instrument.id}
-                  code={instrument.trading_name} // e.g., "EUR/GBP"
+                  code={instrument.trading_name}
                   bid={bid}
                   ask={ask}
                   high={high}
                   low={low}
                   ltp={ltp}
-                  close={close} // Placeholder
-                  pip={"N/A"} // Placeholder
+                  close={close}
+                  pip={"N/A"}
                   timestamp={timestamp}
-                  onClick={() => handleCardClick(instrument.id)} // Pass instrument ID to handler
+                  onClick={() => handleCardClick(instrument.id)}
                   active={active}
                   favourites={isFlag.favourites?.status}
                 />
               );
             })
           ) : (
-            // Optional: Loading or No Data State
+            // Empty State
             <p className="text-center mt-5 text-secondary">
               {instrumentsStatus === "loading"
                 ? `Loading ${active} instruments...`
+                : searchQuery
+                ? `No results found for "${searchQuery}"`
                 : `No instruments found for ${active}.`}
             </p>
           )}
         </div>
       )}
 
-      {/* The BottomDrawer component remains unchanged */}
+      {/* BottomDrawer remains unchanged */}
       <BottomDrawer
         isOpen={isDrawerOpen.homeDrawer}
         onClose={() =>
@@ -257,6 +268,7 @@ const Home = () => {
                 Clear
               </span>
             </div>
+            {/* ... Rest of your drawer content ... */}
             <ul className="flex flex-wrap gap-2.5 items-center pb-2.5 border-b border-primary">
               {menuItems.map((item, index) => (
                 <li
