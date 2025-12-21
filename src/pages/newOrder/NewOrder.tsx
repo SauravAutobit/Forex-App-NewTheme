@@ -47,11 +47,11 @@ const NewOrder = () => {
         <div className="px-5 h-[calc(100vh-179px)]">
           <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2.5">
-                <Counter label="Volume" />
-                <span className="text-secondary mt-7">or</span>
-                <Counter label="Lot" />
-              </div>
+              {/* <div className="flex items-center gap-2.5"> */}
+              <Counter label="Qty" />
+              {/* <span className="text-secondary mt-7">or</span> */}
+              {/* <Counter label="Lot" /> */}
+              {/* </div> */}
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
@@ -111,11 +111,13 @@ const NewOrder = () => {
         <div className="px-5 h-[calc(100vh-179px)]">
           <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2.5">
+              {/* <div className="flex items-center gap-2.5">
                 <Counter label="Volume" />
                 <span className="text-secondary mt-7">or</span>
                 <Counter label="Lot" />
-              </div>
+              </div> */}
+              <Counter label="Qty" />
+              <Counter label="Price" />
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList
@@ -160,11 +162,13 @@ const NewOrder = () => {
         <div className="px-5 h-[calc(100vh-179px)]">
           <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2.5">
+              {/* <div className="flex items-center gap-2.5">
                 <Counter label="Volume" />
                 <span className="text-secondary mt-7">or</span>
                 <Counter label="Lot" />
-              </div>
+              </div> */}
+              <Counter label="Qty" />
+              <Counter label="Price x" />
               <Counter label="Take Profit" />
               <Counter label="Stop Loss" />
               <CheckList

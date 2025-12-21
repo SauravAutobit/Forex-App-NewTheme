@@ -67,7 +67,8 @@ const Home = () => {
   );
 
   // Helper to get the actual lowercase category name from the capitalized active tab
-  const activeCategoryName = active === "Favorites" ? null : active;
+  const activeCategoryName =
+    active === "Favorites" ? null : active.toLowerCase();
 
   // Select the instruments for the currently active category
   const currentCategoryInstruments: Instrument[] = activeCategoryName

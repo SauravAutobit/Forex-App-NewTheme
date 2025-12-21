@@ -174,12 +174,14 @@ const Charts = () => {
             <div className="">
               {Array.from({ length: 10 }).map((_, index) => {
                 return (
-                  <HistoryCard
-                    index={index}
-                    label={"Position"}
-                    onCardClick={() => {}}
-                    isTutorialTarget={false}
-                  />
+                  <div key={index}>
+                    <HistoryCard
+                      index={index}
+                      label={"Position"}
+                      onCardClick={() => {}}
+                      isTutorialTarget={false}
+                    />
+                  </div>
                 );
               })}
             </div>
