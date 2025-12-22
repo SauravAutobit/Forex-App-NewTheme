@@ -50,7 +50,7 @@ const CheckList = ({
     <div>
       {options.map(({ label, key }) => {
         return (
-          <>
+          <div key={key}>
             <div
               key={key}
               className="flex items-center justify-between mb-5 first:mt-2.5"
@@ -71,7 +71,7 @@ const CheckList = ({
                 <Counter />
               </div>
             )}
-          </>
+          </div>
         );
       })}
     </div>

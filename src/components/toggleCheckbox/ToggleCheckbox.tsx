@@ -15,7 +15,7 @@ const ToggleCheckbox: React.FC<CustomToggleSwitchProps> = ({
   handleToggle,
   //   size = "md",
 }) => {
-  console.log("isO", isOn);
+  // console.log("isO", isOn);
   // Define dimensions based on size prop
   //   const sizes = {
   //     sm: { width: "w-[40px]", height: "h-[22px]", knob: "w-4 h-4", icon: 12 },
