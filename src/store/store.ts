@@ -5,6 +5,13 @@ import webSocketReducer from "./slices/webSocketSlice";
 import loadingReducer from "./slices/loadingSlice";
 import instrumentsReducer from "./slices/instrumentsSlice";
 import themeReducer, { toggleTheme } from "./slices/themeSlice";
+import openOrdersReducer from "./slices/openOrdersSlice";
+import positionsReducer from "./slices/positionsSlice";
+import dealsReducer from "./slices/dealsSlice";
+import historyOrdersReducer from "./slices/historyOrdersSlice";
+import historyPositionsReducer from "./slices/historyPositionsSlice";
+import accountReducer from "./slices/accountSlice";
+import quotesReducer from "./slices/quotesSlice";
 
 const rootReducer = {
   websockets: webSocketReducer,
@@ -13,6 +20,13 @@ const rootReducer = {
   loading: loadingReducer,
     instruments: instrumentsReducer,
   theme: themeReducer,
+  positions: positionsReducer,
+  deals: dealsReducer,
+  historyOrders: historyOrdersReducer,
+  historyPositions: historyPositionsReducer,
+  openOrders: openOrdersReducer,
+  account: accountReducer,
+  quotes: quotesReducer,
 };
 
 // Derive RootState from the reducer map BEFORE creating the listener middleware
