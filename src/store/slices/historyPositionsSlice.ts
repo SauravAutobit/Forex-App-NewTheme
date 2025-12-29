@@ -56,6 +56,8 @@ export interface HistoryTOrder {
 }
 
 export interface HistoryPosition {
+  instrument: any;
+  time_setup: string | number | Date;
   account_id: string;
   closed_pnl: number;
   created_at: number;

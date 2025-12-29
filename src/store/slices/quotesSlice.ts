@@ -40,6 +40,7 @@ type StreamDataPayload = {
 
 interface QuotesState {
   quotes: QuoteData[];
+  liveQuotes: Record<string, QuoteData>; // ✅ Store live data for any instrument
 }
 
 const QUOTES_STORAGE_KEY = 'subscribedQuotes';
@@ -58,25 +59,8 @@ const loadQuotesFromStorage = (): QuoteData[] => {
 
 const initialState: QuotesState = {
   quotes: loadQuotesFromStorage(),
+  liveQuotes: {},
 };
-
-
-
-// const unsubscribeFromInstrument = (instrumentId: string) => {
-//   if (streamClient) {
-//     const message = {
-//       action: "unsubscribe",
-//       payload: [{
-//         id: instrumentId,
-//         data: ["quotes"]
-//       }]
-//     };
-//     streamClient.sendStreamMessage(message);
-//     console.log(`Unsubscribed from ${instrumentId}`);
-//   }
-// };
-
-
 
 export const quotesSlice = createSlice({
   name: 'quotes',
@@ -100,17 +84,13 @@ export const quotesSlice = createSlice({
         localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(state.quotes));
       }
     },
-     // ✅ REWRITTEN REDUCER
+    // ✅ REWRITTEN REDUCER to update both watchlist and live cache
     updateQuoteData: (state, action: PayloadAction<{ instrumentId: string; data: StreamDataPayload }>) => {
       const { instrumentId, data } = action.payload;
-      // Using .map() creates a new array, which guarantees a re-render.
-      state.quotes = state.quotes.map(quote => {
-        // If this isn't the quote we're looking for, return it as is
-        if (quote.id !== instrumentId) {
-          return quote;
-        }
 
-        // Otherwise, return a new object with the updated data
+      // 1. Update watchlist if it exists there
+      state.quotes = state.quotes.map(quote => {
+        if (quote.id !== instrumentId) return quote;
         return {
           ...quote,
           bid: data.bid?.[0] ?? quote.bid,
@@ -123,6 +103,25 @@ export const quotesSlice = createSlice({
           timestamp: data.ltpt?.[0] ?? quote.timestamp,
         };
       });
+
+      // 2. Update live cache for general UI consumption (like category view)
+      const existingLive = state.liveQuotes[instrumentId];
+      state.liveQuotes[instrumentId] = {
+        ...(existingLive || {
+             id: instrumentId,
+             name: "", feeding_name: "", trading_name: "",
+             bid: 0, ask: 0, low: 0, high: 0, close: 0, open: 0, timestamp: 0, ltp: 0,
+             contract_size: 100000, static_data: {}
+        }),
+        bid: data.bid?.[0] ?? (existingLive?.bid || 0),
+        ask: data.ask?.[0] ?? (existingLive?.ask || 0),
+        low: data.low?.[0] ?? (existingLive?.low || 0),
+        high: data.high?.[0] ?? (existingLive?.high || 0),
+        close: data.close?.[0] ?? (existingLive?.close || 0),
+        open: data.open?.[0] ?? (existingLive?.open || 0),
+        ltp: data.ltp?.[0] ?? (existingLive?.ltp || 0),
+        timestamp: data.ltpt?.[0] ?? (existingLive?.timestamp || 0),
+      };
     },  
 
     removeInstrumentsFromQuotes: (state, action: PayloadAction<string[]>) => {

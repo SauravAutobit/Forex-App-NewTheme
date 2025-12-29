@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
@@ -61,6 +61,8 @@ const Home = () => {
   const { data: instrumentsData, status: instrumentsStatus } = useSelector(
     (state: RootState) => state.instruments
   );
+  const liveQuotes = useSelector((state: RootState) => state.quotes.liveQuotes);
+
   const theme = useSelector((s: RootState) => s.theme.mode);
   const apiStatus = useSelector(
     (state: RootState) => state.websockets.apiStatus
@@ -74,6 +76,8 @@ const Home = () => {
   const currentCategoryInstruments: Instrument[] = activeCategoryName
     ? instrumentsData[activeCategoryName] || []
     : [];
+
+  const prevCategoryRef = useRef<string | null>(null);
 
   // --- Handlers ---
 
@@ -111,6 +115,40 @@ const Home = () => {
 
   // --- Effects ---
 
+  // Handle Dynamic Subscriptions based on Category
+  useEffect(() => {
+    if (apiStatus !== "connected") return;
+
+    // Unsubscribe from previous category instruments
+    if (
+      prevCategoryRef.current &&
+      prevCategoryRef.current !== activeCategoryName
+    ) {
+      const prevInstruments = instrumentsData[prevCategoryRef.current] || [];
+      if (prevInstruments.length > 0) {
+        import("../../services/socketService").then(
+          ({ unsubscribeFromInstruments }) => {
+            unsubscribeFromInstruments(prevInstruments.map((i) => i.id));
+          }
+        );
+      }
+    }
+
+    // Subscribe to current category instruments
+    if (activeCategoryName) {
+      const currentInstruments = instrumentsData[activeCategoryName] || [];
+      if (currentInstruments.length > 0) {
+        import("../../services/socketService").then(
+          ({ subscribeToInstruments }) => {
+            subscribeToInstruments(currentInstruments.map((i) => i.id));
+          }
+        );
+      }
+    }
+
+    prevCategoryRef.current = activeCategoryName;
+  }, [activeCategoryName, apiStatus, instrumentsData]);
+
   // Reset search query when switching tabs (Optional UX preference)
   useEffect(() => {
     setSearchQuery("");
@@ -128,7 +166,7 @@ const Home = () => {
         dispatch(fetchInstrumentsByCategory(category));
       });
     }
-  }, [categories, categoriesStatus, dispatch, active, setActive]);
+  }, [categories, categoriesStatus, dispatch]);
 
   // --- Filter/Sort Logic ---
 
@@ -202,15 +240,15 @@ const Home = () => {
         <div>
           {filteredInstruments.length > 0 ? (
             filteredInstruments.map((instrument) => {
-              const quotes = instrument.dinamic_data?.quotes;
-              const bid = quotes?.bid?.[0] ?? 0;
-              const ask = quotes?.ask?.[0] ?? 0;
-              const high = quotes?.high?.[0] ?? 0;
-              const low = quotes?.low?.[0] ?? 0;
-              const ltp = quotes?.ltp?.[0] ?? 0;
-              const close = quotes?.close?.[0] ?? 0;
-              const timestamp = quotes?.ltpt?.[0]
-                ? new Date(quotes.ltpt[0]).toLocaleTimeString()
+              const quotes = liveQuotes[instrument.id];
+              const bid = quotes?.bid ?? 0;
+              const ask = quotes?.ask ?? 0;
+              const high = quotes?.high ?? 0;
+              const low = quotes?.low ?? 0;
+              const ltp = quotes?.ltp ?? 0;
+              const close = quotes?.close ?? 0;
+              const timestamp = quotes?.timestamp
+                ? new Date(quotes.timestamp).toLocaleTimeString()
                 : "N/A";
 
               return (
@@ -223,7 +261,7 @@ const Home = () => {
                   low={low}
                   ltp={ltp}
                   close={close}
-                  pip={"N/A"}
+                  pip={instrument.static_data?.pipsize}
                   timestamp={timestamp}
                   onClick={() => handleCardClick(instrument.id)}
                   active={active}

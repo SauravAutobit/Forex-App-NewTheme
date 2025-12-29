@@ -8,7 +8,7 @@ import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
 import type { OutletContextType } from "../../layout/MainLayout";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
-import { useState } from "react";
+import { useState, type Key } from "react";
 import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
 import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
@@ -53,25 +53,38 @@ const Trade = () => {
   const { setIsFlag, isDrawerOpen, setIsDrawerOpen } =
     useOutletContext<OutletContextType>();
 
+  const liveQuotes = useAppSelector((state) => state.quotes.liveQuotes);
+  const watchlist = useAppSelector((state) => state.quotes.quotes);
+  const openPositions = useAppSelector((state) => state.positions.positions);
+  const openOrders = useAppSelector((state) => state.openOrders.data);
+  const historyPositions = useAppSelector(
+    (state) => state.historyPositions.data
+  );
+
   const tabsData: TabItem[] = [
     {
       id: "market",
       label: "Market",
       content: (
         <div>
-          {Array.from({ length: 10 }).map((_, index) => {
+          {watchlist.map((item) => {
+            const quotes = liveQuotes[item.id] || item;
             return (
               <MarketCard
-                key={index}
-                code={`EUR/GBP ${index}`}
-                bid={1678.256369}
-                ask={1078.256369}
-                high={253659}
-                low={235698}
-                ltp={30}
-                close={23.22}
-                pip={"5asa"}
-                timestamp={"15:23:00"}
+                key={item.id}
+                code={item.name}
+                bid={quotes.bid}
+                ask={quotes.ask}
+                high={quotes.high}
+                low={quotes.low}
+                ltp={quotes.ltp}
+                close={quotes.close}
+                pip={item.static_data?.pipsize}
+                timestamp={
+                  quotes.timestamp
+                    ? new Date(quotes.timestamp).toLocaleTimeString()
+                    : "..."
+                }
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
@@ -79,8 +92,6 @@ const Trade = () => {
                   }));
                   navigate("/app/marketEdit");
                 }}
-                // active={active}
-                // favourites={isFlag.favourites?.status}
               />
             );
           })}
@@ -92,19 +103,19 @@ const Trade = () => {
       label: "Pending",
       content: (
         <div>
-          {Array.from({ length: 10 }).map((_, index) => {
+          {openOrders.map((order: { instrument: { name: string; }; time: string | number | Date; }, index: Key | null | undefined) => {
             return (
               <PendingCard
                 key={index}
-                code={`EURUSD ${index}`}
-                bid={1678.256369}
-                ask={1078.256369}
-                high={253659}
-                low={235698}
-                ltp={30}
-                close={23.22}
-                pip={"5asa"}
-                timestamp={"15:23:00"}
+                code={order.instrument.name}
+                bid={0} // Pending orders might not have immediate bid/ask here
+                ask={0}
+                high={0}
+                low={0}
+                ltp={0}
+                close={0}
+                pip={""}
+                timestamp={new Date(order.time).toLocaleTimeString()}
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
@@ -112,8 +123,6 @@ const Trade = () => {
                   }));
                   navigate("/app/pendingEdit");
                 }}
-                // active={active}
-                // favourites={isFlag.favourites?.status}
               />
             );
           })}
@@ -125,19 +134,19 @@ const Trade = () => {
       label: "Closed",
       content: (
         <div>
-          {Array.from({ length: 10 }).map((_, index) => {
+          {historyPositions.map((pos, index) => {
             return (
               <ClosedCard
                 key={index}
-                code={`EURUSD ${index}`}
-                bid={1678.256369}
-                ask={1078.256369}
-                high={253659}
-                low={235698}
-                ltp={30}
-                close={23.22}
-                pip={"5asa"}
-                timestamp={"15:23:00"}
+                code={pos.instrument.name}
+                bid={0}
+                ask={0}
+                high={0}
+                low={0}
+                ltp={0}
+                close={0}
+                pip={""}
+                timestamp={new Date(pos.time_setup).toLocaleTimeString()}
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
@@ -145,9 +154,6 @@ const Trade = () => {
                   }));
                   navigate("/app/closedEdit");
                 }}
-
-                // active={active}
-                // favourites={isFlag.favourites?.status}
               />
             );
           })}

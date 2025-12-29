@@ -17,7 +17,7 @@ import {
 //   updatePositionQuote,
 // } from "../store/slices/positionsSlice";
 // import { fetchDeals } from "../store/slices/dealsSlice";
-import type { AppDispatch, RootState } from "../store/store";
+import type { RootState } from "../store/store";
 import { updatePositionQuote } from "../store/slices/positionsSlice";
 import { updateQuoteData } from "../store/slices/quotesSlice";
 // import { fetchHistoryOrders } from "../store/slices/historyOrdersSlice";
@@ -101,7 +101,7 @@ let eventClient: WebSocketClient;
 // };
 
 
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlkNjkwNGQ5OGI2YzQ4NDQ4NTdkODUyYWMxNjQ1ZDVjIiwiYWNjaWQiOiI4OTU2MTg4Yi0wYWM4LTRmMTctYjA2OC0yNDI1MGRhMjVmZWEifQ.7UTmsdqzbeaXnmmpH-VBhzZ3ryxSdbQ1habYya5s1rA"
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWZhMDAyZGEyMzE4ZDQ1MTdhYTg4ODk4Y2MwMTg1NGJlIiwiYWNjaWQiOiIxOTdlNjI2OS04OTBhLTQ5NzUtOTA1ZC1jNjQzNjY3YzIyOTciLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MDA4In0.-k5TU_plgJ2o0F5Ata25A6J-feaYSt2-S9-0VZOjMRc"
 // wss://api.fintrabit.com/ws test token
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
 
@@ -152,18 +152,16 @@ export const initializeSockets = (store: Store) => {
         const isPositionInstrument = rootState.positions.positions.some(
           (pos) => pos.instrument_id === msg.instrument.id
         );
-        const isQuotesListInstrument = rootState.quotes.quotes.some(
-          (quote) => quote.id === msg.instrument.id
-        );
 
-        if (isQuotesListInstrument) {
-          store.dispatch(
-            updateQuoteData({
-              instrumentId: msg.instrument.id,
-              data: msg.data,
-            })
-          );
-        }
+        // Dispatch update for quotes slice (it now handles both watchlist and live cache)
+        store.dispatch(
+          updateQuoteData({
+            instrumentId: msg.instrument.id,
+            data: msg.data,
+          })
+        );
+        
+        // Check if it's a position instrument and update accordingly
         if (isPositionInstrument) {
           store.dispatch(
             updatePositionQuote({

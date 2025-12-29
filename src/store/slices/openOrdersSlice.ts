@@ -99,6 +99,7 @@ export interface OpenOrder {
 }
 
 interface OpenOrdersState {
+  data: any;
   orders: OpenOrder[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -108,6 +109,7 @@ const initialState: OpenOrdersState = {
   orders: [],
   status: "idle",
   error: null,
+  data: undefined
 };
 
 // --- Thunk for fetching pending orders data ---

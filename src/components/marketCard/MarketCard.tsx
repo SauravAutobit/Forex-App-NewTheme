@@ -1,7 +1,17 @@
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import cardIcon from "../../assets/icons/cardIcon.svg";
-import arrow from "../../assets/icons/arrow.svg";
+// import arrow from "../../assets/icons/arrow.svg";/
 import { useAppSelector } from "../../store/hook";
+
+// ✅ A custom hook to get the previous value
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T | undefined>(undefined);
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
 
 export interface CardProps {
   code: string;
@@ -9,10 +19,10 @@ export interface CardProps {
   ask: number;
   high: number;
   low: number;
-  ltp: number; // ✅ Now used for calculation
-  close: number; // ✅ FIX: Added 'close' for the calculation
+  ltp: number;
+  close: number;
   pip?: number | string;
-  timestamp: string; // ✅ FIX: Moved to its own line
+  timestamp: string;
   onClick: () => void;
   active?: string;
   favourites?: boolean;
@@ -21,8 +31,56 @@ export interface CardProps {
   paddingRight?: string;
 }
 
+interface FormattedPrice {
+  isPipFormatted: boolean;
+  main: string;
+  pipsOrSmall: string;
+  small: string;
+}
+
+const formatPrice = (price: number, pip?: number | string): FormattedPrice => {
+  if (price === 0)
+    return { isPipFormatted: false, main: "0.00", pipsOrSmall: "", small: "" };
+
+  const pipValue = typeof pip === "string" ? parseFloat(pip) : pip;
+
+  if (pipValue && !isNaN(pipValue) && pipValue < 0.1) {
+    const priceStr = price.toString();
+    const parts = priceStr.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1] || "";
+    const pipDecimalPlaces = Math.round(Math.log10(1 / pipValue));
+
+    if (decimalPart.length >= pipDecimalPlaces - 2) {
+      const normalDecimalPlaces = pipDecimalPlaces - 2;
+      return {
+        isPipFormatted: true,
+        main: `${integerPart}.${decimalPart.slice(0, normalDecimalPlaces)}`,
+        pipsOrSmall: decimalPart.slice(normalDecimalPlaces, pipDecimalPlaces),
+        small: decimalPart.slice(pipDecimalPlaces),
+      };
+    }
+  }
+
+  const priceStr = price.toFixed(4);
+  const parts = priceStr.split(".");
+  return {
+    isPipFormatted: false,
+    main: `${parts[0]}.${parts[1].slice(0, 2)}`,
+    pipsOrSmall: parts[1].slice(2),
+    small: "",
+  };
+};
+
 const MarketCard = ({
   code,
+  bid,
+  ask,
+  high,
+  low,
+  ltp,
+  close,
+  pip,
   timestamp,
   onClick,
   border = true,
@@ -30,10 +88,36 @@ const MarketCard = ({
   paddingRight = "20px",
 }: CardProps) => {
   const { pathname } = useLocation();
-
   const marketEdit = pathname === "/app/marketEdit";
+  // const theme = useAppSelector((state) => state.theme.mode);
 
-  const theme = useAppSelector((state) => state.theme.mode);
+  const askPrice = formatPrice(ask, pip);
+  const bidPrice = formatPrice(bid, pip);
+
+  const [askColor, setAskColor] = useState("text-primary");
+  const [bidColor, setBidColor] = useState("text-primary");
+
+  const prevAsk = usePrevious(ask);
+  const prevBid = usePrevious(bid);
+
+  useEffect(() => {
+    if (prevAsk !== undefined && ask !== 0) {
+      if (ask > prevAsk) setAskColor("text-profit");
+      else if (ask < prevAsk) setAskColor("text-loss");
+    }
+  }, [ask, prevAsk]);
+
+  useEffect(() => {
+    if (prevBid !== undefined && bid !== 0) {
+      if (bid > prevBid) setBidColor("text-profit");
+      else if (bid < prevBid) setBidColor("text-loss");
+    }
+  }, [bid, prevBid]);
+
+  const change = ltp - close;
+  const percentageChange = close !== 0 ? (change / close) * 100 : 0;
+  const changeColor = change >= 0 ? "text-profit" : "text-loss";
+  const changeSign = change >= 0 ? "+" : "";
 
   return (
     <div
@@ -46,50 +130,48 @@ const MarketCard = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
           <img src={cardIcon} alt="cardIcon" />
-          {/* Left Side: Title and Change */}
-
           <div>
             <h2 className="my-1 font-secondary">{code.toUpperCase()}</h2>
-            <div>Buy 0.01</div>
+            <p className={`text-xs font-secondary ${changeColor}`}>
+              {changeSign}
+              {change.toFixed(2)} <span>({percentageChange.toFixed(3)}%)</span>
+            </p>
           </div>
         </div>
 
-        {/* Middle + Right Side */}
-        <div className="flex items-center mt-2">
-          <div>
-            <div className="text-right text-profit font-secondary">+$0.58</div>
-            {/* Right: Bid Price (Green) */}
-            <div className="flex">
-              <div className={`text-right ${!marketEdit && "pr-2"}`}>
-                <div className="flex justify-between items-center mt-1">
-                  <span className={`${marketEdit && "text-secondary"}`}>
-                    {marketEdit ? "1.17047" : "2025.09.15"}
-                  </span>
-                </div>
-              </div>
-
-              {marketEdit ? (
-                <img src={arrow} alt="arrow" />
-              ) : (
-                <div
-                  className={`w-px ${
-                    theme === "dark" ? "bg-[#FAFAFA]" : "bg-[#2D2D2D]"
-                  }`}
-                ></div>
-              )}
-
-              {/* Middle: Ask Price (Red) */}
-              <div className={`text-right ${!marketEdit && "pl-2"}`}>
-                <div className="flex justify-between items-center mt-1">
-                  <span className={`${marketEdit && "text-secondary"}`}>
-                    {marketEdit ? "1.17047" : timestamp}
-                  </span>
-                </div>
-              </div>
+        <div className="flex items-center">
+          <div className="text-right pr-2">
+            <div
+              className={`${askColor} font-secondary transition-colors duration-200 flex items-baseline justify-end`}
+            >
+              <span className="text-base">{askPrice.main}</span>
+              <span className="text-xl font-bold">{askPrice.pipsOrSmall}</span>
+              <span className="text-[10px]">{askPrice.small}</span>
             </div>
+            <p className="text-[10px] text-secondary">
+              <span className="font-tertiary pr-1">H</span>
+              {high.toFixed(2)}
+            </p>
+          </div>
+
+          <div className="w-px h-6 bg-primary mx-1"></div>
+
+          <div className="text-right pl-2">
+            <div
+              className={`${bidColor} font-secondary transition-colors duration-200 flex items-baseline justify-end`}
+            >
+              <span className="text-base">{bidPrice.main}</span>
+              <span className="text-xl font-bold">{bidPrice.pipsOrSmall}</span>
+              <span className="text-[10px]">{bidPrice.small}</span>
+            </div>
+            <p className="text-[10px] text-secondary">
+              <span className="font-tertiary pr-1">L</span>
+              {low.toFixed(2)}
+            </p>
           </div>
         </div>
       </div>
+      <div className="text-[10px] text-secondary mt-1 ml-9">{timestamp}</div>
     </div>
   );
 };
