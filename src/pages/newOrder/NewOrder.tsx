@@ -80,10 +80,12 @@ const NewOrder = () => {
   // Determine ticksize/pip step
   useEffect(() => {
     if (foundInstrument) {
-      const staticData = foundInstrument.static_data;
       let step = 0.01;
+      const staticData = foundInstrument.static_data;
       if (staticData?.ticksize) {
         step = Number(staticData.ticksize);
+      } else if (staticData?.tick_size) {
+        step = Number(staticData.tick_size);
       } else if (staticData?.pip) {
         step = Number(staticData.pip);
       }
@@ -94,10 +96,11 @@ const NewOrder = () => {
   // Initialize values from selected position (Close/Modify mode)
   useEffect(() => {
     if (selectedPosition) {
-      setSelectedLot(
-        selectedPosition.qty /
-          (Number(foundInstrument?.static_data?.contractsize) || 1)
-      );
+      const contractSize =
+        Number(foundInstrument?.static_data?.contractsize) ||
+        Number(foundInstrument?.static_data?.contract_size) ||
+        1;
+      setSelectedLot(selectedPosition.qty / contractSize);
 
       const slOrder = selectedPosition.torders.find(
         (o) => o.order_type === "stop"
@@ -114,7 +117,9 @@ const NewOrder = () => {
   useEffect(() => {
     if (foundInstrument) {
       const contractSize =
-        Number(foundInstrument.static_data?.contractsize) || 1;
+        Number(foundInstrument.static_data?.contractsize) ||
+        Number(foundInstrument.static_data?.contract_size) ||
+        1;
       const vol = selectedLot * contractSize;
       console.log(
         `[NewOrder] Lot: ${selectedLot.toFixed(2)}, Volume: ${vol.toFixed(
@@ -143,18 +148,28 @@ const NewOrder = () => {
               label="Vol"
               initialValue={
                 selectedLot *
-                (Number(foundInstrument?.static_data?.contractsize) || 1)
+                (Number(foundInstrument?.static_data?.contractsize) ||
+                  Number(foundInstrument?.static_data?.contract_size) ||
+                  1)
               }
               min={
-                0.01 * (Number(foundInstrument?.static_data?.contractsize) || 1)
+                0.01 *
+                (Number(foundInstrument?.static_data?.contractsize) ||
+                  Number(foundInstrument?.static_data?.contract_size) ||
+                  1)
               }
               step={
-                0.01 * (Number(foundInstrument?.static_data?.contractsize) || 1)
+                0.01 *
+                (Number(foundInstrument?.static_data?.contractsize) ||
+                  Number(foundInstrument?.static_data?.contract_size) ||
+                  1)
               }
               onValueChange={(val) =>
                 setSelectedLot(
                   val /
-                    (Number(foundInstrument?.static_data?.contractsize) || 1)
+                    (Number(foundInstrument?.static_data?.contractsize) ||
+                      Number(foundInstrument?.static_data?.contract_size) ||
+                      1)
                 )
               }
             />
@@ -207,7 +222,9 @@ const NewOrder = () => {
             instrumentId={instrumentId || null}
             selectedOrderType={type}
             contractSize={
-              Number(foundInstrument?.static_data?.contractsize) || 1
+              Number(foundInstrument?.static_data?.contractsize) ||
+              Number(foundInstrument?.static_data?.contract_size) ||
+              1
             }
             selectedLot={selectedLot}
             orderPrice={price}

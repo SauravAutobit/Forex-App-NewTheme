@@ -8,8 +8,10 @@ import { apiClient } from "../../services/socketService";
 import { hideLoader, showLoader } from "./loadingSlice";
 
 export interface InstrumentStaticData {
-  contract_size: number;
-  tick_size: number;
+  contract_size?: number;
+  contractsize?: number;
+  tick_size?: number;
+  ticksize?: number;
 }
 
 export interface TradeCharge {

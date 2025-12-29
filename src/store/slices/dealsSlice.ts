@@ -14,8 +14,10 @@ export interface Deal {
   id: string;
   instrument_id: string;
   instruments: Array<{
-    contract_size: number;
-    tick_size: number;
+    contract_size?: number;
+    contractsize?: number;
+    tick_size?: number;
+    ticksize?: number;
     name?: string;
     static_data?: unknown;
   }>;

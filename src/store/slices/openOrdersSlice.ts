@@ -22,8 +22,10 @@ export interface RawOrderData {
   instruments: Array<{
     trading_name?: string;
     static_data?: {
-      contract_size: number;
-      tick_size: number; // Added from your InstrumentStaticData
+      contract_size?: number;
+      contractsize?: number;
+      tick_size?: number;
+      ticksize?: number;
     };
   }>;
   metadata: {
@@ -62,9 +64,11 @@ interface CancelOrderApiResponse {
 
 // --- Types for Instrument Static Data (from your API response) ---
 export interface InstrumentStaticData {
-  contract_size: number;
-  tick_size: number;
-  trading_name: string; // This is added via the query path
+  contract_size?: number;
+  contractsize?: number;
+  tick_size?: number;
+  ticksize?: number;
+  trading_name: string;
 }
 
 // --- Types for Open Order Data (based on your API response) ---
@@ -134,10 +138,11 @@ export const fetchOpenOrders = createAsyncThunk(
             const instrumentData = order.instruments?.[0]; // Use optional chaining
 
             const contractSize =
-              instrumentData?.static_data?.contract_size || // 1. Check nested static_data (Matches type/query)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (instrumentData as any)?.contract_size || // 2. Check flat contract_size (Matches previous JSON sample)
-              1; // 3. Default fallback
+              instrumentData?.static_data?.contractsize ||
+              instrumentData?.static_data?.contract_size ||
+              (instrumentData as any)?.contractsize ||
+              (instrumentData as any)?.contract_size ||
+              1;
             return {
               ...order, // Set instruments to an empty array to satisfy the type.
               instruments: [], // Extract utility fields

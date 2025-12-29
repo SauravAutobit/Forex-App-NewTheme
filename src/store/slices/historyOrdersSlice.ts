@@ -14,7 +14,10 @@ export interface HistoryOrder {
   id: string;
   instrument_id: string;
   instruments: {
-    contract_size: number;
+    contract_size?: number;
+    contractsize?: number;
+    tick_size?: number;
+    ticksize?: number;
     trading_name?: string;
     static_data?: Record<string, string | number>;
   }[];

@@ -16,8 +16,9 @@ export interface QuoteData {
   close: number;
   open: number;
   timestamp: number;
-    ltp: number; // ✅ Add Last Traded Price
-      contract_size: number;
+  ltp: number; // ✅ Add Last Traded Price
+  contract_size?: number;
+  contractsize?: number;
   static_data: Record<string, string | number>;
 
 }
@@ -76,7 +77,7 @@ export const quotesSlice = createSlice({
           feeding_name: newInstrument.feeding_name,
           trading_name: newInstrument.trading_name,
           bid: 0, ask: 0, low: 0, high: 0, close: 0, open: 0, timestamp: 0, ltp: 0,
-                    contract_size: (newInstrument.static_data.contract_size as number) || 100000, 
+          contract_size: (newInstrument.static_data.contractsize || newInstrument.static_data.contract_size) as number || 100000, 
           static_data: newInstrument.static_data,
         };
         state.quotes.push(newQuote);
