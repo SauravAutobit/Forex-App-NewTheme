@@ -107,6 +107,9 @@ export const quotesSlice = createSlice({
 
       // 2. Update live cache for general UI consumption (like category view)
       const existingLive = state.liveQuotes[instrumentId];
+      if (!state.liveQuotes[instrumentId]) {
+        console.log(`[QuotesSlice] Initializing liveQuote for ${instrumentId}`);
+      }
       state.liveQuotes[instrumentId] = {
         ...(existingLive || {
              id: instrumentId,

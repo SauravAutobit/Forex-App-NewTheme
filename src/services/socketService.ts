@@ -100,8 +100,8 @@ let eventClient: WebSocketClient;
 //     return state.auth.currentAccount?.token ?? null;
 // };
 
-
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWZhMDAyZGEyMzE4ZDQ1MTdhYTg4ODk4Y2MwMTg1NGJlIiwiYWNjaWQiOiIxOTdlNjI2OS04OTBhLTQ5NzUtOTA1ZC1jNjQzNjY3YzIyOTciLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MDA4In0.-k5TU_plgJ2o0F5Ata25A6J-feaYSt2-S9-0VZOjMRc"
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWU1ZDdjNWExMDFhZTRhODc5NDAyZjgzNTkxNzUzMjMyIiwiYWNjaWQiOiJjMGFiMDQwNC1lYTIzLTQ2MDUtYTU4ZC1kNWViNjdhYWM1YWYiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MTY5In0.lPViZzHdj-rV2-JPsv_5EDvyQtNAHaBuFS75NANDMvg";
+// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWZhMDAyZGEyMzE4ZDQ1MTdhYTg4ODk4Y2MwMTg1NGJlIiwiYWNjaWQiOiIxOTdlNjI2OS04OTBhLTQ5NzUtOTA1ZC1jNjQzNjY3YzIyOTciLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MDA4In0.-k5TU_plgJ2o0F5Ata25A6J-feaYSt2-S9-0VZOjMRc"
 // wss://api.fintrabit.com/ws test token
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";
 
@@ -144,7 +144,11 @@ export const initializeSockets = (store: Store) => {
     // NEW: Central message handler using the universal type guard
     streamClient.setMessageHandler((msg: unknown) => {
       // Log all incoming stream messages for debugging
-      // console.log("Received stream message:", msg);
+      if (typeof msg === "object" && msg !== null && "component" in msg) {
+        console.log(`[Stream] Received: component=${(msg as any).component}, id=${(msg as any).instrument?.id}`);
+      } else {
+        console.log("[Stream] Received unknown message format:", msg);
+      }
 
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it

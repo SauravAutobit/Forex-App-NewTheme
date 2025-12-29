@@ -37,14 +37,41 @@ const OrderButtons = ({
   const theme = useAppSelector((state) => state.theme.mode);
   const { status: orderStatus } = useAppSelector((state) => state.orderStatus);
 
+  // New state to hold the live P&L for the closed position button
   const [livePnl, setLivePnl] = useState<number>(0);
   const selectedPosition = useSelector((state: RootState) =>
     state.positions.positions.find((pos) => pos.id === positionIdToClose)
   );
 
-  const selectedQuote = useSelector((state: RootState) =>
-    state.quotes.quotes.find((q) => q.id === instrumentId)
-  );
+  // Robust Selector for selectedQuote (Consolidated Fix)
+  // This ensures we check BOTH watchlist and live cache, handling string mismatches.
+  const selectedQuote = useSelector((state: RootState) => {
+    if (!instrumentId) return null;
+    const instrumentIdStr = String(instrumentId).trim().toLowerCase();
+
+    // Attempt standard match in watchlist
+    let quote = state.quotes.quotes.find(
+      (q) => String(q.id).trim().toLowerCase() === instrumentIdStr
+    );
+
+    if (!quote) {
+      // Attempt liveQuotes match (direct key)
+      quote = state.quotes.liveQuotes[instrumentIdStr];
+    }
+
+    // If STILL null, try to find case-insensitive key in liveQuotes object
+    if (!quote) {
+      const keys = Object.keys(state.quotes.liveQuotes);
+      const matchKey = keys.find(
+        (k) => k.trim().toLowerCase() === instrumentIdStr
+      );
+      if (matchKey) {
+        quote = state.quotes.liveQuotes[matchKey];
+      }
+    }
+
+    return quote || null;
+  });
 
   useEffect(() => {
     if (selectedPosition) {
@@ -62,10 +89,13 @@ const OrderButtons = ({
   }, [selectedPosition]);
 
   useEffect(() => {
+    // Handle successful orders by navigating
     if (orderStatus === "succeeded") {
       const timer = setTimeout(() => {
-        if (mode === "newOrder" || mode === "closePosition") {
-          navigate("/trade");
+        if (mode === "newOrder") {
+          navigate("/app/trade");
+        } else if (mode === "closePosition") {
+          navigate("/app/trade"); // Navigate back to the main trade list
         }
         if (mode === "modifyPosition") {
           dispatch(setOrderStatus({ status: "idle", message: "" }));
@@ -74,16 +104,20 @@ const OrderButtons = ({
       return () => clearTimeout(timer);
     }
 
+    // FIX: Handle failed orders by resetting the status
     if (orderStatus === "failed") {
       const timer = setTimeout(() => {
+        // This will hide the error overlay and allow the user to fix their input.
         dispatch(setOrderStatus({ status: "idle", message: "" }));
-      }, 2500);
+      }, 2500); // Show the error message for 2.5 seconds
       return () => clearTimeout(timer);
     }
   }, [orderStatus, mode, navigate, dispatch]);
 
   const handlePlaceOrder = (side: "buy" | "sell") => {
-    if (orderStatus === "loading") return;
+    if (orderStatus === "loading") {
+      return;
+    }
 
     if (!instrumentId || !contractSize) {
       dispatch(
@@ -106,6 +140,10 @@ const OrderButtons = ({
     }
 
     let basePrice: number | null = null;
+    console.log("[OrderButtons] handlePlaceOrder side:", side);
+    console.log("[OrderButtons] Instrument ID:", instrumentId);
+    console.log("[OrderButtons] Selected Quote:", selectedQuote);
+
     if (selectedOrderType === "market") {
       basePrice =
         side === "buy"
@@ -115,7 +153,22 @@ const OrderButtons = ({
       basePrice = orderPrice;
     }
 
-    if (!basePrice || basePrice <= 0) {
+    // Explicit null check and logging before validation
+    if (basePrice === null || basePrice === undefined) {
+      console.warn(
+        "[OrderButtons] Base Price is NULL. Quote might be missing."
+      );
+      dispatch(
+        setOrderStatus({
+          status: "failed",
+          message: "Current price or order price is missing for validation.",
+        })
+      );
+      return;
+    }
+
+    // Check if basePrice is a valid number before validation
+    if (typeof basePrice !== "number" || basePrice <= 0) {
       dispatch(
         setOrderStatus({
           status: "failed",
@@ -125,6 +178,7 @@ const OrderButtons = ({
       return;
     }
 
+    // SL/TP VALIDATION LOGIC
     if (stoploss > 0 || target > 0) {
       if (side === "buy") {
         if (stoploss > 0 && stoploss >= basePrice) {
@@ -186,10 +240,12 @@ const OrderButtons = ({
         }
       }
     }
+    // END SL/TP VALIDATION LOGIC
 
     const price = selectedOrderType === "market" ? 0 : orderPrice;
     const orderQuantity = selectedLot * (contractSize || 0);
 
+    // New quantity check for closing positions
     if (mode === "closePosition" && selectedPosition) {
       if (orderQuantity > selectedPosition.qty) {
         dispatch(
@@ -222,7 +278,7 @@ const OrderButtons = ({
         dispatch(
           placeNewOrder({
             instrument_id: instrumentId,
-            qty: orderQuantity,
+            qty: selectedLot * (contractSize || 0),
             price: price || 0,
             order_type: selectedOrderType as "market" | "limit" | "stop",
             side,
@@ -234,17 +290,20 @@ const OrderButtons = ({
     }
   };
 
+  const handleModifyPosition = () => {
+    console.log("Modifying position...");
+  };
+
   const renderButtons = () => {
     if (mode === "closePosition") {
-      const bgColor =
+      const pnlColorClass =
         theme === "dark"
           ? livePnl >= 0
-            ? "#02F511"
-            : "#FE0000"
-          : livePnl >= 0
-          ? "#00B22D"
-          : "#DD3C48";
-
+            ? "text-profit"
+            : "text-loss"
+          : "text-white";
+      const borderColorClass = livePnl >= 0 ? "border-profit" : "border-loss";
+      const bgColorClass = livePnl >= 0 ? "bg-profit" : "bg-loss";
       const buttonText = livePnl >= 0 ? "Close with Profit" : "Close with Loss";
 
       return (
@@ -255,7 +314,7 @@ const OrderButtons = ({
             }
             width="353px"
             height="44px"
-            bgColor={theme === "dark" ? "#181818" : bgColor}
+            bgColor={theme === "dark" ? "#181818" : bgColorClass}
             textColor={
               theme === "dark"
                 ? livePnl >= 0
@@ -288,7 +347,7 @@ const OrderButtons = ({
             bgColor={theme === "dark" ? "#FF8C00B2" : "#FF8C00"}
             textColor="#FAFAFA"
             fontWeight={600}
-            onClick={() => console.log("Modifying position...")}
+            onClick={handleModifyPosition}
           />
         </div>
       );
@@ -296,10 +355,7 @@ const OrderButtons = ({
 
     if (selectedOrderType === "market") {
       return (
-        <div
-          className="flex items-center justify-between mt-3"
-          // style={{ marginBottom: "42px" }}
-        >
+        <div className="flex items-center justify-between mt-3">
           <Button
             onClick={() => handlePlaceOrder("sell")}
             label={

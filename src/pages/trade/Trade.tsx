@@ -56,10 +56,9 @@ const Trade = () => {
   const liveQuotes = useAppSelector((state) => state.quotes.liveQuotes);
   const watchlist = useAppSelector((state) => state.quotes.quotes);
   const openPositions = useAppSelector((state) => state.positions.positions);
-  const openOrders = useAppSelector((state) => state.openOrders.data);
-  const historyPositions = useAppSelector(
-    (state) => state.historyPositions.data
-  );
+  const openOrders = useAppSelector((state) => state.openOrders.orders) || [];
+  const historyPositions =
+    useAppSelector((state) => state.historyPositions.data) || [];
 
   const tabsData: TabItem[] = [
     {
@@ -103,11 +102,11 @@ const Trade = () => {
       label: "Pending",
       content: (
         <div>
-          {openOrders.map((order: { instrument: { name: string; }; time: string | number | Date; }, index: Key | null | undefined) => {
+          {openOrders.map((order, index) => {
             return (
               <PendingCard
                 key={index}
-                code={order.instrument.name}
+                code={order.trading_name}
                 bid={0} // Pending orders might not have immediate bid/ask here
                 ask={0}
                 high={0}
@@ -115,7 +114,7 @@ const Trade = () => {
                 ltp={0}
                 close={0}
                 pip={""}
-                timestamp={new Date(order.time).toLocaleTimeString()}
+                timestamp={new Date(order.placed_time).toLocaleTimeString()}
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,

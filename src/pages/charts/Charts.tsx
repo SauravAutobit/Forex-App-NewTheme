@@ -128,7 +128,7 @@ const Charts = () => {
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
 
-  console.log("active options", activeOptions);
+  // console.log("active options", activeOptions);
 
   const theme = useSelector((s: RootState) => s.theme.mode);
 

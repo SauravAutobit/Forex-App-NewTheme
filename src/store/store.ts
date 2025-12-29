@@ -14,6 +14,7 @@ import accountReducer from "./slices/accountSlice";
 import quotesReducer from "./slices/quotesSlice";
 import ordersReducer from "./slices/ordersSlice";
 import orderStatusReducer from "./slices/orderStatusSlice";
+import instrumentRelationsReducer from "./slices/instrumentRelationsSlice";
 
 const rootReducer = {
   websockets: webSocketReducer,
@@ -31,6 +32,7 @@ const rootReducer = {
   quotes: quotesReducer,
   orders: ordersReducer,
   orderStatus: orderStatusReducer,
+  instrumentRelations: instrumentRelationsReducer,
 };
 
 // Derive RootState from the reducer map BEFORE creating the listener middleware

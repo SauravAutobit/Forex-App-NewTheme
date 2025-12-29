@@ -69,11 +69,11 @@ export const fetchChartData = createAsyncThunk(
   ) => {
     try {
 // mock data
-      console.log(instrumentId, startIndex, endIndex, timeframe)
+      // console.log(instrumentId, startIndex, endIndex, timeframe)
       const mockData = generateMockChartData();
-      console.log(
-        "fetchChartData: Returning 100 mock data points for development.", mockData
-      );
+      // console.log(
+      //   "fetchChartData: Returning 100 mock data points for development.", mockData
+      // );
       return mockData;
 
       // const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;

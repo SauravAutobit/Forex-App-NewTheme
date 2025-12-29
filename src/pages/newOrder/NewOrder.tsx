@@ -1,11 +1,14 @@
 import Counter from "../../components/counter/Counter";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import CheckList from "../../components/checkList/CheckList";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { useSearchParams } from "react-router-dom";
 import OrderButtons from "../../components/orderButtons/OrderButtons";
+import { setOrderStatus } from "../../store/slices/orderStatusSlice";
+import { useAppDispatch } from "../../store/hook";
+import { subscribeToInstruments } from "../../services/socketService";
 
 interface TabItem {
   id: string;
@@ -13,8 +16,26 @@ interface TabItem {
   content?: React.ReactNode;
 }
 
+// A custom hook to get the previous value of a prop or state
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T | undefined>(undefined);
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
+
 const NewOrder = () => {
   const [searchParams] = useSearchParams();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // Reset status on mount
+    dispatch(setOrderStatus({ status: "idle", message: "" }));
+    return () => {
+      dispatch(setOrderStatus({ status: "idle", message: "" }));
+    };
+  }, [dispatch]);
 
   const mode =
     (searchParams.get("mode") as
@@ -33,6 +54,7 @@ const NewOrder = () => {
     (state: RootState) => state.positions.positions
   );
   const quotes = useSelector((state: RootState) => state.quotes.quotes);
+  const liveQuotes = useSelector((state: RootState) => state.quotes.liveQuotes);
 
   const selectedPosition = useMemo(
     () => positions.find((p) => p.id === positionId),
@@ -44,31 +66,85 @@ const NewOrder = () => {
       ? selectedPosition?.instrument_id
       : selectedInstrumentId;
 
-  const selectedQuote = useMemo(
-    () => quotes.find((q) => q.id === instrumentId),
-    [quotes, instrumentId]
-  );
+  // ROBUST SELECTOR: Check both watchlist and liveQuotes with string normalization
+  const selectedQuote = useMemo(() => {
+    if (!instrumentId) return null;
+    const instrumentIdStr = String(instrumentId).trim().toLowerCase();
 
+    // 1. Check Watchlist
+    const quote = quotes.find(
+      (q) => String(q.id).trim().toLowerCase() === instrumentIdStr
+    );
+    if (quote) return quote;
+
+    // 2. Check LiveQuotes (Direct Key)
+    if (liveQuotes[instrumentIdStr]) return liveQuotes[instrumentIdStr];
+
+    // 3. Check LiveQuotes (Case-Insensitive Keys)
+    const keys = Object.keys(liveQuotes);
+    const matchKey = keys.find(
+      (k) => k.trim().toLowerCase() === instrumentIdStr
+    );
+    if (matchKey) return liveQuotes[matchKey];
+
+    return null;
+  }, [quotes, liveQuotes, instrumentId]);
+
+  // ROBUST INSTRUMENT FINDER
   const foundInstrument = useMemo(() => {
+    if (!instrumentId) return null;
+    const instrumentIdStr = String(instrumentId).trim().toLowerCase();
+
     for (const category in instrumentsData) {
       const found = instrumentsData[category].find(
-        (inst) => inst.id === instrumentId
+        (inst) => String(inst.id).trim().toLowerCase() === instrumentIdStr
       );
       if (found) return found;
     }
     return null;
   }, [instrumentsData, instrumentId]);
 
-  console.log("foundInstrument", foundInstrument);
+  // Explicit Subscription
+  useEffect(() => {
+    if (instrumentId) {
+      // console.log(`[NewOrder] Subscribing to: ${instrumentId}`);
+      subscribeToInstruments([instrumentId]);
+    }
+  }, [instrumentId]);
 
   const [activeTabId, setActiveTabId] = useState<"market" | "limit" | "stop">(
     "market"
   );
-  const [selectedLot, setSelectedLot] = useState(0.01);
+  const [selectedLot, setSelectedLot] = useState(1);
   const [price, setPrice] = useState<number | null>(null);
   const [stoploss, setStoploss] = useState(0);
   const [target, setTarget] = useState(0);
   const [priceStep, setPriceStep] = useState(0.01);
+  const [askColor, setAskColor] = useState("text-primary");
+  const [bidColor, setBidColor] = useState("text-primary");
+
+  const prevAsk = usePrevious(selectedQuote?.ask);
+  const prevBid = usePrevious(selectedQuote?.bid);
+
+  // Update Price Colors
+  useEffect(() => {
+    if (selectedQuote) {
+      if (prevAsk !== undefined && selectedQuote.ask !== 0) {
+        if (selectedQuote.ask > prevAsk) {
+          setAskColor("text-profit");
+        } else if (selectedQuote.ask < prevAsk) {
+          setAskColor("text-loss");
+        }
+      }
+      if (prevBid !== undefined && selectedQuote.bid !== 0) {
+        if (selectedQuote.bid > prevBid) {
+          setBidColor("text-profit");
+        } else if (selectedQuote.bid < prevBid) {
+          setBidColor("text-loss");
+        }
+      }
+    }
+  }, [selectedQuote, prevAsk, prevBid]);
 
   // Initialize price for limit/stop orders
   useEffect(() => {
@@ -114,21 +190,6 @@ const NewOrder = () => {
     }
   }, [selectedPosition, foundInstrument]);
 
-  useEffect(() => {
-    if (foundInstrument) {
-      const contractSize =
-        Number(foundInstrument.static_data?.contractsize) ||
-        Number(foundInstrument.static_data?.contract_size) ||
-        1;
-      const vol = selectedLot * contractSize;
-      console.log(
-        `[NewOrder] Lot: ${selectedLot.toFixed(2)}, Volume: ${vol.toFixed(
-          2
-        )} (Contract Size: ${contractSize})`
-      );
-    }
-  }, [selectedLot, foundInstrument]);
-
   const editOptions = [
     { label: "Trailing stop", key: "trailingStop" },
     { label: "Break even", key: "breakEven" },
@@ -139,105 +200,91 @@ const NewOrder = () => {
     () => editOptions.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {})
   );
 
-  const renderContent = (type: "market" | "limit" | "stop") => (
-    <div className="px-5 h-[calc(100vh-179px)] overflow-y-auto">
-      <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-center gap-1">
-            <Counter
-              label="Vol"
-              initialValue={
-                selectedLot *
-                (Number(foundInstrument?.static_data?.contractsize) ||
-                  Number(foundInstrument?.static_data?.contract_size) ||
-                  1)
-              }
-              min={
-                0.01 *
-                (Number(foundInstrument?.static_data?.contractsize) ||
-                  Number(foundInstrument?.static_data?.contract_size) ||
-                  1)
-              }
-              step={
-                0.01 *
-                (Number(foundInstrument?.static_data?.contractsize) ||
-                  Number(foundInstrument?.static_data?.contract_size) ||
-                  1)
-              }
-              onValueChange={(val) =>
-                setSelectedLot(
-                  val /
-                    (Number(foundInstrument?.static_data?.contractsize) ||
-                      Number(foundInstrument?.static_data?.contract_size) ||
-                      1)
-                )
-              }
-            />
-            <span className="text-secondary mt-7">or</span>
-            <Counter
-              label="Lot"
-              initialValue={selectedLot}
-              min={0.01}
-              step={0.01}
-              onValueChange={(val) => setSelectedLot(val)}
-            />
-          </div>
+  const getContractSize = () => {
+    return (
+      Number(foundInstrument?.static_data?.contractsize) ||
+      Number(foundInstrument?.static_data?.contract_size) ||
+      1
+    );
+  };
 
-          {type !== "market" && (
+  const renderContent = (type: "market" | "limit" | "stop") => {
+    const contractSize = getContractSize();
+
+    return (
+      <div className="px-5 h-[calc(100vh-179px)] overflow-y-auto">
+        <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-1">
+              <Counter
+                label="Vol"
+                initialValue={selectedLot * contractSize}
+                min={1 * contractSize}
+                step={1 * contractSize}
+                onValueChange={(val) => setSelectedLot(val / contractSize)}
+              />
+              <span className="text-secondary mt-7">or</span>
+              <Counter
+                label="Lot"
+                initialValue={selectedLot}
+                min={1}
+                step={1}
+                onValueChange={(val) => setSelectedLot(val)}
+              />
+            </div>
+
+            {type !== "market" && (
+              <Counter
+                label="Price"
+                initialValue={price || 0}
+                step={priceStep}
+                onValueChange={setPrice}
+              />
+            )}
+
             <Counter
-              label="Price"
-              initialValue={price || 0}
+              label="Take Profit"
+              initialValue={target}
               step={priceStep}
-              onValueChange={setPrice}
+              onValueChange={setTarget}
             />
-          )}
+            <Counter
+              label="Stop Loss"
+              initialValue={stoploss}
+              step={priceStep}
+              onValueChange={setStoploss}
+            />
 
-          <Counter
-            label="Take Profit"
-            initialValue={target}
-            step={priceStep}
-            onValueChange={setTarget}
-          />
-          <Counter
-            label="Stop Loss"
-            initialValue={stoploss}
-            step={priceStep}
-            onValueChange={setStoploss}
-          />
-
-          <CheckList
-            activeOptions={activeOptions}
-            setActiveOptions={setActiveOptions}
-            options={editOptions}
-          />
-        </div>
-        <div className="mb-9">
-          <div className="flex items-center justify-between text-secondary text-sm">
-            Required margin/Free margin
-            <span>
-              1216.36 /<span className="text-loss">0.00</span>
-            </span>
+            <CheckList
+              activeOptions={activeOptions}
+              setActiveOptions={setActiveOptions}
+              options={editOptions}
+            />
           </div>
-          <OrderButtons
-            instrumentId={instrumentId || null}
-            selectedOrderType={type}
-            contractSize={
-              Number(foundInstrument?.static_data?.contractsize) ||
-              Number(foundInstrument?.static_data?.contract_size) ||
-              1
-            }
-            selectedLot={selectedLot}
-            orderPrice={price}
-            stoploss={stoploss}
-            target={target}
-            mode={mode}
-            originalSide={selectedPosition?.side as any}
-            positionIdToClose={positionId}
-          />
+          <div className="mb-9">
+            <div className="flex items-center justify-between text-secondary text-sm">
+              Required margin/Free margin
+              <span>
+                1216.36 /<span className="text-loss">0.00</span>
+              </span>
+            </div>
+            <OrderButtons
+              instrumentId={instrumentId || null}
+              selectedOrderType={type}
+              contractSize={contractSize}
+              selectedLot={selectedLot}
+              orderPrice={price}
+              stoploss={stoploss}
+              target={target}
+              mode={mode}
+              originalSide={selectedPosition?.side as any}
+              positionIdToClose={positionId}
+            />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const tabsData: TabItem[] = [
     { id: "market", label: "Market order", content: renderContent("market") },
