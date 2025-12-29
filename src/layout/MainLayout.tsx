@@ -4,6 +4,7 @@ import BottomNavbar from "../components/bottomNavbar/BottomNavbar";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import useLocalStorage from "../utils/useLocalStorage";
+import OrderStatus from "../components/orderStatus/OrderStatus";
 // import { initializeSockets } from "../services/socketService.ts";
 // import { store } from "../store/store";
 
@@ -168,6 +169,7 @@ const MainLayout = () => {
 
       <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <OrderStatus />
     </div>
   );
 };

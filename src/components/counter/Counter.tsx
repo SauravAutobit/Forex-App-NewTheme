@@ -2,82 +2,117 @@ import React, { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppSelector } from "../../store/hook";
-// import { useAppSelector } from "../../store/hook";
 
 interface CounterProps {
   initialValue?: number;
   onValueChange?: (value: number) => void;
   min?: number;
   max?: number;
-  precision?: number;
   label?: string;
+  step?: number;
 }
 
 const Counter: React.FC<CounterProps> = ({
-  initialValue = 0, // Default to 0
+  initialValue = 0,
   onValueChange,
   min = 0,
   max = Infinity,
   label,
+  step,
 }) => {
+  // Dynamic precision based on step (Admin/Old App logic)
+  const getPrecision = (s: number) => {
+    if (!s || s >= 1) return 2;
+    const sStr = s.toString();
+    if (sStr.includes(".")) {
+      return sStr.split(".")[1].length;
+    }
+    return 2;
+  };
+
+  const precision = getPrecision(step || 0.01);
+
   const [value, setValue] = useState(initialValue);
-  const [inputValue, setInputValue] = useState(String(initialValue));
+  const [inputValue, setInputValue] = useState(
+    initialValue === 0 && label ? "" : initialValue.toFixed(precision)
+  );
   const { pathname } = useLocation();
+  const theme = useAppSelector((state) => state.theme.mode);
 
   useEffect(() => {
     setValue(initialValue);
-    setInputValue(String(initialValue)); // Set initial value as a string
-  }, [initialValue]);
+    setInputValue(
+      initialValue === 0 && label ? "" : initialValue.toFixed(precision)
+    );
+  }, [initialValue, label, precision]);
+
+  // App Logic: Rounding to 10 decimal places to prevent floating point errors
+  const roundToDecimal = (num: number) =>
+    Math.round(num * 10000000000) / 10000000000;
+
+  const handleUpdate = (newValue: number) => {
+    const clampedValue = Math.min(Math.max(newValue, min), max);
+    const finalValue = roundToDecimal(clampedValue);
+
+    if (finalValue !== value) {
+      setValue(finalValue);
+      const displayString =
+        finalValue === 0 && label ? "" : finalValue.toFixed(precision);
+      setInputValue(displayString);
+      onValueChange?.(finalValue);
+    }
+  };
 
   const handleDecrement = () => {
-    const newValue = Math.max(value - 1, min);
-    setValue(newValue);
-    setInputValue(String(newValue));
-    onValueChange?.(newValue);
+    if (step !== undefined) {
+      handleUpdate(value - step);
+    }
   };
 
   const handleIncrement = () => {
-    const newValue = Math.min(value + 1, max);
-    setValue(newValue);
-    setInputValue(String(newValue));
-    onValueChange?.(newValue);
+    if (step !== undefined) {
+      handleUpdate(value + step);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-    const sanitizedValue = rawValue.replace(/[^0-9]/g, "");
-    setInputValue(sanitizedValue);
+    setInputValue(rawValue);
 
-    if (sanitizedValue === "") {
-      setValue(min);
-      onValueChange?.(min);
-      return;
-    }
-
-    const parsedValue = parseInt(sanitizedValue, 10);
+    const parsedValue = parseFloat(rawValue);
     if (!isNaN(parsedValue)) {
-      const clampedValue = Math.min(Math.max(parsedValue, min), max);
-      if (clampedValue !== value) {
-        setValue(clampedValue);
-        onValueChange?.(clampedValue);
-      }
+      const clampedAndRounded = roundToDecimal(
+        Math.min(Math.max(parsedValue, min), max)
+      );
+      setValue(clampedAndRounded);
+      onValueChange?.(clampedAndRounded);
+    } else if (rawValue === "" || rawValue === ".") {
+      setValue(0);
+      onValueChange?.(0);
     }
   };
 
   const handleBlur = () => {
-    const parsedValue = parseInt(inputValue, 10);
-    if (isNaN(parsedValue) || parsedValue < min || parsedValue > max) {
-      setInputValue(String(value));
-    } else {
-      setInputValue(String(parsedValue));
+    let parsedValue = parseFloat(inputValue);
+    if (isNaN(parsedValue)) {
+      parsedValue = value;
     }
+
+    const finalValue = roundToDecimal(
+      Math.min(Math.max(parsedValue, min), max)
+    );
+
+    setValue(finalValue);
+    setInputValue(finalValue.toFixed(precision));
+    onValueChange?.(finalValue);
   };
-  const theme = useAppSelector((state) => state.theme.mode);
 
   const chartsPage = pathname === "/app/charts";
+  const buttonsDisabled = step === undefined || step <= 0;
+
   return (
     <div>
-      {pathname !== "/app/charts" && (
+      {pathname !== "/app/charts" && label && (
         <div className="mb-1 text-secondary">{label}</div>
       )}
       <div
@@ -87,7 +122,9 @@ const Counter: React.FC<CounterProps> = ({
       >
         <button
           onClick={handleDecrement}
-          disabled={value <= min}
+          disabled={
+            buttonsDisabled || roundToDecimal(value - (step || 0)) < min
+          }
           className={`flex items-center justify-center w-12 h-12 disabled:cursor-not-allowed transition-colors duration-200  ${
             theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
           }`}
@@ -108,23 +145,26 @@ const Counter: React.FC<CounterProps> = ({
             <span className={`text-xs text-primary`}>Price:</span>
           )}
           <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
+            type="number"
+            step={step}
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
             className={`${
-              chartsPage ? "w-[40px]" : "w-1/3"
-            } text-center font-medium text-lg bg-transparent outline-none appearance-none ${
+              chartsPage ? "w-[40px]" : "w-full"
+            } text-center font-medium text-lg bg-transparent outline-none appearance-none placeholder-gray-400 ${
               value > 0 ? "text-primary" : "text-disabledBottom"
             }`}
+            style={{ MozAppearance: "textfield" }}
+            placeholder={label}
           />
         </div>
 
         <button
           onClick={handleIncrement}
-          disabled={value >= max}
+          disabled={
+            buttonsDisabled || roundToDecimal(value + (step || 0)) > max
+          }
           className={`flex items-center justify-center w-12 h-12 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
             theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
           }`}

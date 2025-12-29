@@ -167,7 +167,7 @@ const NavigationTabs = ({
         </div>
       </div>
 
-      {activeTab === "market" && <ProfitLossClose />}
+      {/* {activeTab === "market" && <ProfitLossClose />} */}
       {activeTab === "date" && (
         <div className="px-5">
           <DateChanger text={"Change Date"} date={"25/06/2025"} />
