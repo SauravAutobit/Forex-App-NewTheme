@@ -399,7 +399,7 @@ const HistoryCard = ({
               <div className="flex items-center gap-3">
                 {isHistoryOrder ? (
                   <span className="text-sm text-secondary">Status</span>
-                ) : !isDeal ? (
+                ) : !isHistoryOrder ? (
                   <span className="text-sm text-secondary">Profit & Loss</span>
                 ) : (
                   ""
@@ -413,7 +413,7 @@ const HistoryCard = ({
               {/* P&L or Status Value */}
               {isHistoryOrder ? (
                 <div>{statusValue}</div>
-              ) : !isDeal ? (
+              ) : !isHistoryOrder ? (
                 <div className={pnlColorClass}>{pnl.toFixed(2)}</div>
               ) : (
                 ""
