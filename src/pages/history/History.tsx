@@ -145,6 +145,7 @@ const History = ({}: HistoryProps) => {
   const historyPositionDataCalculated: ProfitBalanceProps = useMemo(() => {
     if (historyPositionsStatus !== "succeeded") {
       return {
+        headerLabel: "Equity",
         showProfitLoss: true,
         profitLoss: "$0.00",
         showBalances: true,
@@ -172,6 +173,7 @@ const History = ({}: HistoryProps) => {
     const finalBalance = finalPnl - totalCharges;
 
     return {
+      headerLabel: "Equity",
       showProfitLoss: true,
       profitLoss: `$${finalPnl.toFixed(2)}`,
       showBalances: true,
@@ -189,6 +191,7 @@ const History = ({}: HistoryProps) => {
   const dealDataCalculated: ProfitBalanceProps = useMemo(() => {
     if (dealsStatus !== "succeeded") {
       return {
+        headerLabel: "Equity",
         showProfitLoss: true,
         profitLoss: "$0.00",
         showBalances: true,
@@ -215,6 +218,7 @@ const History = ({}: HistoryProps) => {
     const finalBalance = finalPnl - totalCharges;
 
     return {
+      headerLabel: "Equity",
       showProfitLoss: true,
       profitLoss: `$${finalPnl.toFixed(2)}`,
       showBalances: true,
@@ -238,6 +242,7 @@ const History = ({}: HistoryProps) => {
     ).length;
     const totalCount = historyOrders?.length;
     return {
+      headerLabel: "Equity",
       showProfitLoss: false,
       profitLoss: "",
       showBalances: true,

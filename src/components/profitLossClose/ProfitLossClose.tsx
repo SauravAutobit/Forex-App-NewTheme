@@ -4,21 +4,29 @@ import type { OutletContextType } from "../../layout/MainLayout";
 import { useAppSelector } from "../../store/hook";
 import closeAllArrowLight from "../../assets/icons/closeAllArrowLight.svg";
 
-const ProfitLossClose = () => {
+interface ProfitLossCloseProps {
+  totalPnl?: number;
+}
+
+const ProfitLossClose = ({ totalPnl = 0 }: ProfitLossCloseProps) => {
   const { setIsDrawerOpen } = useOutletContext<OutletContextType>();
 
   const theme = useAppSelector((state) => state.theme.mode);
 
+  const formattedPnl = `${totalPnl < 0 ? "-" : ""}$${Math.abs(totalPnl).toFixed(
+    2
+  )}`;
+
   return (
     <div className="px-5 pt-5 flex items-center justify-between">
-      <div className="text-secondary">
+      <div className="text-secondary text-sm">
         Floating Profit :{" "}
         <span
           className={`font-tertiary ${
-            theme === "dark" ? "text-quaternary" : "text-[#00B22D]"
+            totalPnl >= 0 ? "text-profit" : "text-loss"
           }`}
         >
-          $25.36
+          {formattedPnl}
         </span>
       </div>
       <div

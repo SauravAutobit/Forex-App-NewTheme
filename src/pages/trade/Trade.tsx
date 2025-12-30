@@ -110,9 +110,6 @@ const Trade = () => {
   const totalValue = liveBalance + totalPnl;
 
   // Format the values to a currency string (as expected by InstrumentInfoCard)
-  const formattedTotalPnl = `${totalPnl < 0 ? "-" : ""}$${Math.abs(
-    totalPnl
-  ).toFixed(2)}`;
   const formattedBalance = `$${liveBalance.toFixed(2)}`;
   const formattedUsedBalance = `$${totalUsedBalance.toFixed(2)}`;
   const formattedAvailableBalance = `${
@@ -204,10 +201,9 @@ const Trade = () => {
 
   const profitBalanceProps: ProfitBalanceProps = {
     showProfitLoss: true,
-    profitLoss: formattedTotalPnl,
+    profitLoss: formattedBalance,
     showBalances: true,
     balanceItems: [
-      { label: "Balance", value: formattedBalance },
       { label: "Used Balance", value: formattedUsedBalance },
       { label: "Available Balance", value: formattedAvailableBalance },
       { label: "Total Value (Balance+P&F)", value: formattedTotalValue },
@@ -249,6 +245,7 @@ const Trade = () => {
       <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
       <NavigationTabs
         tabs={tabsData}
+        totalPnl={totalPnl}
         // defaultActiveTab={activeTabId} // Use state from URL
         // onTabChange={handleTabChange} // New handler for URL update
         className="max-w-md mx-auto pb-2.5"

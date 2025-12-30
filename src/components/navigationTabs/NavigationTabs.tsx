@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ProfitLossClose from "../profitLossClose/ProfitLossClose";
-import DateChanger from "../dateChanger/DateChanger";
 import { useAppSelector } from "../../store/hook";
 // import { useAppSelector } from "../../store/hook";
 
@@ -17,6 +16,7 @@ interface MobileTabsProps {
   onTabChange?: (tabId: string) => void;
   onActiveTabChange?: (tabId: string) => void; // 👈 NEW
   className?: string;
+  totalPnl?: number;
   activeColor?: string; // Text color for active tab (e.g., 'text-black')
   inactiveColor?: string; // Text color for inactive tabs (e.g., 'text-gray-400')
 }
@@ -50,6 +50,7 @@ const NavigationTabs = ({
   onTabChange,
   onActiveTabChange,
   className = "",
+  totalPnl,
   activeColor = "text-[#2D2D2D]", // Changed default to black for better contrast on neon background
   inactiveColor = "text-[#505050]",
 }: MobileTabsProps) => {
@@ -167,7 +168,7 @@ const NavigationTabs = ({
         </div>
       </div>
 
-      {activeTab === "market" && <ProfitLossClose />}
+      {activeTab === "market" && <ProfitLossClose totalPnl={totalPnl} />}
       {/* {activeTab === "date" && (
         <div className="px-5">
           <DateChanger text={"Change Date"} date={"25/06/2025"} />
