@@ -11,6 +11,8 @@ import Button from "../button/Button";
 import AccountList from "../accountList/AccountList";
 import { useAppSelector } from "../../store/hook";
 import aiLight from "../../assets/icons/aiLight.svg";
+import lightAiStar from "../../assets/icons/lightAiStar.svg";
+import aiStar from "../../assets/icons/aiStar.svg";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -70,29 +72,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <Button label="Deposit" textColor="#2D2D2D" />
           </div>
 
+          <button
+            onClick={() => {
+              onClose();
+              navigate("/ai");
+            }}
+            className="w-full text-left py-5 px-4 rounded flex items-center gap-3 text-primary"
+          >
+            <img src={theme === "dark" ? aiStar : lightAiStar} alt="aiStar" />
+            Fintrabit AI
+          </button>
           <div>
             <Theme />
-          </div>
-          <div>
-            {Array.from({ length: 8 }).map((_, index) => {
-              return (
-                <button
-                  key={index}
-                  onClick={() => {
-                    onClose();
-                    navigate("/ai");
-                  }}
-                  className="w-full text-left py-2.5 px-4 rounded hover:bg-gray-800 flex items-center gap-3 text-primary"
-                >
-                  {/* <img src={theme === "dark" ? aiStar : lightAiStar} alt="aiStar" /> */}
-                  <img
-                    src={theme === "dark" ? profileSidebar : aiLight}
-                    alt="profileSidebar"
-                  />
-                  View profile
-                </button>
-              );
-            })}
           </div>
         </div>
 

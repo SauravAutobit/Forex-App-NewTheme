@@ -7,7 +7,7 @@ import Trade from "../pages/trade/Trade";
 // import History from "../pages/history/History";
 import General from "../pages/general/General";
 // import Profile from "../pages/profile/Profile";
-// import AIChat from "../pages/aiChatbot/AIChat";
+import AIChat from "../pages/aiChat/AiChat";
 // import NewOrder from "../pages/newOrder/NewOrder";
 // import Properties from "../pages/properties/Properties";
 // import MarketStatistics from "../pages/marketStatistics/MarketStatistics";
@@ -60,6 +60,6 @@ export const AppRoutes = createBrowserRouter([
   },
   {
     element: <ChatLayout />,
-    // children: [{ path: "/ai", element: <AIChat /> }],
+    children: [{ path: "/ai", element: <AIChat /> }],
   },
 ]);
