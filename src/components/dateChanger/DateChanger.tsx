@@ -7,6 +7,8 @@ interface DateChangerProps {
   secondaryText?: string;
   secondaryDate?: string;
   height?: string;
+  onOpen?: () => void;
+  width?: string;
 }
 
 const DateChanger = ({
@@ -16,15 +18,18 @@ const DateChanger = ({
   secondaryText,
   secondaryDate,
   height = "41px",
+  onOpen,
+  width,
 }: DateChangerProps) => {
   const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <div
       className={
-        "bg-cardBg  my-2.5 py-2.5 px-5 rounded-10 flex flex-col items-center justify-between"
+        "bg-cardBg my-2.5 py-2.5 px-5 rounded-10 flex flex-col items-center justify-between cursor-pointer"
       }
       style={{ height }}
+      onClick={onOpen}
     >
       <div className="w-full flex items-center justify-between">
         <p className="text-sm text-secondary">{text}</p>
@@ -32,6 +37,7 @@ const DateChanger = ({
           className={`font-secondary ${
             theme === "dark" ? "text-quaternary" : "text-primary"
           }`}
+          style={{ width }}
         >
           {date}
         </p>
@@ -43,6 +49,7 @@ const DateChanger = ({
             className={`font-secondary ${
               theme === "dark" ? "text-quaternary" : "text-primary"
             }`}
+            style={{ width }}
           >
             {secondaryDate}
           </p>

@@ -79,6 +79,8 @@
 
   --tertiary-bg-color: #1a1d27;
 
+  --calender-date-btn-bgcolor: #aeed09;
+  --calender-date-btn-text-color: #2d2d2d;
   /* btn color */
   --primary-btn-color: #e42d4e;
   --secondary-btn-color: rgba(255, 255, 255, 0.08);
@@ -154,6 +156,8 @@
   --tertiary-bg-color: #1a1d27;
   --card-color: #181818;
 
+  --calender-date-btn-bgcolor: #aeed09;
+  --calender-date-btn-text-color: #2d2d2d;
   /* btn color */
   --primary-btn-color: #e42d4e;
   --secondary-btn-color: rgba(255, 255, 255, 0.08);

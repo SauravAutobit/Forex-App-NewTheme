@@ -168,12 +168,12 @@ const NavigationTabs = ({
       </div>
 
       {/* {activeTab === "market" && <ProfitLossClose />} */}
-      {activeTab === "date" && (
+      {/* {activeTab === "date" && (
         <div className="px-5">
           <DateChanger text={"Change Date"} date={"25/06/2025"} />
         </div>
-      )}
-      {activeTab === "monthly" && (
+      )} */}
+      {/* {activeTab === "monthly" && (
         <div className="px-5">
           <DateChanger
             text={"Start Date"}
@@ -184,7 +184,7 @@ const NavigationTabs = ({
             secondaryDate="30/06/2025"
           />
         </div>
-      )}
+      )} */}
 
       {/* Tab Content */}
       <div className="mt-3 relative overflow-hidden">
