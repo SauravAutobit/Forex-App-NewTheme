@@ -5,6 +5,7 @@ import type { RootState } from "../../store/store";
 
 import success from "../../assets/sounds/success.mp3";
 import failure from "../../assets/sounds/failure.mp3";
+import successOrder from "../../assets/icons/successOrder.svg";
 
 const successSound = new Audio(success);
 const failureSound = new Audio(failure);
@@ -36,9 +37,10 @@ const OrderStatus: React.FC = () => {
           <Loader className="h-24 w-24 animate-spin text-primary" />
         )}
         {status === "succeeded" && (
-          <div className="bg-profit w-[139px] h-[139px] rounded-[80px] flex justify-center items-center">
-            {<Check className="h-24 w-24" />}
-          </div>
+          // <div className="bg-profit w-[139px] h-[139px] rounded-[80px] flex justify-center items-center">
+          // {/* {<Check className="h-24 w-24" />} */}
+          // </div>
+          <img src={successOrder} alt="successOrder" />
         )}
         {status === "failed" && <XCircle className="h-24 w-24 text-red-500" />}
 
