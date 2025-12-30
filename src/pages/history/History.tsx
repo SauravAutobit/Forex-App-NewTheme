@@ -2,16 +2,13 @@ import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
-import PositionCard from "../../components/positionCard/PositionCard";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
 import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { refreshAllHistoryData } from "../../services/socketService";
 import type { RootState } from "../../store/store";
-import type { Position } from "../../store/slices/positionsSlice";
 import type { Deal } from "../../store/slices/dealsSlice";
-import type { HistoryOrder } from "../../store/slices/historyOrdersSlice";
 import type { HistoryPosition } from "../../store/slices/historyPositionsSlice";
 import noData from "../../assets/icons/noData.svg";
 import {
@@ -260,24 +257,6 @@ const History = ({}: HistoryProps) => {
     }
   }, [dispatch, apiStatus, historyPositionsStatus]);
 
-  const getInstrumentName = (item: Deal | HistoryPosition): string => {
-    if ("trading_name" in item && (item as HistoryPosition).trading_name) {
-      return (item as HistoryPosition).trading_name!;
-    }
-    const deal = item as DealWithSpecificInstruments;
-    const instrumentTradingName = deal.instruments.find(
-      (instrument) => instrument.trading_name
-    )?.trading_name;
-
-    if (instrumentTradingName) return instrumentTradingName;
-
-    const instrumentName = deal.instruments.find(
-      (instrument) => instrument.name
-    )?.name;
-
-    return instrumentName || "Unknown Instrument";
-  };
-
   const positionsContent = (
     <>
       <div className="mt-4 flex flex-col gap-0 w-full">
@@ -323,14 +302,14 @@ const History = ({}: HistoryProps) => {
           </div>
         ) : (
           deals.map((deal) => {
-            // Use locally defined helper to fallback if store map fails or for deal-specific logic
-            const instrumentName = getInstrumentName(deal);
+            // Use instrumentMap to resolve name, matching orders/positions logic
+            const instrument = instrumentMap[deal.instrument_id];
             return (
               <HistoryCard
                 key={deal.id}
                 label="Deals"
                 dealData={deal}
-                instrumentName={instrumentName}
+                instrumentName={instrument?.trading_name}
               />
             );
           })

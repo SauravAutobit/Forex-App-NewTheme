@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 import type { Deal } from "../../store/slices/dealsSlice";
 import type { HistoryOrder } from "../../store/slices/historyOrdersSlice";
 import type { HistoryPosition } from "../../store/slices/historyPositionsSlice";
@@ -25,7 +27,9 @@ const HistoryCard = ({
   instrumentName,
 }: HistoryCardProps) => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+  const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
 
+  console.log("instrumentsMap", instrumentsMap, instrumentName);
   // Determine type
   const isHistoryPosition = !!historyPositionData;
   const isHistoryOrder = !!historyOrderData;
@@ -34,6 +38,32 @@ const HistoryCard = ({
   // Consolidate data source
   const data =
     historyPositionData || historyOrderData || dealData || ({} as any);
+
+  // Build id -> instrument object map from instruments store
+  const instrumentById = useMemo(() => {
+    const map = new Map<string, any>();
+    // Iterate over categories (keys) in instrumentsMap
+    for (const key of Object.keys(instrumentsMap)) {
+      const arr = (instrumentsMap as any)[key];
+      if (Array.isArray(arr)) {
+        // Iterate over instruments in each category array
+        for (const ins of arr) {
+          if (ins && typeof ins.id === "string") {
+            map.set(ins.id, ins);
+          }
+        }
+      }
+    }
+    return map;
+  }, [instrumentsMap]);
+
+  const findInstrumentTradingName = useMemo(() => {
+    return (id?: string | null) => {
+      if (!id) return null;
+      const found = instrumentById.get(id);
+      return found?.trading_name ?? null;
+    };
+  }, [instrumentById]);
 
   const toggleDetails = () => {
     setIsDetailsVisible((s) => !s);
@@ -53,10 +83,34 @@ const HistoryCard = ({
 
   // --- Dynamic Data Logic ---
 
-  // Instrument Name
-  const resolvedInstrumentName =
-    instrumentName || data.trading_name || "Unknown";
+  // Instrument Name Logic (Ported from PositionCard/Old App)
+  const resolvedInstrumentName = useMemo(() => {
+    // Priority 1: Use the explicit prop passed from the parent.
+    if (instrumentName) {
+      return instrumentName;
+    }
 
+    // Priority 2: Check for a trading_name directly on the primary data object.
+    if (data && "trading_name" in data && data.trading_name) {
+      return data.trading_name;
+    }
+
+    // Priority 3: Look up the name from the Redux store using the instrument_id.
+    if (data && "instrument_id" in data && data.instrument_id) {
+      // Ensure ID is string for lookup
+      const idStr = String(data.instrument_id);
+      const storeName = findInstrumentTradingName(idStr);
+      // console.log("HistoryCard Lookup:", { id: data.instrument_id, idStr, storeName });
+      if (storeName) {
+        return storeName;
+      }
+    }
+
+    // Final Fallback
+    return "Unknown Instrument";
+  }, [instrumentName, data, findInstrumentTradingName]);
+
+  console.log("resolvedInstrumentName", resolvedInstrumentName);
   // Side
   const side = data.side ? data.side.toLowerCase() : "buy";
 
@@ -154,7 +208,18 @@ const HistoryCard = ({
 
   // Let's use existing fields. If we don't have exit price, maybe just show Entry.
   const topLeftPrice = data.price;
-  const topRightPrice = null; // We might need to fetch this or it is missing from current slice type
+  let topRightPrice: number | null = null;
+
+  if (isHistoryPosition) {
+    const outTrade = historyPositionData?.trades?.find(
+      (t: any) => t.type === "out"
+    );
+    if (outTrade && typeof outTrade.price === "number") {
+      topRightPrice = outTrade.price;
+    }
+  }
+
+  // Charges
 
   // Charges
   // Helper to sum charges
