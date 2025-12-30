@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hook";
-import { loginUser } from "../../store/slices/authSlice";
+import { loginUser, clearError } from "../../store/slices/authSlice";
 import eye from "../../assets/icons/eye.svg";
 import Checkbox from "../checbox/Checbox";
 
@@ -17,6 +17,8 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
 
   const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.theme.mode);
+  const authError = useAppSelector((state) => state.auth.error);
+  const status = useAppSelector((state) => state.auth.status);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +41,24 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
       setError("An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    // Clear error when user starts typing
+    if (error || authError) {
+      setError(null);
+      dispatch(clearError());
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    // Clear error when user starts typing
+    if (error || authError) {
+      setError(null);
+      dispatch(clearError());
     }
   };
 
@@ -66,9 +86,11 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
             <input
               type="text"
               placeholder="Enter Username"
-              className={`w-full p-3 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${error ? "border-red-500 text-red-500" : ""}`}
+              className={`w-full p-3 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${
+                error ? "border-red-500 text-red-500" : ""
+              }`}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={handleUsernameChange}
               required
             />
           </div>
@@ -79,9 +101,11 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter password"
-                className={`w-full p-3 pr-10 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${error ? "border-red-500 text-red-500" : ""}`}
+                className={`w-full p-3 pr-10 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${
+                  error ? "border-red-500 text-red-500" : ""
+                }`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 required
               />
               <span

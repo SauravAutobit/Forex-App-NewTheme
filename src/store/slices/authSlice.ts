@@ -98,6 +98,10 @@ export const authSlice = createSlice({
             state.accounts.push(newUser);
         }
         localStorage.setItem("accounts", JSON.stringify(state.accounts));
+    },
+    clearError: (state) => {
+        state.error = null;
+        state.status = "idle";
     }
   },
   extraReducers: (builder) => {
@@ -132,5 +136,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logout, switchAccount } = authSlice.actions;
+export const { logout, switchAccount, clearError } = authSlice.actions;
 export default authSlice.reducer;

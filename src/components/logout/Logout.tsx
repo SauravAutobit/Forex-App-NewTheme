@@ -42,3 +42,4 @@ const Logout = () => {
 };
 
 export default Logout;
+// we ahve a logout modal that we have so in click of logout it will logout the active user and its token will eb deleted form local storage also so interate that 

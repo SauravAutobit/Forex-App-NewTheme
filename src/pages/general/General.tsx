@@ -4,7 +4,6 @@ import Dropddown from "../../components/dropdown/Dropdown";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
-import Logout from "../../components/logout/Logout";
 import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import PendingCard from "../../components/pendingCard/PendingCard";
@@ -122,7 +121,6 @@ const General = () => {
         onActiveTabChange={setActiveTab}
       />
       <DateCalender activeTab={activeTab} />
-      <Logout />
     </div>
   );
 };

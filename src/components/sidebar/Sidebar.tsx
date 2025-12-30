@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 // import logo from "../../assets/icons/logo.svg";
 // import logoLight from "../../assets/icons/logoLight.svg";
 // import lightAiStar from "../../assets/icons/lightAiStar.svg";
-import profileSidebar from "../../assets/icons/profileSidebar.svg";
 import Theme from "../theme/Theme";
 // import { useAppSelector } from "../../store/hook";
 import avatar from "../../assets/icons/avatar.jpg";
 import Button from "../button/Button";
 import AccountList from "../accountList/AccountList";
 import { useAppSelector } from "../../store/hook";
-import aiLight from "../../assets/icons/aiLight.svg";
+import logout from "../../assets/icons/logout.svg";
+import logoutLight from "../../assets/icons/logoutLight.svg";
 import lightAiStar from "../../assets/icons/lightAiStar.svg";
 import aiStar from "../../assets/icons/aiStar.svg";
 
@@ -75,19 +75,23 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <Button label="Deposit" textColor="#2D2D2D" />
           </div>
 
+          <div>
+            <Theme />
+          </div>
           <button
             onClick={() => {
               onClose();
               navigate("/ai");
             }}
-            className="w-full text-left py-5 px-4 rounded flex items-center gap-3 text-primary"
+            className="w-full text-left py-2.5 px-4 rounded flex items-center gap-3 text-primary"
           >
             <img src={theme === "dark" ? aiStar : lightAiStar} alt="aiStar" />
             Fintrabit AI
           </button>
-          <div>
-            <Theme />
-          </div>
+          <button className="w-full text-left py-2.5 px-4 rounded flex items-center gap-3 text-primary">
+            <img src={theme === "dark" ? logout : logoutLight} alt="aiStar" />
+            Logout
+          </button>
         </div>
 
         {/* <div

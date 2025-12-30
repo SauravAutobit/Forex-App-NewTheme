@@ -9,7 +9,7 @@ import Checkbox from "../../components/checbox/Checbox";
 // import facebook from "../../assets/icons/facebook.svg";
 import NeonGlowBackground from "../../components/neonGlowBackground/NeonGlowBackground";
 import { useAppDispatch, useAppSelector } from "../../store/hook";
-import { loginUser } from "../../store/slices/authSlice";
+import { loginUser, clearError } from "../../store/slices/authSlice";
 import { store } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
 // import appleLight from "../../assets/icons/appleLight.svg";
@@ -38,6 +38,22 @@ const Login = () => {
     e.preventDefault();
     if (username && password) {
       dispatch(loginUser({ username, password }));
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    // Clear error when user starts typing
+    if (error) {
+      dispatch(clearError());
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    // Clear error when user starts typing
+    if (error) {
+      dispatch(clearError());
     }
   };
 
@@ -73,7 +89,7 @@ const Login = () => {
                   error ? "border-red-500 text-red-500" : ""
                 }`}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleUsernameChange}
                 required
               />
             </div>
@@ -88,7 +104,7 @@ const Login = () => {
                     error ? "border-red-500 text-red-500" : ""
                   }`}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   required
                 />
                 <span
