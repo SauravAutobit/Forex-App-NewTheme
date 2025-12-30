@@ -1,14 +1,22 @@
-import { useRef, useMemo, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
-import cardIcon from "../../assets/icons/cardIcon.svg";
-import { useAppSelector } from "../../store/hook";
 import type { RootState } from "../../store/store";
 import type { Position, TOrder } from "../../store/slices/positionsSlice";
-import type { OpenOrder } from "../../store/slices/openOrdersSlice";
 import type { Deal } from "../../store/slices/dealsSlice";
 import type { HistoryOrder } from "../../store/slices/historyOrdersSlice";
+import type { OpenOrder } from "../../store/slices/openOrdersSlice";
+import rightArrow from "../../assets/icons/rightArrow.svg";
+import rightArrowLight from "../../assets/icons/rightArrowLight.svg";
+import cardIcon from "../../assets/icons/cardIcon.svg";
 
-// Minimal type shape for closed-history "position" objects
+// NEW: Union type for the main data object
+type DataObject = Position | OpenOrder;
+
+/**
+ * Minimal type shape for closed-history "position" objects returned in history.
+ * Only includes fields used by this component.
+ */
 interface HistoryPosition {
   id: string;
   closed_pnl: number;
@@ -28,13 +36,16 @@ interface HistoryPosition {
     qty: number;
     charges?: { charge: number; name: string; type: string }[];
   }[];
+  // NOTE: Redefined torders to match the expected structure if they were included
+  // in the History Position fetch, matching PositionSlice's TOrder, but only
+  // keeping the relevant fields for this logic.
   torders?: Pick<TOrder, "order_type" | "price" | "status">[];
 }
-
 interface PositionCardProps {
-  label?: "Position" | "Orders" | "Deals" | "Trade" | string;
-  position: Position | OpenOrder | any; // Support various data sources
-  onLongPress: () => void;
+  label?: "Position" | "Orders" | "Deals" | "Trade" | "History" | string;
+  position: DataObject;
+  onClick: () => void;
+  onLongPress?: () => void;
   isDeal?: boolean;
   dealData?: Deal | null;
   historyOrderData?: HistoryOrder | null;
@@ -44,7 +55,9 @@ interface PositionCardProps {
 }
 
 const PositionCard = ({
+  label,
   position,
+  onClick,
   onLongPress,
   isDeal = false,
   dealData = null,
@@ -53,34 +66,38 @@ const PositionCard = ({
   openOrderData = null,
   instrumentName: instrumentNameProp = null,
 }: PositionCardProps) => {
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const longPressTimer = useRef<number | null>(null);
   const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
-  const liveQuotes = useAppSelector((state) => state.quotes.liveQuotes);
+  const theme = useSelector((s: RootState) => s.theme.mode);
 
+  // === FIX: Define isHistoryOrder to resolve TS2304 error ===
   const isHistoryOrder = !!historyOrderData;
+
+  // NEW: Determine the primary data source
   const data =
     historyPositionData ||
     dealData ||
     historyOrderData ||
     openOrderData ||
     position;
+
+  // Use openOrderData to determine if it's a live order
   const isLiveOrder = !!openOrderData;
 
-  // Determine if this is a history item (closed position, deal, or history order)
-  // The User specifically asked for this behavior "in history".
-  // "Trade" page items (Live Positions/Open Orders) use specific edit navigation, so we might NOT want header click to expand there,
-  // OR we might want to allow it if they desire.
-  // For now, let's assume "History" tab items should expand.
-  // We can infer this context if isDeal, historyPositionData, or historyOrderData is present.
-  const isHistoryItem = isDeal || !!historyPositionData || !!historyOrderData;
+  // Check if it's a history item (order/position/deal)
+  const isHistoryItem = isHistoryOrder || !!historyPositionData || !!isDeal;
 
-  // Build instrument map for fast lookup
+  // This flag determines if we are rendering a LIVE TRADING POSITION (not an open order, not history)
+  const isLivePosition = !isHistoryItem && !isLiveOrder;
+
+  // Build id -> instrument object map from instruments store
   const instrumentById = useMemo(() => {
     const map = new Map<string, any>();
+    // Iterate over categories (keys) in instrumentsMap
     for (const key of Object.keys(instrumentsMap)) {
       const arr = (instrumentsMap as any)[key];
       if (Array.isArray(arr)) {
+        // Iterate over instruments in each category array
         for (const ins of arr) {
           if (ins && typeof ins.id === "string") {
             map.set(ins.id, ins);
@@ -91,25 +108,36 @@ const PositionCard = ({
     return map;
   }, [instrumentsMap]);
 
-  const findInstrumentTradingName = (id?: string | null) => {
-    if (!id) return null;
-    return instrumentById.get(id)?.trading_name ?? null;
-  };
+  const findInstrumentTradingName = useMemo(() => {
+    return (id?: string | null) => {
+      if (!id) return null;
+      const found = instrumentById.get(id);
+      return found?.trading_name ?? null;
+    };
+  }, [instrumentById]);
 
-  const findInstrumentContractSize = (id?: string | null) => {
-    if (!id) return 1;
-    const found = instrumentById.get(id);
-    return found?.static_data?.contract_size || found?.contract_size || 1;
-  };
-
-  const toggleDetails = () => {
-    setIsDetailsVisible((prev) => !prev);
-  };
+  const findInstrumentContractSize = useMemo(() => {
+    return (id?: string | null) => {
+      if (!id) return undefined;
+      const found = instrumentById.get(id);
+      if (found && (found as any).static_data?.contract_size != null) {
+        // Check for static_data.contract_size first (from instrument slice data)
+        const cs = Number((found as any).static_data.contract_size);
+        return Number.isFinite(cs) && cs > 0 ? cs : undefined;
+      }
+      if (found && found.contract_size != null) {
+        // Fallback to direct contract_size field (less common in full slice structure)
+        const cs = Number(found.contract_size);
+        return Number.isFinite(cs) && cs > 0 ? cs : undefined;
+      }
+      return undefined;
+    };
+  }, [instrumentById]);
 
   const handleTouchStart = () => {
     longPressTimer.current = window.setTimeout(() => {
-      onLongPress();
-      longPressTimer.current = null; // Clear timer preventing click
+      onLongPress?.();
+      longPressTimer.current = null;
     }, 500);
   };
 
@@ -120,289 +148,526 @@ const PositionCard = ({
     }
   };
 
-  const handleClick = () => {
-    // If it's a history item, toggle details.
-    if (isHistoryItem) {
-      toggleDetails();
-    } else {
-      // If it's a live item (Trade page), preserve the direct navigation behavior
-      // established in the previous turn (Click -> Edit).
-      // Unless the user wants expansion there too?
-      // "in history the card was epandable... but right now its onw expanding"
-      // Implies specific concern for History.
-      onLongPress();
+  const handleClick = (e: React.MouseEvent) => {
+    if (longPressTimer.current === null) {
+      e.stopPropagation();
+      onClick();
     }
   };
 
-  // P&L calculation
+  // ----- PnL calculation -----
   let pnl = 0;
   if (historyPositionData) {
     pnl = historyPositionData.closed_pnl ?? 0;
   } else if (isDeal && dealData) {
     pnl = typeof dealData.closed_pnl === "number" ? dealData.closed_pnl : 0;
-  } else if (!isLiveOrder) {
-    const quote = liveQuotes[data.instrument_id];
-    const currentPrice = data.side === "buy" ? quote?.bid : quote?.ask;
-    if (currentPrice && data.price && data.qty) {
-      if (data.side === "buy") {
-        pnl = (currentPrice - data.price) * data.qty;
-      } else {
-        pnl = (data.price - currentPrice) * data.qty;
+  } else if (isLiveOrder) {
+    // Live orders don't display PnL
+    pnl = 0;
+  } else {
+    // open/live position: use buy -> live_ask, sell -> live_bid
+    const currentPrice =
+      (position as Position)?.side === "buy"
+        ? (position as Position)?.live_ask
+        : (position as Position)?.live_bid;
+    if (
+      currentPrice !== undefined &&
+      typeof (position as Position)?.price === "number"
+    ) {
+      if ((position as Position)?.side === "buy") {
+        pnl =
+          (currentPrice - (position as Position).price) *
+          ((position as Position)?.qty ?? 0);
+      } else if ((position as Position)?.side === "sell") {
+        pnl =
+          ((position as Position).price - currentPrice) *
+          ((position as Position)?.qty ?? 0);
       }
+    } else {
+      pnl = 0;
     }
   }
-
   const pnlColorClass = pnl >= 0 ? "text-profit" : "text-loss";
-  const pnlSign = pnl >= 0 ? "+" : "";
 
-  // Instrument Name
-  const resolvedInstrumentName = useMemo(() => {
-    if (instrumentNameProp) return instrumentNameProp;
-    if (data.trading_name && data.trading_name !== "N/A")
-      return data.trading_name;
-    return (
-      findInstrumentTradingName(data.instrument_id) || "Unknown Instrument"
-    );
-  }, [instrumentNameProp, data, findInstrumentTradingName]);
+  // ----- Timestamp formatting -----
+  const timestamp =
+    (historyPositionData && historyPositionData.updated_at) ||
+    (isDeal && (dealData as any)?.time) ||
+    (isLiveOrder && (openOrderData as OpenOrder)?.placed_time) ||
+    (position as any)?.created_at ||
+    Math.floor(Date.now() / 1000);
 
-  // Contract Size
-  const resolvedContractSize = useMemo(() => {
-    if (isLiveOrder && openOrderData?.contract_size)
-      return openOrderData.contract_size;
-    return findInstrumentContractSize(data.instrument_id) || 1;
-  }, [data.instrument_id, openOrderData]);
-
-  // Quantity
-  const displayQty =
-    (data.qty || data.placed_qty || 0) / (resolvedContractSize || 1);
-
-  // Side Label
-  const side = data.side
-    ? data.side.charAt(0).toUpperCase() + data.side.slice(1)
-    : "";
-
-  // Timestamp
-  const rawTime =
-    historyPositionData?.updated_at ||
-    (dealData as any)?.time ||
-    openOrderData?.placed_time ||
-    position?.created_at ||
-    Date.now() / 1000;
-
-  const dateObj = new Date(rawTime * 1000);
-  const displayDate = dateObj
-    .toLocaleDateString("en-US", {
+  const createdAtTimestamp = new Date(timestamp * 1000);
+  const formattedDate = createdAtTimestamp
+    .toLocaleDateString("en-CA", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
     })
-    .replace(/\//g, ".");
-  const displayClock = dateObj.toLocaleTimeString("en-US", { hour12: false });
-  const displayTime = `${displayDate} | ${displayClock}`;
+    .replace(/-/g, ".");
+  const formattedTime = createdAtTimestamp.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const dateTimeString = `${formattedDate} | ${formattedTime}`;
 
-  const formatPrice = (p: number | undefined) =>
-    p !== undefined ? p.toFixed(5) : "0.00000";
+  // Live instrument price to show on right side for live positions/trades
+  const instrumentLivePrice =
+    (position as Position)?.side === "buy"
+      ? (position as Position)?.live_ask
+      : (position as Position)?.live_bid;
 
-  // SL/TP formatting helpers
-  const getSlTp = () => {
-    if (historyPositionData?.torders) {
-      // Similar logc to Old App for HistoryPosition torders
-      // But typically provided in torders array
-      // Placeholder if not populated
-      return { sl: "-", tp: "-" };
+  // ⭐️⭐️⭐️ MAJOR FIX: Simplified and corrected instrument name resolution ⭐️⭐️⭐️
+  const resolvedInstrumentName = useMemo(() => {
+    // Priority 1: Use the explicit prop passed from the parent (History.tsx).
+    if (instrumentNameProp) {
+      return instrumentNameProp;
     }
-    // Metadata fallback
-    if (data.metadata?.legs) {
-      return {
-        sl: formatPrice(data.metadata.legs.stoploss) || "-",
-        tp: formatPrice(data.metadata.legs.target) || "-",
-      };
-    }
-    return { sl: "-", tp: "-" };
-  };
-  const { sl, tp } = getSlTp();
 
-  // Total Charges helper (Old App logic simulation for display)
-  const totalCharges = useMemo(() => {
-    // Logic handled in parent History.tsx usually, but for card details:
-    // If we have historyPositionData, we can sum trades charges
-    if (historyPositionData?.trades) {
-      return historyPositionData.trades
-        .reduce((sum, t) => {
-          const ch = t.charges || [];
-          return sum + ch.reduce((s, c) => s + (c.charge || 0), 0);
-        }, 0)
-        .toFixed(2);
+    // Priority 2: Look up the name from the Redux store using the instrument_id.
+    if (data && "instrument_id" in data && data.instrument_id) {
+      const storeName = findInstrumentTradingName(data.instrument_id);
+      if (storeName) {
+        return storeName;
+      }
     }
-    if (dealData?.charges) {
-      // @ts-ignore
-      return dealData.charges
-        .reduce((s, c) => s + (c.charge || 0), 0)
-        .toFixed(2);
-    }
-    return "0.00";
-  }, [historyPositionData, dealData]);
 
-  return (
-    <div
-      className={`text-primary px-5 py-2.5 border-b border-primary cursor-pointer transition-colors active:bg-secondaryBg ${
-        isDetailsVisible ? "bg-secondaryBg" : ""
-      }`}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onClick={handleClick}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        onLongPress();
-      }}
-    >
-      <div className="flex justify-between items-center">
+    // Final Fallback: If no name can be found through any method.
+    return "Unknown Instrument";
+  }, [instrumentNameProp, data, findInstrumentTradingName]);
+
+  // ----- Resolve contract_size (Priority: OpenOrder/History > Deal > Store > fallback 1) -----
+  const resolvedContractSize = useMemo(() => {
+    // 1. Check live order contract_size (from openOrdersSlice mapping)
+    if (isLiveOrder && openOrderData?.contract_size) {
+      const cs = Number(openOrderData.contract_size);
+      if (Number.isFinite(cs) && cs > 0) return cs;
+    }
+
+    // 2. Check history data (position/order)
+    if (historyPositionData?.instruments?.[0]?.contract_size) {
+      const cs = Number(historyPositionData.instruments[0].contract_size);
+      if (Number.isFinite(cs) && cs > 0) return cs;
+    }
+    if (historyOrderData?.instruments?.[0]?.contract_size) {
+      const cs = Number(historyOrderData.instruments[0].contract_size);
+      if (Number.isFinite(cs) && cs > 0) return cs;
+    }
+
+    // 3. Check deal data
+    if (
+      Array.isArray(dealData?.instruments) &&
+      dealData!.instruments.length > 0
+    ) {
+      const first = dealData!.instruments[0];
+      if (
+        typeof first === "object" &&
+        first !== null &&
+        (first as any).contract_size != null
+      ) {
+        const cs = Number((first as any).contract_size);
+        if (Number.isFinite(cs) && cs > 0) return cs;
+      }
+    }
+
+    // 4. Look up from Redux store using instrument_id
+    const instrumentId =
+      (openOrderData as OpenOrder)?.instrument_id ??
+      (historyPositionData as HistoryPosition)?.instrument_id ??
+      (position as Position)?.instrument_id ??
+      (isDeal && dealData?.instrument_id) ??
+      (isDeal &&
+      dealData &&
+      Array.isArray(dealData.instruments) &&
+      typeof dealData.instruments[0] === "object"
+        ? (dealData.instruments[0] as any).instrument_id
+        : null);
+
+    const fromStore = findInstrumentContractSize(instrumentId);
+    if (fromStore && Number.isFinite(fromStore) && fromStore > 0)
+      return fromStore;
+
+    // 5. Final fallback
+    return 1;
+  }, [
+    dealData,
+    position,
+    findInstrumentContractSize,
+    historyOrderData,
+    historyPositionData,
+    openOrderData,
+    isLiveOrder,
+    isDeal,
+  ]);
+
+  // ----- Display quantity (qty / contract_size) -----
+  const displayQty = useMemo(() => {
+    if (isLiveOrder && openOrderData) {
+      const qty = openOrderData.placed_qty ?? 0;
+      return qty / (resolvedContractSize || 1);
+    }
+
+    if (historyPositionData) {
+      const qty =
+        typeof historyPositionData.qty === "number"
+          ? historyPositionData.qty
+          : 0;
+      return qty / (resolvedContractSize || 1);
+    }
+
+    if (isDeal && dealData) {
+      const qty =
+        typeof (dealData as any).qty === "number"
+          ? (dealData as any).qty
+          : Number((position as Position)?.qty ?? 0);
+      return qty / (resolvedContractSize || 1);
+    }
+
+    const qty =
+      typeof (position as Position)?.qty === "number"
+        ? (position as Position).qty
+        : Number((position as Position)?.qty ?? 0);
+    return qty / (resolvedContractSize || 1);
+  }, [
+    position,
+    isDeal,
+    dealData,
+    resolvedContractSize,
+    historyPositionData,
+    openOrderData,
+    isLiveOrder,
+  ]);
+
+  // ----- orderSideLabel (used in JSX) -----
+  const capitalize = (s: string) =>
+    s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+
+  const orderSideLabel = useMemo(() => {
+    const side = data?.side ? capitalize(data.side) : "";
+
+    if (label === "Orders" || isLiveOrder || isHistoryOrder) {
+      const orderType = (historyOrderData || openOrderData)?.order_type
+        ? capitalize((historyOrderData || openOrderData)!.order_type)
+        : "";
+
+      if ((historyOrderData || openOrderData)?.order_type === "market") {
+        return `${side}:`;
+      }
+      return `${side} ${orderType}:`;
+    }
+
+    if (label === "Position" && historyPositionData) return `${side} Qty:`;
+    if (label === "Position") return `${side} Qty:`;
+    if (label === "History") return `${side} Qty:`;
+    if (label === "Deals") return `${side} In`;
+    return `${side} at:`;
+  }, [
+    label,
+    historyOrderData,
+    openOrderData,
+    data?.side,
+    historyPositionData,
+    isLiveOrder,
+    isHistoryOrder,
+  ]);
+
+  // ----- Generate the main qty/price display string -----
+  const qtyDisplayString = useMemo(() => {
+    if (isLiveOrder && openOrderData) {
+      if (openOrderData.order_type === "market") {
+        return `${displayQty.toFixed(2)} at market`;
+      }
+      return `${displayQty.toFixed(2)} @ ${Number(
+        openOrderData.price ?? 0
+      ).toFixed(5)}`;
+    }
+
+    if (label === "Orders" && historyOrderData) {
+      const qty =
+        (historyOrderData.filled_qty ?? 0) / (resolvedContractSize || 1);
+      if ((historyOrderData as any).order_type === "market") {
+        return `${qty.toFixed(2)} at market`;
+      }
+      return `${qty.toFixed(2)} @ ${Number(historyOrderData.price ?? 0).toFixed(
+        5
+      )}`;
+    }
+    if (label === "Position") {
+      if (historyPositionData) {
+        const inTrade = historyPositionData.trades.find((t) => t.type === "in");
+        const entryPrice = inTrade?.price ?? historyPositionData.price ?? 0;
+        return `${displayQty.toFixed(2)} @ ${Number(entryPrice).toFixed(5)}`;
+      }
+      return `${displayQty.toFixed(2)}`;
+    }
+    if (label === "Deals") {
+      const price =
+        typeof (position as any)?.price === "number"
+          ? (position as any).price.toFixed(5)
+          : dealData && (dealData as any).price
+          ? Number((dealData as any).price).toFixed(5)
+          : "0.00000";
+      return `${displayQty.toFixed(2)} @ ${price}`;
+    }
+    return `${displayQty.toFixed(2)}`;
+  }, [
+    label,
+    historyOrderData,
+    historyPositionData,
+    openOrderData,
+    isLiveOrder,
+    displayQty,
+    position,
+    dealData,
+    resolvedContractSize,
+  ]);
+
+  // ----- Price display logic for top row (Left Price) -----
+  const topLeftPrice = useMemo(() => {
+    if (isLiveOrder && openOrderData) {
+      return openOrderData.price;
+    }
+    if (historyPositionData) {
+      const inTrade = historyPositionData.trades.find((t) => t.type === "in");
+      return (
+        inTrade?.price ??
+        historyPositionData.price ??
+        (typeof (position as Position)?.price === "number"
+          ? (position as Position).price
+          : 0)
+      );
+    }
+    return typeof (position as Position)?.price === "number"
+      ? (position as Position).price
+      : 0;
+  }, [historyPositionData, position, isLiveOrder, openOrderData]);
+
+  const topRightPrice: number | null = useMemo(() => {
+    if (historyPositionData) {
+      const outTrade = historyPositionData.trades.find((t) => t.type === "out");
+      if (outTrade && typeof outTrade.price === "number") return outTrade.price;
+      return null;
+    }
+    if (isLiveOrder) return null;
+
+    return instrumentLivePrice !== undefined ? instrumentLivePrice : null;
+  }, [historyPositionData, instrumentLivePrice, isLiveOrder]);
+
+  const formatPriceOrEmpty = (p: number | null | undefined) =>
+    p == null ? "" : Number(p).toFixed(5);
+
+  const { sl, tp } = useMemo(() => {
+    if (isLiveOrder || isHistoryOrder) {
+      const slPrice = (openOrderData || historyOrderData)?.metadata?.legs
+        ?.stoploss;
+      const tpPrice = (openOrderData || historyOrderData)?.metadata?.legs
+        ?.target;
+      return { sl: slPrice, tp: tpPrice };
+    }
+
+    const torders =
+      (isLivePosition ? (position as Position).torders : null) ||
+      (historyPositionData?.torders as TOrder[] | undefined) ||
+      [];
+
+    if (!Array.isArray(torders)) {
+      return { sl: null, tp: null };
+    }
+
+    let stopLoss: number | string | null = null;
+    let takeProfit: number | string | null = null;
+
+    for (const order of torders) {
+      const price = order.price;
+      const orderType = order.order_type ? order.order_type.toLowerCase() : "";
+
+      if (orderType === "market" || !price || price <= 0) {
+        continue;
+      }
+
+      if (orderType === "limit") {
+        takeProfit = price;
+      } else if (orderType === "stop") {
+        stopLoss = price;
+      }
+    }
+
+    return { sl: stopLoss, tp: takeProfit };
+  }, [
+    isLiveOrder,
+    isHistoryOrder,
+    openOrderData,
+    historyOrderData,
+    isLivePosition,
+    position,
+    historyPositionData,
+  ]);
+
+  const renderMarketView = () => {
+    return (
+      <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
-          <img src={cardIcon} alt="card" />
+          <img src={cardIcon} alt="cardIcon" />
           <div>
-            <h2 className="font-tertiary text-base uppercase">
+            <h2 className="my-1 font-tertiary text-primary uppercase">
               {resolvedInstrumentName}
             </h2>
-            <div className="flex items-center gap-1 mt-1">
-              <span
-                className={`text-sm ${
-                  side === "Buy" ? "text-profit" : "text-loss"
-                }`}
-              >
-                {side.toUpperCase()}
-              </span>
-              <span className="text-secondary text-sm">
-                {displayQty.toFixed(2)}
-              </span>
+            <div className="text-sm text-secondary">
+              {orderSideLabel.replace(" Qty:", "")} {displayQty.toFixed(2)}
             </div>
           </div>
         </div>
 
-        <div className="text-right">
-          {isLiveOrder || isHistoryOrder ? (
-            <>
-              <div className="font-tertiary text-base uppercase text-secondary">
-                {data.status || "Pending"}
-              </div>
-              <div className="text-secondary text-[10px] mt-1">
-                {displayTime}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className={`font-tertiary text-lg ${pnlColorClass}`}>
-                {pnlSign}
-                {pnl.toFixed(2)}
-              </div>
-              <div className="text-secondary text-[10px] mt-1">
-                LTP:{" "}
-                {(data.side === "buy"
-                  ? liveQuotes[data.instrument_id]?.bid
-                  : liveQuotes[data.instrument_id]?.ask
-                )?.toFixed(5) || formatPrice(data.price)}
-              </div>
-            </>
-          )}
+        <div className="flex flex-col items-end">
+          <div className={`text-sm font-secondary ${pnlColorClass}`}>
+            {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
+          </div>
+          <div className="text-[10px] text-secondary mt-1 uppercase">
+            {dateTimeString}
+          </div>
         </div>
       </div>
+    );
+  };
 
-      {/* Collapsible Details Section - ONLY for History Items */}
-      <div
-        className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
-          isDetailsVisible
-            ? "grid-rows-[1fr] opacity-100 mt-4"
-            : "grid-rows-[0fr] opacity-0"
-        }`}
-      >
-        <div className="overflow-hidden">
-          {/* History Position Details */}
-          {historyPositionData && (
-            <div className="grid grid-cols-4 text-xs text-secondary gap-y-2">
-              <div>S/L:</div>
-              <div className="text-right text-primary">{sl}</div>
-              <div className="pl-4">T/P:</div>
-              <div className="text-right text-primary">{tp}</div>
-
-              <div>Open:</div>
-              <div className="text-right text-primary col-span-3">
-                {new Date(
-                  historyPositionData.created_at * 1000
-                ).toLocaleString()}
-              </div>
-
-              <div>Swap:</div>
-              <div className="text-right text-primary">0.00</div>
-              <div className="pl-4">Charges:</div>
-              <div className="text-right text-primary">{totalCharges}</div>
-
-              <div>Id:</div>
-              <div className="text-right text-primary">
-                #{historyPositionData.tid || historyPositionData.id}
-              </div>
+  const renderPendingView = () => {
+    return (
+      <div className="flex justify-between items-center w-full">
+        <div className="flex items-center gap-2.5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="my-1 font-tertiary uppercase text-primary">
+                {resolvedInstrumentName}
+              </h2>
+              {tp !== null && (
+                <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+                  TP
+                </span>
+              )}
+              {sl !== null && (
+                <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+                  SL
+                </span>
+              )}
             </div>
-          )}
-
-          {/* Deal Details */}
-          {isDeal && dealData && (
-            <div className="grid grid-cols-4 text-xs text-secondary gap-y-2">
-              <div>Deal:</div>
-              <div className="text-right text-primary">
-                #{dealData.tid || dealData.id}
-              </div>
-              <div className="pl-4">Order:</div>
-              <div className="text-right text-primary">
-                {(dealData as any).order_id || "-"}
-              </div>
-
-              <div>Pos ID:</div>
-              <div className="text-right text-primary col-span-3">
-                {dealData.position_id || "-"}
-              </div>
-
-              <div>Charges:</div>
-              <div className="text-right text-primary">{totalCharges}</div>
-              <div className="pl-4">Price:</div>
-              <div className="text-right text-primary">
-                {formatPrice(dealData.price)}
-              </div>
+            <div className="text-sm text-secondary capitalize">
+              {orderSideLabel.replace(":", "")} {displayQty.toFixed(2)}
             </div>
-          )}
-
-          {/* History Order Details */}
-          {historyOrderData && (
-            <div className="grid grid-cols-4 text-xs text-secondary gap-y-2">
-              <div>S/L:</div>
-              <div className="text-right text-primary">{sl}</div>
-              <div className="pl-4">T/P:</div>
-              <div className="text-right text-primary">{tp}</div>
-
-              <div>Time:</div>
-              <div className="text-right text-primary col-span-3">
-                {new Date(
-                  (historyOrderData.placed_time || 0) * 1000
-                ).toLocaleString()}
-              </div>
-
-              <div>Id:</div>
-              <div className="text-right text-primary">
-                #{historyOrderData.tid || historyOrderData.id}
-              </div>
-            </div>
-          )}
-
-          <div
-            className="flex justify-end items-center mt-3 cursor-pointer text-xs text-primary underline"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleDetails();
-            }}
-          >
-            Hide Details
           </div>
         </div>
+
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-2.5 text-secondary text-sm">
+            {topLeftPrice.toFixed(5)}
+            <img
+              src={theme === "dark" ? rightArrow : rightArrowLight}
+              alt="rightArrow"
+            />
+            <span className="font-tertiary text-primary">
+              {(openOrderData?.price ?? 0).toFixed(5)}
+            </span>
+          </div>
+          <div className="text-[10px] text-secondary mt-1 uppercase">
+            {dateTimeString}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderHistoryView = () => {
+    return (
+      <div className="w-full">
+        <div className="font-secondary text-quaternary text-sm mb-1">
+          {formattedDate}
+        </div>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex items-center gap-2.5">
+            <div>
+              <h2 className="my-1 font-tertiary uppercase text-primary">
+                {resolvedInstrumentName}
+              </h2>
+              <div className="text-sm text-secondary">
+                {orderSideLabel.replace(" Qty:", "")} {displayQty.toFixed(2)}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end">
+            <div className={`text-sm font-secondary ${pnlColorClass}`}>
+              {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
+            </div>
+            <div className="text-[10px] text-secondary mt-1 uppercase">
+              {dateTimeString}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDefaultView = () => {
+    return (
+      <div className="w-full">
+        <div className="w-full flex justify-between items-center mb-3">
+          <div
+            className={`flex ${isLivePosition ? "w-full justify-between" : ""}`}
+          >
+            <div className="font-tertiary text-primary uppercase">
+              {resolvedInstrumentName}
+            </div>
+            {(isLivePosition || historyPositionData || label === "Trade") && (
+              <div className="flex items-center gap-3">
+                <span className="text-secondary pl-2 text-sm">
+                  {formatPriceOrEmpty(topLeftPrice)} &gt;{" "}
+                  {topRightPrice == null
+                    ? " "
+                    : formatPriceOrEmpty(topRightPrice)}
+                </span>
+              </div>
+            )}
+          </div>
+          {!isLivePosition && (
+            <div className="text-sm text-primary">{dateTimeString}</div>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-secondary">{orderSideLabel}</div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-secondary">Profit & Loss</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center text-primary">
+          <div className="font-secondary">{qtyDisplayString}</div>
+          <div className={`font-secondary ${pnlColorClass}`}>
+            {pnl.toFixed(2)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="select-none no-select">
+      <div
+        className="text-primary px-5 py-2.5 border-b border-primary cursor-pointer"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
+      >
+        {label === "Position" && renderMarketView()}
+        {label === "Orders" && renderPendingView()}
+        {label === "History" && renderHistoryView()}
+        {label !== "Position" &&
+          label !== "Orders" &&
+          label !== "History" &&
+          renderDefaultView()}
       </div>
     </div>
   );
 };
-
 export default PositionCard;

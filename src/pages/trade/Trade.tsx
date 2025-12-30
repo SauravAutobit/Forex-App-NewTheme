@@ -1,5 +1,4 @@
 import { useNavigate, useOutletContext } from "react-router-dom";
-import ClosedCard from "../../components/closedCard/ClosedCard";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
@@ -66,7 +65,6 @@ const Trade = () => {
   const account = useAppSelector(selectAccount);
   const accountStatus = useAppSelector((state) => state.account.status);
 
-  const liveQuotes = useAppSelector((state) => state.quotes.liveQuotes);
   const openPositions = useAppSelector((state) => state.positions.positions);
   const openOrders = useAppSelector((state) => state.openOrders.orders) || [];
   const historyPositions =
@@ -85,10 +83,10 @@ const Trade = () => {
     }
   }, [apiStatus, dispatch]);
 
-  // ✅ P&L and Balance Calculations (Swastiik Edition)
+  // ✅ P&L CALCULATION (OLD APP Logic)
   const totalPnl = openPositions.reduce((sum, position) => {
-    const quote = liveQuotes[position.instrument_id];
-    const currentPrice = position.side === "buy" ? quote?.bid : quote?.ask;
+    const currentPrice =
+      position.side === "buy" ? position.live_bid : position.live_ask;
     let pnl = 0;
     if (currentPrice !== undefined && position.qty !== undefined) {
       if (position.side === "buy") {
@@ -100,21 +98,59 @@ const Trade = () => {
     return sum + pnl;
   }, 0);
 
+  // ✅ CALCULATE USED BALANCE (OLD APP Logic: sum of used_balance from positions)
   const totalUsedBalance = openPositions.reduce(
     (sum, position) => sum + (position.used_balance || 0),
     0
   );
 
+  // ✅ CALCULATE OTHER BALANCES (OLD APP Logic)
   const liveBalance = account?.balance ?? 0;
   const availableBalance = liveBalance - totalUsedBalance;
   const totalValue = liveBalance + totalPnl;
-  const marginLevel =
-    totalUsedBalance > 0 ? (totalValue / totalUsedBalance) * 100 : 0;
+
+  // Format the values to a currency string (as expected by InstrumentInfoCard)
+  const formattedTotalPnl = `${totalPnl < 0 ? "-" : ""}$${Math.abs(
+    totalPnl
+  ).toFixed(2)}`;
+  const formattedBalance = `$${liveBalance.toFixed(2)}`;
+  const formattedUsedBalance = `$${totalUsedBalance.toFixed(2)}`;
+  const formattedAvailableBalance = `${
+    availableBalance < 0 ? "-" : "+"
+  }$${Math.abs(availableBalance).toFixed(2)}`;
+  const formattedTotalValue = `$${totalValue.toFixed(2)}`;
 
   const tabsData: TabItem[] = [
     {
       id: "market",
       label: "Market",
+      content: (
+        <div>
+          {openPositions.map((pos, index) => {
+            return (
+              <PositionCard
+                key={pos.id || index}
+                position={pos}
+                label="Position"
+                onClick={() => {
+                  setIsFlag((prev) => ({
+                    ...prev,
+                    marketEdit: { status: true },
+                  }));
+                  navigate("/app/marketEdit", { state: { position: pos } });
+                }}
+                onLongPress={() => {
+                  // Keep long press if needed, but click navigates
+                }}
+              />
+            );
+          })}
+        </div>
+      ),
+    },
+    {
+      id: "pending",
+      label: "Pending",
       content: (
         <div>
           {openOrders.map((order, index) => {
@@ -124,38 +160,14 @@ const Trade = () => {
                 position={{} as any}
                 openOrderData={order}
                 label="Orders"
-                onLongPress={() => {
+                onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
                     pendingEdit: { status: true },
                   }));
                   navigate("/app/pendingEdit", { state: { order } });
                 }}
-              />
-            );
-          })}
-        </div>
-      ),
-    },
-    {
-      id: "positions",
-      label: "Positions",
-      content: (
-        <div>
-          {openPositions.map((pos, index) => {
-            return (
-              <PositionCard
-                key={pos.id || index}
-                position={pos}
-                label="Position"
-                onLongPress={() => {
-                  setIsFlag((prev) => ({
-                    ...prev,
-                    // Keeping flag logic, though strictly navigation handles the view
-                    closedEdit: { status: true },
-                  }));
-                  navigate("/app/marketEdit", { state: { position: pos } });
-                }}
+                onLongPress={() => {}}
               />
             );
           })}
@@ -169,26 +181,19 @@ const Trade = () => {
         <div>
           {historyPositions.map((pos, index) => {
             return (
-              <ClosedCard
-                key={index}
-                code={pos.trading_name || pos.instrument?.name || "N/A"}
-                bid={0}
-                ask={0}
-                high={0}
-                low={0}
-                ltp={0}
-                close={0}
-                pip={""}
-                timestamp={new Date(
-                  pos.time_setup || pos.created_at
-                ).toLocaleTimeString()}
+              <PositionCard
+                key={pos.id || index}
+                position={{} as any}
+                historyPositionData={pos}
+                label="History"
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
                     closedEdit: { status: true },
                   }));
-                  navigate("/app/closedEdit");
+                  navigate("/app/closedEdit", { state: { position: pos } });
                 }}
+                onLongPress={() => {}}
               />
             );
           })}
@@ -199,17 +204,13 @@ const Trade = () => {
 
   const profitBalanceProps: ProfitBalanceProps = {
     showProfitLoss: true,
-    profitLoss: `$${totalValue.toFixed(2)}`,
+    profitLoss: formattedTotalPnl,
     showBalances: true,
     balanceItems: [
-      { label: "Balance", value: `$${liveBalance.toFixed(2)}` },
-      {
-        label: "Profit | Loss",
-        value: `${totalPnl < 0 ? "-" : ""}$${Math.abs(totalPnl).toFixed(2)}`,
-      },
-      { label: "Used Margin", value: `$${totalUsedBalance.toFixed(2)}` },
-      { label: "Margin level", value: `${marginLevel.toFixed(2)}%` },
-      { label: "Free margin", value: `$${availableBalance.toFixed(2)}` },
+      { label: "Balance", value: formattedBalance },
+      { label: "Used Balance", value: formattedUsedBalance },
+      { label: "Available Balance", value: formattedAvailableBalance },
+      { label: "Total Value (Balance+P&F)", value: formattedTotalValue },
     ],
     marginTop: "16px",
   };
@@ -252,6 +253,7 @@ const Trade = () => {
         // onTabChange={handleTabChange} // New handler for URL update
         className="max-w-md mx-auto pb-2.5"
       />
+
       <BottomDrawer
         isOpen={isDrawerOpen.homeDrawer}
         onClose={() =>
