@@ -29,7 +29,7 @@ const HistoryCard = ({
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
 
-  console.log("instrumentsMap", instrumentsMap, instrumentName);
+  // console.log("instrumentsMap", instrumentsMap, instrumentName);
   // Determine type
   const isHistoryPosition = !!historyPositionData;
   const isHistoryOrder = !!historyOrderData;
@@ -110,7 +110,7 @@ const HistoryCard = ({
     return "Unknown Instrument";
   }, [instrumentName, data, findInstrumentTradingName]);
 
-  console.log("resolvedInstrumentName", resolvedInstrumentName);
+  // console.log("resolvedInstrumentName", resolvedInstrumentName);
   // Side
   const side = data.side ? data.side.toLowerCase() : "buy";
 

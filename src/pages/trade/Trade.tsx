@@ -211,7 +211,6 @@ const Trade = () => {
       { label: "Margin level", value: `${marginLevel.toFixed(2)}%` },
       { label: "Free margin", value: `$${availableBalance.toFixed(2)}` },
     ],
-    showBorder: true,
     marginTop: "16px",
   };
 
