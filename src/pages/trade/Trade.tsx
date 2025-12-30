@@ -3,12 +3,20 @@ import ClosedCard from "../../components/closedCard/ClosedCard";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
-import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
-import PendingCard from "../../components/pendingCard/PendingCard";
 import type { OutletContextType } from "../../layout/MainLayout";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
-import { useState, type Key } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../store/store";
+import {
+  selectAccount,
+  fetchAccountBalance,
+} from "../../store/slices/accountSlice";
+import { fetchPositions } from "../../store/slices/positionsSlice";
+import { fetchOpenOrders } from "../../store/slices/openOrdersSlice";
+import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
+import PositionCard from "../../components/positionCard/PositionCard";
 import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
 import upArrowFilter from "../../assets/icons/upArrowFilter.svg";
@@ -50,15 +58,58 @@ const Trade = () => {
   ];
 
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { setIsFlag, isDrawerOpen, setIsDrawerOpen } =
     useOutletContext<OutletContextType>();
 
+  const apiStatus = useAppSelector((state) => state.websockets.apiStatus);
+  const account = useAppSelector(selectAccount);
+  const accountStatus = useAppSelector((state) => state.account.status);
+
   const liveQuotes = useAppSelector((state) => state.quotes.liveQuotes);
-  const watchlist = useAppSelector((state) => state.quotes.quotes);
   const openPositions = useAppSelector((state) => state.positions.positions);
   const openOrders = useAppSelector((state) => state.openOrders.orders) || [];
   const historyPositions =
     useAppSelector((state) => state.historyPositions.data) || [];
+
+  // Fetch all trade data when connected
+  useEffect(() => {
+    if (apiStatus === "connected") {
+      if (accountStatus === "idle") dispatch(fetchAccountBalance());
+      dispatch(fetchPositions());
+      dispatch(fetchOpenOrders());
+
+      // Fetch history (last 24h as default)
+      const oneDayAgo = Math.floor(Date.now() / 1000) - 86400;
+      dispatch(fetchHistoryPositions(oneDayAgo));
+    }
+  }, [apiStatus, dispatch]);
+
+  // ✅ P&L and Balance Calculations (Swastiik Edition)
+  const totalPnl = openPositions.reduce((sum, position) => {
+    const quote = liveQuotes[position.instrument_id];
+    const currentPrice = position.side === "buy" ? quote?.bid : quote?.ask;
+    let pnl = 0;
+    if (currentPrice !== undefined && position.qty !== undefined) {
+      if (position.side === "buy") {
+        pnl = (currentPrice - position.price) * position.qty;
+      } else if (position.side === "sell") {
+        pnl = (position.price - currentPrice) * position.qty;
+      }
+    }
+    return sum + pnl;
+  }, 0);
+
+  const totalUsedBalance = openPositions.reduce(
+    (sum, position) => sum + (position.used_balance || 0),
+    0
+  );
+
+  const liveBalance = account?.balance ?? 0;
+  const availableBalance = liveBalance - totalUsedBalance;
+  const totalValue = liveBalance + totalPnl;
+  const marginLevel =
+    totalUsedBalance > 0 ? (totalValue / totalUsedBalance) * 100 : 0;
 
   const tabsData: TabItem[] = [
     {
@@ -66,30 +117,19 @@ const Trade = () => {
       label: "Market",
       content: (
         <div>
-          {watchlist.map((item) => {
-            const quotes = liveQuotes[item.id] || item;
+          {openOrders.map((order, index) => {
             return (
-              <MarketCard
-                key={item.id}
-                code={item.name}
-                bid={quotes.bid}
-                ask={quotes.ask}
-                high={quotes.high}
-                low={quotes.low}
-                ltp={quotes.ltp}
-                close={quotes.close}
-                pip={item.static_data?.pipsize}
-                timestamp={
-                  quotes.timestamp
-                    ? new Date(quotes.timestamp).toLocaleTimeString()
-                    : "..."
-                }
-                onClick={() => {
+              <PositionCard
+                key={order.id || index}
+                position={{} as any}
+                openOrderData={order}
+                label="Orders"
+                onLongPress={() => {
                   setIsFlag((prev) => ({
                     ...prev,
-                    marketEdit: { status: true },
+                    pendingEdit: { status: true },
                   }));
-                  navigate("/app/marketEdit");
+                  navigate("/app/pendingEdit", { state: { order } });
                 }}
               />
             );
@@ -98,29 +138,23 @@ const Trade = () => {
       ),
     },
     {
-      id: "pending",
-      label: "Pending",
+      id: "positions",
+      label: "Positions",
       content: (
         <div>
-          {openOrders.map((order, index) => {
+          {openPositions.map((pos, index) => {
             return (
-              <PendingCard
-                key={index}
-                code={order.trading_name}
-                bid={0} // Pending orders might not have immediate bid/ask here
-                ask={0}
-                high={0}
-                low={0}
-                ltp={0}
-                close={0}
-                pip={""}
-                timestamp={new Date(order.placed_time).toLocaleTimeString()}
-                onClick={() => {
+              <PositionCard
+                key={pos.id || index}
+                position={pos}
+                label="Position"
+                onLongPress={() => {
                   setIsFlag((prev) => ({
                     ...prev,
-                    pendingEdit: { status: true },
+                    // Keeping flag logic, though strictly navigation handles the view
+                    closedEdit: { status: true },
                   }));
-                  navigate("/app/pendingEdit");
+                  navigate("/app/marketEdit", { state: { position: pos } });
                 }}
               />
             );
@@ -130,14 +164,14 @@ const Trade = () => {
     },
     {
       id: "closed",
-      label: "Closed",
+      label: "Close",
       content: (
         <div>
           {historyPositions.map((pos, index) => {
             return (
               <ClosedCard
                 key={index}
-                code={pos.instrument.name}
+                code={pos.trading_name || pos.instrument?.name || "N/A"}
                 bid={0}
                 ask={0}
                 high={0}
@@ -145,7 +179,9 @@ const Trade = () => {
                 ltp={0}
                 close={0}
                 pip={""}
-                timestamp={new Date(pos.time_setup).toLocaleTimeString()}
+                timestamp={new Date(
+                  pos.time_setup || pos.created_at
+                ).toLocaleTimeString()}
                 onClick={() => {
                   setIsFlag((prev) => ({
                     ...prev,
@@ -163,15 +199,17 @@ const Trade = () => {
 
   const profitBalanceProps: ProfitBalanceProps = {
     showProfitLoss: true,
-    profitLoss: "$10.46",
+    profitLoss: `$${totalValue.toFixed(2)}`,
     showBalances: true,
     balanceItems: [
-      { label: "Bonus", value: "$0.00" },
-      { label: "Profit | Loss", value: "-$8.46" },
-      { label: "Margin", value: "$19.98" },
-      { label: "Margin level", value: "461.97%" },
-
-      { label: "Free margin", value: "$8.44" },
+      { label: "Balance", value: `$${liveBalance.toFixed(2)}` },
+      {
+        label: "Profit | Loss",
+        value: `${totalPnl < 0 ? "-" : ""}$${Math.abs(totalPnl).toFixed(2)}`,
+      },
+      { label: "Used Margin", value: `$${totalUsedBalance.toFixed(2)}` },
+      { label: "Margin level", value: `${marginLevel.toFixed(2)}%` },
+      { label: "Free margin", value: `$${availableBalance.toFixed(2)}` },
     ],
     showBorder: true,
     marginTop: "16px",

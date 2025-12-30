@@ -6,10 +6,11 @@ import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import CheckList from "../../components/checkList/CheckList";
 import Counter from "../../components/counter/Counter";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
+import type { Position } from "../../store/slices/positionsSlice";
 
 interface TabItem {
   id: string;
@@ -19,36 +20,51 @@ interface TabItem {
 
 const MarketEdit = () => {
   const theme = useSelector((s: RootState) => s.theme.mode);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const position = location.state?.position as Position | undefined;
+
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>({
+    trailingStop: false,
+    breakEven: false,
+    orderExpiration: false,
+  });
 
   const editOptions = [
-    {
-      label: "Trailing stop",
-      key: "trailingStop",
-    },
+    { label: "Trailing stop", key: "trailingStop" },
     { label: "Break even", key: "breakEven" },
-    {
-      label: "Order expiration",
-      key: "orderExpiration",
-    },
+    { label: "Order expiration", key: "orderExpiration" },
   ];
 
-  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
-    () =>
-      editOptions.reduce(
-        (acc, curr) => ({
-          ...acc,
-          [curr.key]: false,
-        }),
-        {}
-      )
-  );
+  // Helper formats
+  const formatTime = (ts?: number) =>
+    ts
+      ? new Date(ts * 1000).toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+      : "-";
+
+  // Calculate P&L roughly or use pre-calculated if available in Position type
+  // Note: Position type has 'closed_pnl' for closed, but for open?
+  // Usually calculated live. For now, showing placeholder or basic calcs if needed.
+  // We'll stick to static/passed data. P&L usually needs live quote.
+  const pnlDisplay = "$0.00"; // Ideally calculated with live quotes
 
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
-      { label: "Open  time", value: "2025/10/17  14:12:33" },
-      { label: "Gross Profit", value: "-$4.33" },
-      { label: "Overnight Fee", value: "$0.00" },
-      { label: "Position ID", value: "#58735749" },
+      { label: "Open  time", value: formatTime(position?.created_at) },
+      { label: "Gross Profit", value: pnlDisplay }, // Placeholder, needs live calculation or passed P&L
+      { label: "Overnight Fee", value: "$0.00" }, // Need swap data
+      {
+        label: "Position ID",
+        value: position?.id ? `#${position.tid || position.id}` : "-",
+      },
       {
         label: "History",
         value: <img src={rightArrowHistory} alt="rightArrowHistory" />,
@@ -57,10 +73,13 @@ const MarketEdit = () => {
     marginTop: "16px",
   };
 
-  const navigate = useNavigate();
   const editHistoryHandler = () => {
     navigate("/app/editHistory", { state: { type: "market" } });
   };
+
+  if (!position) {
+    return <div className="p-5 text-center">No position selected</div>;
+  }
 
   const tabsData: TabItem[] = [
     {
@@ -89,7 +108,7 @@ const MarketEdit = () => {
                 label={
                   <div className="flex flex-col">
                     Close Order
-                    <div>-$4.57</div>
+                    <div>{pnlDisplay}</div>
                   </div>
                 }
                 width="169.5px"
