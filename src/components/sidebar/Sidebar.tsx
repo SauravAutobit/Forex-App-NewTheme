@@ -23,6 +23,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
   const theme = useAppSelector((state) => state.theme.mode);
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <>
@@ -55,7 +56,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 right: "24px",
               }}
             ></div>
-            <div className="font-secondary text-primary">Olivia Rhye</div>
+            <div className="font-secondary text-primary">
+              {user?.username || "Guest User"}
+            </div>
           </div>
 
           <AccountList />

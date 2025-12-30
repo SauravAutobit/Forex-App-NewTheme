@@ -17,6 +17,7 @@ import orderStatusReducer from "./slices/orderStatusSlice";
 import instrumentRelationsReducer from "./slices/instrumentRelationsSlice";
 import aiChatReducer from "./slices/aiChatSlice";
 import notificationReducer from "./slices/notificationSlice";
+import authReducer from "./slices/authSlice";
 
 const rootReducer = {
   websockets: webSocketReducer,
@@ -37,6 +38,7 @@ const rootReducer = {
   instrumentRelations: instrumentRelationsReducer,
   aiChat: aiChatReducer,
   notification: notificationReducer,
+  auth: authReducer,
 };
 
 // Derive RootState from the reducer map BEFORE creating the listener middleware

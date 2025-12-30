@@ -1,28 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../../assets/icons/logo.svg";
 import eye from "../../assets/icons/eye.svg";
 import { useNavigate } from "react-router-dom";
 import Checkbox from "../../components/checbox/Checbox";
 // import logoLight from "../../assets/icons/logoLight.svg";
-import google from "../../assets/icons/google.svg";
-import apple from "../../assets/icons/apple.svg";
-import facebook from "../../assets/icons/facebook.svg";
+// import google from "../../assets/icons/google.svg";
+// import apple from "../../assets/icons/apple.svg";
+// import facebook from "../../assets/icons/facebook.svg";
 import NeonGlowBackground from "../../components/neonGlowBackground/NeonGlowBackground";
-import { useAppSelector } from "../../store/hook";
-import appleLight from "../../assets/icons/appleLight.svg";
+import { useAppDispatch, useAppSelector } from "../../store/hook";
+import { loginUser } from "../../store/slices/authSlice";
+import { store } from "../../store/store";
+import { reinitializeSockets } from "../../services/socketService";
+// import appleLight from "../../assets/icons/appleLight.svg";
 
 const Login = () => {
-  const [email, setEmail] = useState("asdasd@gmail.com");
-  const [password, setPassword] = useState("asdasd");
+  const [username, setUsername] = useState(""); // Default for testing
+  const [password, setPassword] = useState(""); // Default for testing
+  const [showPassword, setShowPassword] = useState(false);
 
   const theme = useAppSelector((state) => state.theme.mode);
+  const { status, error, user } = useAppSelector((state) => state.auth);
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // If already logged in, redirect to app
+    if (user && status === "succeeded") {
+      // Reinitialize sockets with new token
+      reinitializeSockets(store);
+      navigate("/app");
+    }
+  }, [user, status, navigate]);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Add login logic here
-    console.log("LOGIN");
-    navigate("/app");
+    if (username && password) {
+      dispatch(loginUser({ username, password }));
+    }
   };
 
   const [activeOptions, setActiveOptions] = useState(false);
@@ -47,14 +63,17 @@ const Login = () => {
                 Enter your credentials to access your account
               </p>
             </div>
+
             <div className="space-y-2">
               <label className="font-tertiary text-primary">Username</label>
               <input
-                type="text" // Assuming API takes 'username' (which is the 'email' state here)
+                type="text"
                 placeholder="Enter Username"
-                className={`w-full p-3 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary`}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                className={`w-full p-3 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${
+                  error ? "border-red-500 text-red-500" : ""
+                }`}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -63,24 +82,30 @@ const Login = () => {
               <label className="font-tertiary text-primary">Password</label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter password"
-                  className="w-full p-3 pr-10 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary"
+                  className={`w-full p-3 pr-10 rounded-lg bg-primaryBg border border-[#3D3D3D] focus:outline-none placeholder-placeholder text-primary ${
+                    error ? "border-red-500 text-red-500" : ""
+                  }`}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer">
-                  <img src={eye} alt="eye" />
+                <span
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <img src={eye} alt="toggle password visibility" />
                 </span>
               </div>
             </div>
 
             <div className="flex justify-end text-sm">
-              <a href="#" className="hover:underline text-primary">
+              <a href="#" className="text-quaternary">
                 Forgot Password?
               </a>
             </div>
+            {error && <div className="text-red-500">{error}</div>}
 
             <div className="flex items-center gap-2 text-primary">
               <Checkbox
@@ -92,77 +117,16 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full p-3 rounded-10 bg-quaternary font-secondary hover:bg-gray-300 focus:outline-none"
+              disabled={status === "loading"}
+              className={`w-full p-3 rounded-10 bg-quaternary font-secondary ${
+                status === "loading" ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               // style={{ color: theme === "dark" ? "#303030" : "#FAFAFA" }}
               style={{ color: "#0C0C0C" }}
             >
-              Login
+              {status === "loading" ? "Logging in..." : "Login"}
             </button>
           </form>
-
-          <div className="flex flex-col items-center mt-[48px]">
-            <div className="flex items-center gap-3">
-              <div
-                className={`h-px w-10 my-2 ${
-                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
-                }`}
-              ></div>
-              <span className="text-secondary font-secondary text-sm">
-                or sign up with
-              </span>
-              <div
-                className={`h-px w-10 my-2  ${
-                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
-                }`}
-              ></div>
-            </div>
-            <div className="flex items-center gap-1 mt-3.5">
-              <div
-                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
-                  theme === "dark"
-                    ? "border border-[#FAFAFA]"
-                    : "border border-[#2D2D2D]"
-                }`}
-              >
-                <img src={google} alt="google" />
-                Google
-              </div>
-
-              <div
-                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
-                  theme === "dark"
-                    ? "border border-[#FAFAFA]"
-                    : "border border-[#2D2D2D]"
-                }`}
-              >
-                <img src={theme === "dark" ? apple : appleLight} alt="apple" />
-                Apple
-              </div>
-
-              <div
-                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
-                  theme === "dark"
-                    ? "border border-[#FAFAFA]"
-                    : "border border-[#2D2D2D]"
-                }`}
-              >
-                <img src={facebook} alt="facebook" />
-                Facebook
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-8 text-primary">
-            <span>Don't have an Account? </span>
-            <a
-              href="#"
-              className={`font-[700] hover:underline ${
-                theme === "dark" ? "text-quaternary" : "text-primary"
-              }`}
-            >
-              Sign up here
-            </a>
-          </div>
         </div>
       </div>
     </NeonGlowBackground>

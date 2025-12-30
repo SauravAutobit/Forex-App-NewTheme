@@ -235,6 +235,17 @@ export class WebSocketClient {
     }
   }
 
+  /**
+   * Close the WebSocket connection
+   */
+  public close(): void {
+    if (this.ws) {
+      this.stopPinging();
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+
    // ✅ ADD THIS ENTIRE NEW METHOD
   /**
    * Queues a callback to be executed once the WebSocket connection is established.

@@ -98,7 +98,7 @@ let eventClient: WebSocketClient;
 //     return state.auth.currentAccount?.token ?? null;
 // };
 
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE0NDFhNmVjYzAxZDRkNTZhNDY4MmJkMjJmOTI2MjA1IiwiYWNjaWQiOiIxNmM3NzFmNi01MjJmLTQ1MjQtODBhNC1lNjQ2NGM3MzQzM2EiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE1Ny41Mi4yMjY6NTk0MzgifQ.SA4DOb2wh99Si9hZrEpr6IkOQVwGsNJ2O-oRjKKCRDs";
+// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE0NDFhNmVjYzAxZDRkNTZhNDY4MmJkMjJmOTI2MjA1IiwiYWNjaWQiOiIxNmM3NzFmNi01MjJmLTQ1MjQtODBhNC1lNjQ2NGM3MzQzM2EiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE1Ny41Mi4yMjY6NTk0MzgifQ.SA4DOb2wh99Si9hZrEpr6IkOQVwGsNJ2O-oRjKKCRDs";
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWU1ZDdjNWExMDFhZTRhODc5NDAyZjgzNTkxNzUzMjMyIiwiYWNjaWQiOiJjMGFiMDQwNC1lYTIzLTQ2MDUtYTU4ZC1kNWViNjdhYWM1YWYiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MTY5In0.lPViZzHdj-rV2-JPsv_5EDvyQtNAHaBuFS75NANDMvg";
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWZhMDAyZGEyMzE4ZDQ1MTdhYTg4ODk4Y2MwMTg1NGJlIiwiYWNjaWQiOiIxOTdlNjI2OS04OTBhLTQ5NzUtOTA1ZC1jNjQzNjY3YzIyOTciLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MDA4In0.-k5TU_plgJ2o0F5Ata25A6J-feaYSt2-S9-0VZOjMRc"
 // wss://api.fintrabit.com/ws test token
@@ -108,7 +108,9 @@ const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
 export const initializeSockets = (store: Store) => {
   // const token = getAuthToken(store);
-  const token = AUTH_TOKEN;
+  const state = store.getState() as RootState;
+  const token = state.auth.user?.token;
+
   if (!token) {
     console.error(
       "❌ No auth token found. WebSocket connections will not be initialized."
@@ -292,4 +294,27 @@ export const unsubscribeFromInstruments = (instrumentIds: string[]) => {
   }
 };
 
+/**
+ * Reinitialize sockets with new token (e.g., after login or account switch)
+ */
+export const reinitializeSockets = (store: Store) => {
+  console.log("🔄 Reinitializing WebSocket connections...");
+  
+  // Close existing connections
+  if (apiClient) {
+    apiClient.close();
+  }
+  if (streamClient) {
+    streamClient.close();
+  }
+  
+  // Reset clients
+  apiClient = null as any;
+  streamClient = null as any;
+  
+  // Reinitialize with new token
+  initializeSockets(store);
+};
+
 export { apiClient, streamClient, eventClient };
+
