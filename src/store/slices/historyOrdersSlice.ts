@@ -60,7 +60,7 @@ dispatch(showLoader())
         | { status: "success"; data: HistoryOrder[] }
         | { status: "error"; message: string };
       const response = await apiClient.send<ApiResp>("query", {
-        query: `fintrabit.orders[status="filled" and placed_time>${timestamp}]._desc(placed_time)[0:30]{instruments.trading_name,account_id,end_execution_time,filled_qty,id,instrument_id,metadata,order_type,placed_qty,placed_time,position_id,price,side,start_execution_time,status,tid,instruments.static_data}`,
+        query: `fintrabit.orders[status="filled" and placed_time>${1}]._desc(placed_time)[0:30]{instruments.trading_name,account_id,end_execution_time,filled_qty,id,instrument_id,metadata,order_type,placed_qty,placed_time,position_id,price,side,start_execution_time,status,tid,instruments.static_data}`,
       });
 
       if (

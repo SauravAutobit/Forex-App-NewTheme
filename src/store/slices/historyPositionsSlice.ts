@@ -98,7 +98,7 @@ export const fetchHistoryPositions = createAsyncThunk<
   "historyPositions/fetchHistoryPositions",
   async (timestamp, { dispatch, rejectWithValue }) => {
     dispatch(showLoader());
-    const query = `fintrabit.positions[status="closed" and created_at>${timestamp}][0:30]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,"trading_name":instruments.trading_name[0],instruments.static_data,trades,torders[status="filled"],instruments.static_data}`;
+    const query = `fintrabit.positions[status="closed" and created_at>${1}][0:30]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,"trading_name":instruments.trading_name[0],instruments.static_data,trades,torders[status="filled"],instruments.static_data}`;
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await apiClient.send<any>("query", { query });

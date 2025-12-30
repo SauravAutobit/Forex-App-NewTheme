@@ -11,23 +11,22 @@ import {
   WEBSOCKET_STREAM_URL,
 } from "../utils//constants/app.constants";
 // import { updateQuoteData } from "../store/slices/quotesSlice";
-// import {
-//   fetchPositions,
-//   updatePositionQuote,
-// } from "../store/slices/positionsSlice";
-// import { fetchDeals } from "../store/slices/dealsSlice";
-import type { RootState } from "../store/store";
-import { updatePositionQuote } from "../store/slices/positionsSlice";
+import {
+  fetchPositions,
+  updatePositionQuote,
+} from "../store/slices/positionsSlice";
+import { fetchDeals } from "../store/slices/dealsSlice";
+import type { RootState, AppDispatch } from "../store/store";
 import { updateQuoteData } from "../store/slices/quotesSlice";
-// import { fetchHistoryOrders } from "../store/slices/historyOrdersSlice";
-// import { fetchHistoryPositions } from "../store/slices/historyPositionsSlice";
+import { fetchHistoryOrders } from "../store/slices/historyOrdersSlice";
+import { fetchHistoryPositions } from "../store/slices/historyPositionsSlice";
 // import {
 //   showToasty,
 //   hideToasty,
 //   type ToastyData,
 // } from "../store/slices/notificationSlice";
-// import { fetchAccountBalance } from "../store/slices/accountSlice";
-// import { fetchOpenOrders } from "../store/slices/openOrdersSlice";
+import { fetchAccountBalance } from "../store/slices/accountSlice";
+import { fetchOpenOrders } from "../store/slices/openOrdersSlice";
 
 type StreamDataPayload = {
   bid?: number[];
@@ -55,35 +54,35 @@ function isStreamQuoteMessage(msg: unknown): msg is {
 }
 
 
-// export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number) => {
-//   // If timestamp not provided compute start-of-today
-//   const ts =
-//     typeof timestamp === "number"
-//       ? timestamp
-//       : Math.floor(
-//           new Date(
-//             new Date().getFullYear(),
-//             new Date().getMonth(),
-//             new Date().getDate(),
-//             0,
-//             0,
-//             0,
-//             0
-//           ).getTime() / 1000
-//         );
+export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number) => {
+  // If timestamp not provided compute start-of-today
+  const ts =
+    typeof timestamp === "number"
+      ? timestamp
+      : Math.floor(
+          new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate(),
+            0,
+            0,
+            0,
+            0
+          ).getTime() / 1000
+        );
 
-//   console.log("🔄 Triggering refresh for all history data with timestamp:", ts);
+  console.log("🔄 Triggering refresh for all history data with timestamp:", ts);
 
-//   // Use the same timestamp for all three thunks
-//   dispatch(fetchHistoryPositions(ts));
-//   dispatch(fetchDeals(ts));
-//   dispatch(fetchHistoryOrders(ts));
+  // Use the same timestamp for all three thunks
+  dispatch(fetchHistoryPositions(ts));
+  dispatch(fetchDeals(ts));
+  dispatch(fetchHistoryOrders(ts));
 
-//   // Other non-history thunks
-//   dispatch(fetchAccountBalance());
-//   dispatch(fetchPositions());
-//   dispatch(fetchOpenOrders())
-// };
+  // Other non-history thunks
+  dispatch(fetchAccountBalance());
+  dispatch(fetchPositions());
+  dispatch(fetchOpenOrders())
+};
 
 const API_BASE_URL = WEBSOCKET_API_URL; 
 const STREAM_BASE_URL = WEBSOCKET_STREAM_URL; //import.meta.env.VITE_STREAM_URL;
@@ -99,7 +98,8 @@ let eventClient: WebSocketClient;
 //     return state.auth.currentAccount?.token ?? null;
 // };
 
-const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWU1ZDdjNWExMDFhZTRhODc5NDAyZjgzNTkxNzUzMjMyIiwiYWNjaWQiOiJjMGFiMDQwNC1lYTIzLTQ2MDUtYTU4ZC1kNWViNjdhYWM1YWYiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MTY5In0.lPViZzHdj-rV2-JPsv_5EDvyQtNAHaBuFS75NANDMvg";
+const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE0NDFhNmVjYzAxZDRkNTZhNDY4MmJkMjJmOTI2MjA1IiwiYWNjaWQiOiIxNmM3NzFmNi01MjJmLTQ1MjQtODBhNC1lNjQ2NGM3MzQzM2EiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE1Ny41Mi4yMjY6NTk0MzgifQ.SA4DOb2wh99Si9hZrEpr6IkOQVwGsNJ2O-oRjKKCRDs";
+// const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWU1ZDdjNWExMDFhZTRhODc5NDAyZjgzNTkxNzUzMjMyIiwiYWNjaWQiOiJjMGFiMDQwNC1lYTIzLTQ2MDUtYTU4ZC1kNWViNjdhYWM1YWYiLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MTY5In0.lPViZzHdj-rV2-JPsv_5EDvyQtNAHaBuFS75NANDMvg";
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWZhMDAyZGEyMzE4ZDQ1MTdhYTg4ODk4Y2MwMTg1NGJlIiwiYWNjaWQiOiIxOTdlNjI2OS04OTBhLTQ5NzUtOTA1ZC1jNjQzNjY3YzIyOTciLCJyb2xlIjoiYWNjb3VudCIsImlwIjoiMTAzLjE3MC4xNTMuMjA0OjY0MDA4In0.-k5TU_plgJ2o0F5Ata25A6J-feaYSt2-S9-0VZOjMRc"
 // wss://api.fintrabit.com/ws test token
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLWE3N2Y2MTY3NThjNDRhNTA5ZTI3NGU0MjQwODExMWYzIiwiYWNjaWQiOiJTRVAyNS0xM2M5NjYwZC0zZmI2LTRhOWYtYjI4NS0xMzBlMmQ2MmQwNjAifQ.ercKgPUNpAcUy8tsG_aiDElnNCYk-z3HMxh8ccW8wLY";

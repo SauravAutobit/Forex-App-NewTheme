@@ -61,7 +61,7 @@ export const fetchDeals = createAsyncThunk<
   }
 
   const dealsQuery = {
-    query: `fintrabit.trades[time>${timestamp}]._desc(time){account_id,charges,closed_pnl,id,instrument_id,order_id,position_id,price,qty,side,status,tid,time,type,orders.tid,positions.tid,instruments.name,instruments.static_data}`,
+    query: `fintrabit.trades[time>${1}]._desc(time){account_id,charges,closed_pnl,id,instrument_id,order_id,position_id,price,qty,side,status,tid,time,type,orders.tid,positions.tid,instruments.trading_name,instruments.static_data}`,
   };
 
   try {

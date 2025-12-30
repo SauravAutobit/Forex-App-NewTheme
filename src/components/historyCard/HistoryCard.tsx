@@ -1,21 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import type { Deal } from "../../store/slices/dealsSlice";
+import type { HistoryOrder } from "../../store/slices/historyOrdersSlice";
+import type { HistoryPosition } from "../../store/slices/historyPositionsSlice";
 
-// Define a new interface for the component signature
-interface HistoryCardPropsStatic {
-  label: "Position" | "Orders" | "Deals";
+interface HistoryCardProps {
+  label: "Position" | "Orders" | "Deals" | string;
   index?: number;
-  // NEW PROPS for the tutorial feature
-  onCardClick: () => void;
-  isTutorialTarget: boolean; // Flag to identify the card the arrow points to
+  onCardClick?: () => void;
+  isTutorialTarget?: boolean;
+  historyPositionData?: HistoryPosition | null;
+  historyOrderData?: HistoryOrder | null;
+  dealData?: Deal | null;
+  instrumentName?: string;
 }
 
 const HistoryCard = ({
-  label,
+  label, // kept for potential styling classes based on label if needed later, currently unused
   index,
   onCardClick,
   isTutorialTarget,
-}: HistoryCardPropsStatic) => {
+  historyPositionData,
+  historyOrderData,
+  dealData,
+  instrumentName,
+}: HistoryCardProps) => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+
+  // Determine type
+  const isHistoryPosition = !!historyPositionData;
+  const isHistoryOrder = !!historyOrderData;
+  const isDeal = !!dealData;
+
+  // Consolidate data source
+  const data =
+    historyPositionData || historyOrderData || dealData || ({} as any);
 
   const toggleDetails = () => {
     setIsDetailsVisible((s) => !s);
@@ -25,7 +43,7 @@ const HistoryCard = ({
     e.stopPropagation();
 
     // 1. Dismiss the tutorial arrow if this is the target card
-    if (isTutorialTarget) {
+    if (isTutorialTarget && onCardClick) {
       onCardClick();
     }
 
@@ -33,67 +51,133 @@ const HistoryCard = ({
     toggleDetails();
   };
 
-  // --- (Static Dummy Data Simulation - REMAINING LOGIC IS UNCHANGED) ---
+  // --- Dynamic Data Logic ---
 
-  // Determine the type being rendered
-  const isHistoryPosition = label === "Position";
-  const isHistoryOrder = label === "Orders";
-  const isDeal = label === "Deals";
+  // Instrument Name
+  const resolvedInstrumentName =
+    instrumentName || data.trading_name || "Unknown";
 
-  // Shared Dummy Data
-  const resolvedInstrumentName = "EURUSD";
-  const buySellSide = isHistoryOrder ? "buy" : "sell";
+  // Side
+  const side = data.side ? data.side.toLowerCase() : "buy";
 
-  // Data that varies by type
+  // PnL & Status
   let pnl: number = 0;
   let statusValue: string = "N/A";
+
+  if (isHistoryPosition) {
+    pnl = historyPositionData?.closed_pnl ?? 0;
+    statusValue = "CLOSED";
+  } else if (isDeal) {
+    pnl = dealData?.closed_pnl ?? 0;
+    statusValue = "DEAL";
+  } else if (isHistoryOrder) {
+    pnl = 0;
+    statusValue = (historyOrderData?.status || "FILLED").toUpperCase();
+  }
+
+  // Row 2 Labels & Values
   let orderSideLabel: string = "";
   let qtyDisplayString: string = "N/A";
-  let dateTimeString: string = "2024.01.25 | 14:30:15";
 
-  // History Position (Closed Position)
+  // Data helpers
+  const formatPrice = (p: number | undefined | null) =>
+    p != null ? Number(p).toFixed(5) : "0.00000";
+
+  // For HistoryPosition: "BUY Qty: 0.01"
+  // For HistoryOrder: "BUY Limit: 0.01 @ 1.23456"
+  // For Deal: "BUY Out: 0.01 @ 1.23456"
+
   if (isHistoryPosition) {
-    pnl = 85.75;
-    orderSideLabel = `${buySellSide.toUpperCase()} Qty:`;
-    qtyDisplayString = "11.00";
-    dateTimeString = "2024.10.15 | 09:15:30"; // Time of closing
-    statusValue = "CLOSED";
-  }
-  // History Orders (Filled/Canceled)
-  else if (isHistoryOrder) {
-    pnl = 0; // Orders don't have PnL
-    orderSideLabel = `${buySellSide.toUpperCase()} Limit:`;
-    qtyDisplayString = "1.50 @ Market";
-    dateTimeString = "2024.10.15 | 09:15:00"; // Time of completion
-    statusValue = "FILLED";
-  }
-  // Deals (Trade Records)
-  else if (isDeal) {
-    pnl = 123.45;
-    orderSideLabel = `${buySellSide.toUpperCase()} Out:`;
-    qtyDisplayString = "0.50 @ 1.08600";
-    dateTimeString = "2024.10.15 | 09:15:30"; // Time of deal
-    statusValue = "DEAL";
+    orderSideLabel = `${side.toUpperCase()} Qty:`;
+    const contractSize =
+      historyPositionData?.instruments?.[0]?.contract_size || 1;
+    const inTrade = historyPositionData?.trades?.find(
+      (t: any) => t.type === "in"
+    );
+    // Use inTrade qty if available (which is usually the open qty)
+    const rawQty = inTrade?.qty ?? historyPositionData?.qty ?? 0;
+    const qty = rawQty / contractSize;
+
+    qtyDisplayString = qty.toFixed(2);
+  } else if (isHistoryOrder) {
+    const type = historyOrderData?.order_type || "Limit";
+    orderSideLabel = `${side.toUpperCase()} ${type}:`;
+    const qty =
+      historyOrderData?.filled_qty || historyOrderData?.placed_qty || 0;
+    qtyDisplayString = `${qty.toFixed(2)} @ ${formatPrice(
+      historyOrderData?.price
+    )}`;
+  } else if (isDeal) {
+    orderSideLabel = `${side.toUpperCase()} ${
+      dealData?.type === "out" ? "Out" : "In"
+    }:`;
+    const qty = dealData?.qty ?? 0;
+    qtyDisplayString = `${qty.toFixed(2)} @ ${formatPrice(dealData?.price)}`;
   }
 
-  // Common formatting
+  // Time String
+  const rawTime =
+    historyPositionData?.created_at || // Close time? updated_at is close time usually
+    historyPositionData?.updated_at ||
+    dealData?.time ||
+    historyOrderData?.placed_time ||
+    0;
+
+  const dateObj = new Date(rawTime * 1000);
+  // Format: YYYY.MM.DD | HH:MM:SS
+  const datePart = dateObj
+    .toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replace(/\//g, ".");
+  const timePart = dateObj.toLocaleTimeString("en-US", { hour12: false });
+  const dateTimeString = `${datePart} | ${timePart}`;
+
+  // Formatting helpers
   const pnlColorClass =
     pnl > 0 ? "text-profit" : pnl < 0 ? "text-loss" : "text-secondary";
-  const topLeftPrice = 1.17282; // Entry/Order Price
-  const topRightPrice = 1.17427; // Close/Deal Price or N/A
-  const totalCharges = 2.5;
-  const sl = 1.08;
-  const tp = 1.095;
-  const tid = isDeal
-    ? "#7619388856"
-    : isHistoryOrder
-    ? "#9619388856"
-    : "#8619388856";
 
-  const formatPriceOrEmpty = (p: number | null) =>
-    p == null ? " " : Number(p).toFixed(5);
-  const formatSlTp = (v: number | string | null) =>
-    v == null || v === 0 || v === "-" ? "-" : Number(v).toFixed(5);
+  // Prices (For history position arrow display)
+  // Entry Price -> Close Price ??
+  // HistoryPosition has 'price' (open) and we can maybe find close price?
+  // HistoryPosition typically has 'price' (entry). Close price isn't always explicit field in concise types,
+  // but let's check. If unavailable, hide arrow or use current.
+  // Actually, closed history positions usually have open price and close price.
+  // The interface has 'price' (entry). Close price might be inferred or missing.
+  // Let's use 'price' as left. Right can be computed if we have close info or hiding it.
+  // The 'HistoryPosition' type shows 'price'. Let's assume Entry.
+  // For Close price, it's often not in the basic view unless we have 'close_price'.
+  // If not available, we can hide the arrow part or show Entry only.
+  // Users OLD APP layout showed arrow. Logic: Entry > Exit.
+
+  // Let's use existing fields. If we don't have exit price, maybe just show Entry.
+  const topLeftPrice = data.price;
+  const topRightPrice = null; // We might need to fetch this or it is missing from current slice type
+
+  // Charges
+  // Helper to sum charges
+  const totalCharges = useMemo(() => {
+    if (historyPositionData?.trades) {
+      return historyPositionData.trades.reduce((sum, t) => {
+        const ch = t.charges || [];
+        return sum + ch.reduce((s, c) => s + (c.charge || 0), 0);
+      }, 0);
+    }
+    if (dealData?.charges) {
+      // @ts-ignore
+      return dealData.charges.reduce((s, c) => s + (c.charge || 0), 0);
+    }
+    return 0;
+  }, [historyPositionData, dealData]);
+
+  const sl = (data as any).sl || data.metadata?.legs?.stoploss || 0;
+  const tp = (data as any).tp || data.metadata?.legs?.target || 0;
+  const tid = data.tid || data.id || "";
+
+  const formatSlTp = (v: number | string | null | undefined) =>
+    v == null || v === 0 || v === "-" || v === "0" ? "-" : Number(v).toFixed(5);
 
   // --- JSX Layouts for Detail Section (Conditionals) ---
 
@@ -121,7 +205,7 @@ const HistoryCard = ({
         <div className="text-right text-primary">
           {/* <div className="pb-2"></div> */}
           {/* <div className="mt-2">{dateTimeString.split(" | ")[1]}</div> */}
-          <div className="mt-[26px] ml-[-6px]">{tid}</div>
+          <div className="mt-[26px] ml-[-6px]">#{tid}</div>
         </div>
       </div>
     </div>
@@ -140,7 +224,7 @@ const HistoryCard = ({
         <div className="text-right text-primary">
           <div className="no-underline">{formatSlTp(sl)}</div>
           <div className="mt-2 no-underline ml-[-34px]">{dateTimeString}</div>
-          <div className="mt-2 no-underline">{tid}</div>
+          <div className="mt-2 no-underline">#{tid}</div>
         </div>
         {/* Right Column Group */}
         <div className="text-left">
@@ -168,9 +252,9 @@ const HistoryCard = ({
           <div className="mt-2">Position:</div>
         </div>
         <div className="text-right text-primary">
-          <div>{tid}</div>
-          <div className="mt-2">O555666</div> {/* Dummy Order ID */}
-          <div className="mt-2">P456789</div> {/* Dummy Position ID */}
+          <div>#{tid}</div>
+          <div className="mt-2">{(dealData as any).order_id || "-"}</div>
+          <div className="mt-2">{dealData?.position_id || "-"}</div>
         </div>
         {/* Right Column Group */}
         <div className="text-left">
@@ -223,11 +307,12 @@ const HistoryCard = ({
                     {resolvedInstrumentName}
                   </div>
                   {/* Price Transition or Simple Price (For History Items) */}
-                  {isHistoryPosition && (
+                  {/* Only show if we explicitly have prices to show comparison, else maybe hide or show single price? */}
+                  {isHistoryPosition && topRightPrice && (
                     <div className="flex items-center gap-3">
                       <span className={`text-secondary pl-2 text-sm`}>
-                        {formatPriceOrEmpty(topLeftPrice)} &gt;{" "}
-                        {formatPriceOrEmpty(topRightPrice)}
+                        {formatPrice(topLeftPrice)} &gt;{" "}
+                        {formatPrice(topRightPrice)}
                       </span>
                     </div>
                   )}
