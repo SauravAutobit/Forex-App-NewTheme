@@ -26,7 +26,7 @@ const DateChanger = ({
   return (
     <div
       className={
-        "bg-cardBg my-2.5 py-2.5 px-5 rounded-10 flex flex-col items-center justify-between cursor-pointer"
+        "bg-cardBg py-2.5 px-5 rounded-10 flex flex-col items-center justify-between cursor-pointer"
       }
       style={{ height }}
       onClick={onOpen}

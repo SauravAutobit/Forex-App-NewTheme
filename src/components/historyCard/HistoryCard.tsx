@@ -155,12 +155,12 @@ const HistoryCard = ({
     qtyDisplayString = qty.toFixed(2);
   } else if (isHistoryOrder) {
     const type = historyOrderData?.order_type || "Limit";
-    orderSideLabel = `${side.toUpperCase()} ${type}:`;
+    orderSideLabel = `${side.toUpperCase()}:`;
     const qty =
       historyOrderData?.filled_qty || historyOrderData?.placed_qty || 0;
-    qtyDisplayString = `${qty.toFixed(2)} @ ${formatPrice(
-      historyOrderData?.price
-    )}`;
+    qtyDisplayString = `${qty.toFixed(2)} @ ${type}
+    `;
+    // ${formatPrice(historyOrderData?.price)}
   } else if (isDeal) {
     orderSideLabel = `${side.toUpperCase()} ${
       dealData?.type === "out" ? "Out" : "In"
@@ -270,7 +270,7 @@ const HistoryCard = ({
         <div className="text-right text-primary">
           {/* <div className="pb-2"></div> */}
           {/* <div className="mt-2">{dateTimeString.split(" | ")[1]}</div> */}
-          <div className="mt-[26px] ml-[-6px]">#{tid}</div>
+          <div className="mt-[26px] ml-[-25px]">#{tid}</div>
         </div>
       </div>
     </div>
@@ -289,7 +289,7 @@ const HistoryCard = ({
         <div className="text-right text-primary">
           <div className="no-underline">{formatSlTp(sl)}</div>
           <div className="mt-2 no-underline ml-[-34px]">{dateTimeString}</div>
-          <div className="mt-2 no-underline">#{tid}</div>
+          <div className="mt-2 no-underline ml-[-12px]">#{tid}</div>
         </div>
         {/* Right Column Group */}
         <div className="text-left">
@@ -317,8 +317,10 @@ const HistoryCard = ({
           <div className="mt-2">Position:</div>
         </div>
         <div className="text-right text-primary">
-          <div>#{tid}</div>
-          <div className="mt-2">{(dealData as any).order_id || "-"}</div>
+          <div className="ml-[-15px]">{tid}</div>
+          <div className="mt-2 ml-[-15px]">
+            {(dealData as any).orders[0] || "-"}
+          </div>
           <div className="mt-2">{dealData?.position_id || "-"}</div>
         </div>
         {/* Right Column Group */}

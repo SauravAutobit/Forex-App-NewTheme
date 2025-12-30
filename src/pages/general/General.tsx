@@ -5,11 +5,13 @@ import InstrumentInfoCard, {
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import DateChanger from "../../components/dateChanger/DateChanger";
-import SearchBar from "../../components/searchBar/SearchBar";
+// import SearchBar from "../../components/searchBar/SearchBar";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
-import { ChevronDown, ChevronUp } from "lucide-react";
+// import { ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence, easeInOut } from "framer-motion";
+import dropdownArrowGreen from "../../assets/icons/dropdownArrowGreen.svg";
 
 // Helper to format Date object to your desired string format (DD/MM/YYYY)
 const formatDateStr = (date: Date | null | undefined): string => {
@@ -41,6 +43,7 @@ const General = () => {
     (state: RootState) => state.historyPositions
   );
   const { apiStatus } = useSelector((state: RootState) => state.websockets);
+  const theme = useSelector((state: RootState) => state.theme.mode);
 
   useEffect(() => {
     if (apiStatus === "connected") {
@@ -181,7 +184,7 @@ const General = () => {
     <div className="pb-20">
       <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
 
-      <div className="mt-4">
+      <div>
         <NavigationTabs
           tabs={tabsData}
           onActiveTabChange={setActiveTab}
@@ -224,78 +227,82 @@ const General = () => {
         )}
       </div>
 
-      <div className="px-5 mt-2 space-y-2">
+      <div className="mt-4 space-y-4">
         {Object.keys(groupedData).length > 0 ? (
           Object.entries(groupedData).map(([symbol, group]) => {
             const isPositive = group.totalPnL >= 0;
             const isExpanded = expandedSymbol === symbol;
 
             return (
-              <div
-                key={symbol}
-                className="border-b border-[#2D2D2D] last:border-0 overflow-hidden"
-              >
-                {/* Accordion Header */}
-                <div
-                  className="flex items-center justify-between py-4 cursor-pointer"
+              <div key={symbol} className="w-full">
+                {/* Dropdown Header */}
+                <button
+                  className={`w-full h-[49px] outline-none flex justify-between items-center border-b border-primary px-5 py-2.5 transition-all duration-300`}
                   onClick={() => handleToggleAccordion(symbol)}
+                  style={{ boxShadow: "none" }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-[#181818] bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" />
-                      <div className="w-8 h-8 rounded-full border-2 border-[#181818] bg-gradient-to-br from-[#4facfe] to-[#00f2fe]" />
-                    </div>
-                    <span className="text-base font-semibold text-white">
-                      {symbol}
-                    </span>
+                    {/* <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full border border-[#181818] bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" />
+                      <div className="w-6 h-6 rounded-full border border-[#181818] bg-gradient-to-br from-[#4facfe] to-[#00f2fe]" />
+                    </div> */}
+                    <span className="text-primary">{symbol}</span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <span
-                      className={`text-base font-semibold ${
+                      className={`font-secondary ${
                         isPositive ? "text-[#2DE439]" : "text-[#D00416]"
                       }`}
                     >
                       {isPositive ? "+" : ""}${group.totalPnL.toFixed(2)}
                     </span>
-                    {isExpanded ? (
-                      <ChevronUp size={20} className="text-secondary" />
-                    ) : (
-                      <ChevronDown size={20} className="text-secondary" />
-                    )}
+                    <motion.img
+                      src={dropdownArrowGreen}
+                      alt="dropdownArrow"
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      // className="w-4 h-4"
+                    />
                   </div>
-                </div>
+                </button>
 
-                {/* Accordion Content */}
-                {isExpanded && (
-                  <div className="bg-[#121316] rounded-lg mb-2 overflow-hidden">
-                    {group.trades.map((trade, idx) => {
-                      const tradePnL = Number(trade.profitAndLoss);
-                      const isTradePositive = tradePnL >= 0;
-                      return (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between py-3 px-4 border-b border-[#1F2127] last:border-0"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-full border border-white/10 bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" />
-                            <span className="text-sm font-medium text-secondary">
-                              {symbol}
+                {/* Dropdown Content */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: easeInOut }}
+                      className="bg-cardBg overflow-hidden border border-t-0 border-primary"
+                    >
+                      {group.trades.map((trade, idx) => {
+                        const tradePnL = Number(trade.profitAndLoss);
+                        const isTradePositive = tradePnL >= 0;
+                        return (
+                          <div
+                            key={idx}
+                            className="h-[49px] flex items-center justify-between py-2.5 px-5 border-b border-primary last:border-0"
+                          >
+                            <div className="flex items-center gap-3">
+                              {/* <div className="w-6 h-6 rounded-full border border-white/10 bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" /> */}
+                              <span className="font-tertiary">{symbol}</span>
+                            </div>
+                            <span
+                              className={`font-secondary ${
+                                isTradePositive
+                                  ? "text-[#2DE439]"
+                                  : "text-[#D00416]"
+                              }`}
+                            >
+                              {isTradePositive ? "+" : ""}${tradePnL.toFixed(2)}
                             </span>
                           </div>
-                          <span
-                            className={`text-sm font-semibold ${
-                              isTradePositive
-                                ? "text-[#2DE439]"
-                                : "text-[#D00416]"
-                            }`}
-                          >
-                            {isTradePositive ? "+" : ""}${tradePnL.toFixed(2)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })
