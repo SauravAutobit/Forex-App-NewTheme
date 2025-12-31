@@ -118,12 +118,12 @@ const Trade = () => {
   const totalValue = liveBalance + totalPnl;
 
   // Format the values to a currency string (as expected by InstrumentInfoCard)
-  const formattedBalance = `$${liveBalance.toFixed(2)}`;
-  const formattedUsedBalance = `$${totalUsedBalance.toFixed(2)}`;
+  const formattedBalance = `${liveBalance.toFixed(2)}`;
+  const formattedUsedBalance = `${totalUsedBalance.toFixed(2)}`;
   const formattedAvailableBalance = `${
-    availableBalance < 0 ? "-" : "+"
-  }$${Math.abs(availableBalance).toFixed(2)}`;
-  const formattedTotalValue = `$${totalValue.toFixed(2)}`;
+    availableBalance < 0 ? "-" : ""
+  }${Math.abs(availableBalance).toFixed(2)}`;
+  const formattedTotalValue = `${totalValue.toFixed(2)}`;
 
   // Helper function to calculate PnL for a position
   const calculatePnL = (position: any) => {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
@@ -46,7 +46,6 @@ interface HistoryProps {
 }
 
 const History = ({}: HistoryProps) => {
-  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTabId = searchParams.get("tab") || "position";
@@ -141,13 +140,13 @@ const History = ({}: HistoryProps) => {
       return {
         headerLabel: "Equity",
         showProfitLoss: true,
-        profitLoss: "$0.00",
+        profitLoss: "0.00",
         showBalances: true,
         balanceItems: [
-          { label: "Deposited", value: "$0.00" },
-          { label: "Swap", value: "$0.00" },
-          { label: "Charges", value: "$0.00" },
-          { label: "Balance", value: "$0.00" },
+          { label: "Deposited", value: "0.00" },
+          { label: "Swap", value: "0.00" },
+          { label: "Charges", value: "0.00" },
+          { label: "Balance", value: "0.00" },
         ],
         showBorder: true,
         marginTop: "16px",
@@ -169,13 +168,13 @@ const History = ({}: HistoryProps) => {
     return {
       headerLabel: "Equity",
       showProfitLoss: true,
-      profitLoss: `$${finalPnl.toFixed(2)}`,
+      profitLoss: `${finalPnl.toFixed(2)}`,
       showBalances: true,
       balanceItems: [
-        { label: "Deposited", value: "$0.00" },
-        { label: "Swap", value: "$0.00" },
-        { label: "Charges", value: `$${totalCharges.toFixed(2)}` },
-        { label: "Balance", value: `$${finalBalance.toFixed(2)}` },
+        { label: "Deposited", value: "0.00" },
+        { label: "Swap", value: "0.00" },
+        { label: "Charges", value: `${totalCharges.toFixed(2)}` },
+        { label: "Balance", value: `${finalBalance.toFixed(2)}` },
       ],
       showBorder: true,
       marginTop: "16px",
@@ -187,13 +186,13 @@ const History = ({}: HistoryProps) => {
       return {
         headerLabel: "Equity",
         showProfitLoss: true,
-        profitLoss: "$0.00",
+        profitLoss: "0.00",
         showBalances: true,
         balanceItems: [
-          { label: "Deposited", value: "$0.00" },
-          { label: "Swap", value: "$0.00" },
-          { label: "Charges", value: "$0.00" },
-          { label: "Balance", value: "$0.00" },
+          { label: "Deposited", value: "0.00" },
+          { label: "Swap", value: "0.00" },
+          { label: "Charges", value: "0.00" },
+          { label: "Balance", value: "0.00" },
         ],
         showBorder: true,
         marginTop: "16px",
@@ -214,13 +213,13 @@ const History = ({}: HistoryProps) => {
     return {
       headerLabel: "Equity",
       showProfitLoss: true,
-      profitLoss: `$${finalPnl.toFixed(2)}`,
+      profitLoss: `${finalPnl.toFixed(2)}`,
       showBalances: true,
       balanceItems: [
-        { label: "Deposited", value: "$0.00" },
-        { label: "Swap", value: "$0.00" },
-        { label: "Charges", value: `$${totalCharges.toFixed(2)}` },
-        { label: "Balance", value: `$${finalBalance.toFixed(2)}` },
+        { label: "Deposited", value: "0.00" },
+        { label: "Swap", value: "0.00" },
+        { label: "Charges", value: `${totalCharges.toFixed(2)}` },
+        { label: "Balance", value: `${finalBalance.toFixed(2)}` },
       ],
       showBorder: true,
       marginTop: "16px",

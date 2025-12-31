@@ -96,7 +96,7 @@ const MarketEdit = () => {
     return 0;
   }, [position]);
 
-  const pnlDisplay = `${pnl >= 0 ? "+" : "-"}$${Math.abs(pnl).toFixed(2)}`;
+  const pnlDisplay = `${pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}`;
 
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
@@ -109,7 +109,7 @@ const MarketEdit = () => {
           </span>
         ),
       },
-      { label: "Overnight Fee", value: "$0.00" }, // Swap logic if needed
+      { label: "Overnight Fee", value: "0.00" }, // Swap logic if needed
       {
         label: "Position ID",
         value: position?.id ? `#${position.tid || position.id}` : "-",

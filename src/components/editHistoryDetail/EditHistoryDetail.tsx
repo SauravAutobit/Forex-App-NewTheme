@@ -80,7 +80,7 @@ const EditHistoryDetail = ({
 
               {/* Date and Time (Always shown for history tabs) */}
               {type !== "pending" && (
-                <div className="text-loss whitespace-nowrap">-$0.45</div>
+                <div className="text-loss whitespace-nowrap">-0.45</div>
               )}
               <img
                 src={theme === "dark" ? downArrowWhite : downArrowWhiteLight}
@@ -98,7 +98,7 @@ const EditHistoryDetail = ({
               {/* P&L or Status Label */}
               <div className="flex items-center gap-3">
                 <span className="text-sm text-secondary">
-                  -$0.45 2025/10/16 17:39:25
+                  -0.45 2025/10/16 17:39:25
                 </span>
               </div>
             </div>

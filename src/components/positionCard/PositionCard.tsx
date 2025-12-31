@@ -475,7 +475,8 @@ const PositionCard = ({
 
         <div className="flex flex-col items-end">
           <div className={`font-secondary ${pnlColorClass}`}>
-            {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
+            {pnl >= 0 ? "+" : "-"}
+            {Math.abs(pnl).toFixed(2)}
           </div>
           <div className="text-primary mt-1 uppercase">{dateTimeString}</div>
         </div>
@@ -552,7 +553,8 @@ const PositionCard = ({
 
           <div className="flex flex-col items-end">
             <div className={`font-secondary ${pnlColorClass}`}>
-              {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
+              {pnl >= 0 ? "+" : "-"}
+              {Math.abs(pnl).toFixed(2)}
             </div>
             <div className="text-primary mt-1 uppercase">{dateTimeString}</div>
           </div>

@@ -385,18 +385,34 @@ const OrderButtons = ({
       );
     } else {
       return (
-        <div className="mt-3">
+        <div className="flex items-center justify-between mt-3">
+          <Button
+            onClick={() => handlePlaceOrder("sell")}
+            label={
+              <>
+                Sell{" "}
+                <span style={{ fontSize: "20px", marginLeft: "10px" }}>
+                  {orderPrice?.toFixed(2) || "0.00"}
+                </span>
+              </>
+            }
+            width="169.5px"
+            height="44px"
+            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
+            textColor="#FAFAFA"
+            fontWeight={600}
+          />
           <Button
             onClick={() => handlePlaceOrder("buy")}
             label={
               <>
-                Place{" "}
+                Buy{" "}
                 <span style={{ fontSize: "20px", marginLeft: "10px" }}>
-                  {selectedQuote?.ask?.toFixed(2) || "0.00"}
+                  {orderPrice?.toFixed(2) || "0.00"}
                 </span>
               </>
             }
-            width="353px"
+            width="169.5px"
             height="44px"
             bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
             textColor="#FAFAFA"

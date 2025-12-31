@@ -13,7 +13,7 @@ const ProfitLossClose = ({ totalPnl = 0 }: ProfitLossCloseProps) => {
 
   const theme = useAppSelector((state) => state.theme.mode);
 
-  const formattedPnl = `${totalPnl < 0 ? "-" : ""}$${Math.abs(totalPnl).toFixed(
+  const formattedPnl = `${totalPnl < 0 ? "-" : ""}${Math.abs(totalPnl).toFixed(
     2
   )}`;
 

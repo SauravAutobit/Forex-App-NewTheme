@@ -59,7 +59,10 @@ const EditOrderList = ({
                 </span>
                 <span
                   className={`text-primary ${
-                    balance.value === "-$8.46" ? "text-[#FE0000]" : ""
+                    typeof balance.value === "string" &&
+                    balance.value.startsWith("-")
+                      ? "text-[#FE0000]"
+                      : ""
                   }`}
                 >
                   {balance.value}
