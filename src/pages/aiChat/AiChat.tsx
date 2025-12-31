@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import aiArrow from "../../assets/icons/aiArrow.svg";
 import squareAi from "../../assets/icons/squareAi.svg";
+import aiAvatar from "../../assets/icons/aiAvatar.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hook";
 import {
   sendPromptToAI,
@@ -58,6 +59,7 @@ const AIChat = () => {
     setFullResponse("");
     setTypingText("");
     dispatch(stopAIChat());
+    dispatch(commitFinalMessage(typingText || ""));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -118,17 +120,26 @@ const AIChat = () => {
         {displayMessages.map((msg: ChatMessage, index) => (
           <div
             key={index}
-            className={`mb-4 ${
-              msg.type === "user" ? "text-right" : "text-left"
+            className={`mb-4 flex gap-2 ${
+              msg.type === "user"
+                ? "justify-end items-start"
+                : "justify-start items-end"
             }`}
           >
+            {msg.type === "ai" && (
+              <img
+                src={aiAvatar}
+                alt="AI"
+                className="w-10 h-10 rounded-full flex-shrink-0"
+              />
+            )}
             <div
-              className={`p-3 rounded-xl inline-block max-w-[100%] ${
+              className={`p-3 inline-block max-w-[80%] ${
                 msg.type === "user"
-                  ? "bg-[#AEED09] text-[#181818]"
+                  ? "bg-[#AEED09] text-[#181818] rounded-[20px] rounded-br-none"
                   : theme === "dark"
-                  ? "bg-[#181818]"
-                  : "bg-[#E5E5E5]"
+                  ? "bg-[#181818] rounded-[20px] rounded-bl-none"
+                  : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
               }`}
             >
               {/* Always use Markdown for committed messages */}
@@ -139,9 +150,14 @@ const AIChat = () => {
 
         {/* Current Typing Message Display (FIXED: Uses raw text + cursor) */}
         {(isSending || isTyping || fullResponse.length > 0) && (
-          <div className="mb-4 text-left">
+          <div className="mb-4 flex items-end gap-2">
+            <img
+              src={aiAvatar}
+              alt="AI"
+              className="w-10 h-10 rounded-full flex-shrink-0"
+            />
             <div
-              className={`p-3 rounded-xl inline-block max-w-[100%] ${
+              className={`p-3 rounded-[20px] rounded-bl-none inline-block max-w-[100%] min-w-[280px] ${
                 theme === "dark" ? "bg-[#181818]" : "bg-[#E5E5E5]"
               }`}
             >
@@ -153,7 +169,7 @@ const AIChat = () => {
                   <Cursor />
                 </>
               ) : (
-                <div className="dots">
+                <div className="dots-large">
                   <span>.</span>
                   <span>.</span>
                   <span>.</span>
