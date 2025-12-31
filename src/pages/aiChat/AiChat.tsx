@@ -20,6 +20,97 @@ import { useSelector } from "react-redux";
 // 2. Custom Cursor Component
 const Cursor = () => <span className="animate-pulse">|</span>;
 
+// 3. AI Trading Prompts Array
+const aiTradingPrompts = [
+  "Show my closed trades",
+  "Show my open positions",
+  "Summarize today's trades",
+  "Summarize this week's trades",
+  "Summarize this month's trades",
+
+  "Why did my last trade fail?",
+  "Why did my last trade succeed?",
+  "Analyze my recent losses",
+  "Analyze my recent wins",
+  "What went wrong in my trades?",
+
+  "Find my biggest mistake",
+  "Find my best trade",
+  "Which trade performed best?",
+  "Which trade caused most loss?",
+  "What is my win rate?",
+
+  "Check my risk management",
+  "Analyze my stop-loss usage",
+  "Analyze my take-profit usage",
+  "Did I overtrade?",
+  "Did I revenge trade?",
+
+  "Analyze my entry timing",
+  "Analyze my exit timing",
+  "Did I exit too early?",
+  "Did I hold trades too long?",
+  "Was my timing correct?",
+
+  "Check my risk–reward ratio",
+  "Am I risking too much?",
+  "Am I under-risking?",
+  "Suggest better risk rules",
+  "Improve my trade sizing",
+
+  "Analyze my trading strategy",
+  "Is my strategy working?",
+  "Suggest strategy improvements",
+  "What should I change?",
+  "What should I keep doing?",
+
+  "Analyze my drawdown",
+  "Why am I losing money?",
+  "Why am I profitable?",
+  "What causes my losses?",
+  "What drives my profits?",
+
+  "Analyze market conditions",
+  "Did I trade against trend?",
+  "Did I trade during low volume?",
+  "Did news affect my trades?",
+  "Was volatility too high?",
+
+  "Check my discipline",
+  "Am I breaking my rules?",
+  "Am I trading emotionally?",
+  "Did fear affect my trades?",
+  "Did greed affect my trades?",
+
+  "Give me trading insights",
+  "Give me improvement tips",
+  "Give me performance feedback",
+  "Give me a trader score",
+
+  "How can I reduce losses?",
+  "How can I improve accuracy?",
+  "How can I trade better?",
+  "How can I be consistent?",
+
+  "What is my biggest weakness?",
+  "What is my biggest strength?",
+  "What should I focus on?",
+  "What should I avoid?",
+
+  "Prepare me for next trade",
+  "What should I do next?",
+  "Give me a trading plan",
+  "Give me today's bias",
+
+  "Explain my trading behavior",
+  "Explain my performance trend",
+  "Explain my results simply",
+
+  "Monthly Profit of my portfolio",
+  "Performance of last week",
+  "Best performing asset",
+];
+
 const AIChat = () => {
   const [inputMessage, setInputMessage] = useState("");
   const { messages, status } = useAppSelector(
@@ -29,6 +120,50 @@ const AIChat = () => {
   const theme = useSelector((state: RootState) => state.theme.mode);
 
   const dispatch = useAppDispatch();
+
+  // 4. Randomly select 3 prompts on component mount
+  const randomPrompts = useMemo(() => {
+    const shuffled = [...aiTradingPrompts].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  }, []);
+
+  // 5. Helper function to render prompt with styled parts (dynamic for all prompts)
+  const renderPromptText = (prompt: string) => {
+    const words = prompt.split(" ");
+
+    // If only 1-2 words, show as single line
+    if (words.length <= 2) {
+      return prompt;
+    }
+
+    // Find the split point: first 1-3 words that fit within ~14 characters
+    let splitIndex = 1;
+    let firstLineLength = words[0].length;
+
+    for (let i = 1; i < Math.min(3, words.length); i++) {
+      const potentialLength = firstLineLength + 1 + words[i].length; // +1 for space
+      if (potentialLength <= 14) {
+        splitIndex = i + 1;
+        firstLineLength = potentialLength;
+      } else {
+        break;
+      }
+    }
+
+    const mainPart = words.slice(0, splitIndex).join(" ");
+    const secondaryPart = words.slice(splitIndex).join(" ");
+
+    // If there's no secondary part, return as single line
+    if (!secondaryPart) {
+      return prompt;
+    }
+
+    return (
+      <div className="flex flex-col">
+        {mainPart} <span className="text-[#505050]">{secondaryPart}</span>
+      </div>
+    );
+  };
 
   const [typingText, setTypingText] = useState("");
   const [fullResponse, setFullResponse] = useState("");
@@ -187,31 +322,16 @@ const AIChat = () => {
         className="flex gap-2 overflow-x-auto p-2.5"
         style={{ scrollbarWidth: "none" }}
       >
-        <button
-          className="px-4 py-6 rounded-20 whitespace-nowrap flex flex-col"
-          style={{ background: theme === "dark" ? "#181818" : "#E5E5E5" }}
-          onClick={() =>
-            dispatch(sendPromptToAI("Monthly Profit of my portfolio"))
-          }
-        >
-          Monthly Profit <span className="text-[#505050]">of my portfolio</span>
-        </button>
-
-        <button
-          className="px-4 py-6 bg-gray-800 rounded-20 whitespace-nowrap flex flex-col"
-          style={{ background: theme === "dark" ? "#181818" : "#E5E5E5" }}
-          onClick={() => dispatch(sendPromptToAI("Performance of last week"))}
-        >
-          Performance of <span className="text-[#505050]">last week</span>
-        </button>
-
-        <button
-          className="px-4 py-6 bg-gray-800 rounded-20 whitespace-nowrap flex flex-col"
-          style={{ background: theme === "dark" ? "#181818" : "#E5E5E5" }}
-          onClick={() => dispatch(sendPromptToAI("Best performing asset"))}
-        >
-          Best performing <span className="text-[#505050]">asset</span>
-        </button>
+        {randomPrompts.map((prompt, index) => (
+          <button
+            key={index}
+            className="px-4 py-6 rounded-20 whitespace-nowrap"
+            style={{ background: theme === "dark" ? "#181818" : "#E5E5E5" }}
+            onClick={() => dispatch(sendPromptToAI(prompt))}
+          >
+            {renderPromptText(prompt)}
+          </button>
+        ))}
       </div>
 
       <div className="px-3 py-4 space-y-3">
