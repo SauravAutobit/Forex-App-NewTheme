@@ -53,7 +53,7 @@ export const fetchHistoryOrders = createAsyncThunk<
   { rejectValue: string }
 >(
   "historyOrders/fetchHistoryOrders",
-  async (timestamp, { dispatch, rejectWithValue }) => {
+  async (_timestamp, { dispatch, rejectWithValue }) => {
     try {
 dispatch(showLoader())
       type ApiResp =

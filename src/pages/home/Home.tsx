@@ -105,6 +105,9 @@ const Home = () => {
   };
 
   const handleCardClick = (instrumentId: string) => {
+    // Store the current active tab before navigating
+    localStorage.setItem("previousCategory", active);
+
     dispatch(setSelectedInstrument(instrumentId));
     setIsFlag((prev) => ({
       ...prev,

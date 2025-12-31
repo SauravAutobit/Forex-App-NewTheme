@@ -96,7 +96,7 @@ export const fetchHistoryPositions = createAsyncThunk<
   { rejectValue: string }
 >(
   "historyPositions/fetchHistoryPositions",
-  async (timestamp, { dispatch, rejectWithValue }) => {
+  async (_timestamp, { dispatch, rejectWithValue }) => {
     dispatch(showLoader());
     const query = `fintrabit.positions[status="closed" and created_at>${1}][0:30]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,"trading_name":instruments.trading_name[0],instruments.static_data,trades,torders[status="filled"],instruments.static_data}`;
     try {

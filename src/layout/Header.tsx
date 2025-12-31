@@ -377,6 +377,15 @@ when isFlag.favourites.status is true. Otherwise, show the menu. */}
         <button
           aria-label="Exit selection mode"
           onClick={() => {
+            // Restore the previous category when coming back from charts
+            if (isFlag.charts?.status === true) {
+              const previousCategory = localStorage.getItem("previousCategory");
+              if (previousCategory) {
+                setActive(previousCategory);
+                localStorage.removeItem("previousCategory"); // Clean up
+              }
+            }
+
             setIsFlag((prev) => ({
               ...prev,
               favourites: { status: false },

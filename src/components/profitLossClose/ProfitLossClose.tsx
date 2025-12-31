@@ -19,7 +19,7 @@ const ProfitLossClose = ({ totalPnl = 0 }: ProfitLossCloseProps) => {
 
   return (
     <div className="px-5 pt-5 flex items-center justify-between">
-      <div className="text-secondary text-sm">
+      <div className="text-secondary">
         Floating Profit :{" "}
         <span
           className={`font-tertiary ${

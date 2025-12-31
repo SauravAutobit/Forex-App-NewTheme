@@ -458,81 +458,38 @@ const PositionCard = ({
   const formatPriceOrEmpty = (p: number | null | undefined) =>
     p == null ? "" : Number(p).toFixed(5);
 
-  const { sl, tp } = useMemo(() => {
-    if (isLiveOrder || isHistoryOrder) {
-      const slPrice = (openOrderData || historyOrderData)?.metadata?.legs
-        ?.stoploss;
-      const tpPrice = (openOrderData || historyOrderData)?.metadata?.legs
-        ?.target;
-      return { sl: slPrice, tp: tpPrice };
-    }
-
-    const torders =
-      (isLivePosition ? (position as Position).torders : null) ||
-      (historyPositionData?.torders as TOrder[] | undefined) ||
-      [];
-
-    if (!Array.isArray(torders)) {
-      return { sl: null, tp: null };
-    }
-
-    let stopLoss: number | string | null = null;
-    let takeProfit: number | string | null = null;
-
-    for (const order of torders) {
-      const price = order.price;
-      const orderType = order.order_type ? order.order_type.toLowerCase() : "";
-
-      if (orderType === "market" || !price || price <= 0) {
-        continue;
-      }
-
-      if (orderType === "limit") {
-        takeProfit = price;
-      } else if (orderType === "stop") {
-        stopLoss = price;
-      }
-    }
-
-    return { sl: stopLoss, tp: takeProfit };
-  }, [
-    isLiveOrder,
-    isHistoryOrder,
-    openOrderData,
-    historyOrderData,
-    isLivePosition,
-    position,
-    historyPositionData,
-  ]);
-
   const renderMarketView = () => {
     return (
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
           <img src={cardIcon} alt="cardIcon" />
           <div>
-            <h2 className="my-1 font-tertiary text-primary uppercase">
+            <h2 className="my-1 font-secondary text uppercase">
               {resolvedInstrumentName}
             </h2>
-            <div className="text-sm text-secondary">
+            <div className="text-primary">
               {orderSideLabel.replace(" Qty:", "")} {displayQty.toFixed(2)}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-end">
-          <div className={`text-sm font-secondary ${pnlColorClass}`}>
+          <div className={`font-secondary ${pnlColorClass}`}>
             {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
           </div>
-          <div className="text-[10px] text-secondary mt-1 uppercase">
-            {dateTimeString}
-          </div>
+          <div className="text-primary mt-1 uppercase">{dateTimeString}</div>
         </div>
       </div>
     );
   };
 
   const renderPendingView = () => {
+    // Determine if we should show SL or TP badge based on order type and position_id
+    const hasPositionId = openOrderData?.position_id;
+    const orderType = openOrderData?.order_type?.toLowerCase();
+    const showSL = hasPositionId && orderType === "limit";
+    const showTP = hasPositionId && orderType === "stop";
+
     return (
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
@@ -541,25 +498,25 @@ const PositionCard = ({
               <h2 className="my-1 font-tertiary uppercase text-primary">
                 {resolvedInstrumentName}
               </h2>
-              {tp !== null && (
+              {showTP && (
                 <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
                   TP
                 </span>
               )}
-              {sl !== null && (
+              {showSL && (
                 <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
                   SL
                 </span>
               )}
             </div>
-            <div className="text-sm text-secondary capitalize">
+            <div className="text-primary capitalize">
               {orderSideLabel.replace(":", "")} {displayQty.toFixed(2)}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="flex items-center gap-2.5 text-secondary text-sm">
+          <div className="flex items-center gap-2.5 text-secondary">
             {topLeftPrice.toFixed(5)}
             <img
               src={theme === "dark" ? rightArrow : rightArrowLight}
@@ -569,9 +526,7 @@ const PositionCard = ({
               {(openOrderData?.price ?? 0).toFixed(5)}
             </span>
           </div>
-          <div className="text-[10px] text-secondary mt-1 uppercase">
-            {dateTimeString}
-          </div>
+          <div className="text-primary mt-1 uppercase">{dateTimeString}</div>
         </div>
       </div>
     );
@@ -580,28 +535,26 @@ const PositionCard = ({
   const renderHistoryView = () => {
     return (
       <div className="w-full">
-        <div className="font-secondary text-quaternary text-sm mb-1">
+        <div className="font-secondary text-quaternary mb-1">
           {formattedDate}
         </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex items-center gap-2.5">
             <div>
-              <h2 className="my-1 font-tertiary uppercase text-primary">
+              <h2 className="mt-2.5 mb-2 font-tertiary uppercase text-primary">
                 {resolvedInstrumentName}
               </h2>
-              <div className="text-sm text-secondary">
+              <div className="text-primary">
                 {orderSideLabel.replace(" Qty:", "")} {displayQty.toFixed(2)}
               </div>
             </div>
           </div>
 
           <div className="flex flex-col items-end">
-            <div className={`text-sm font-secondary ${pnlColorClass}`}>
+            <div className={`font-secondary ${pnlColorClass}`}>
               {pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}
             </div>
-            <div className="text-[10px] text-secondary mt-1 uppercase">
-              {dateTimeString}
-            </div>
+            <div className="text-primary mt-1 uppercase">{dateTimeString}</div>
           </div>
         </div>
       </div>

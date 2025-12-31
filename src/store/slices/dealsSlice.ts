@@ -55,7 +55,7 @@ export const fetchDeals = createAsyncThunk<
   Deal[],
   number,
   { rejectValue: string }
->("deals/fetchDeals", async (timestamp, { dispatch, rejectWithValue }) => {
+>("deals/fetchDeals", async (_timestamp, { dispatch, rejectWithValue }) => {
   if (!apiClient) {
     return rejectWithValue("API Client not initialized.");
   }

@@ -152,13 +152,12 @@ const HistoryCard = ({
 
     qtyDisplayString = qty.toFixed(2);
   } else if (isHistoryOrder) {
-    const type = historyOrderData?.order_type || "Limit";
-    orderSideLabel = `${side.toUpperCase()}:`;
+    orderSideLabel = `${side.toUpperCase()} Qty:`;
+    const contractSize = historyOrderData?.instruments?.[0]?.contract_size || 1;
     const qty =
-      historyOrderData?.filled_qty || historyOrderData?.placed_qty || 0;
-    qtyDisplayString = `${qty.toFixed(2)} @ ${type}
-    `;
-    // ${formatPrice(historyOrderData?.price)}
+      (historyOrderData?.filled_qty || historyOrderData?.placed_qty || 0) /
+      contractSize;
+    qtyDisplayString = qty.toFixed(2);
   } else if (isDeal) {
     orderSideLabel = `${side.toUpperCase()} ${
       dealData?.type === "out" ? "Out" : "In"
@@ -195,7 +194,7 @@ const HistoryCard = ({
   // Entry Price -> Close Price ??
   // HistoryPosition has 'price' (open) and we can maybe find close price?
   // HistoryPosition typically has 'price' (entry). Close price isn't always explicit field in concise types,
-  // but let's check. If unavailable, hide arrow or use current.
+  // but let's  check. If unavailable, hide arrow or use current.
   // Actually, closed history positions usually have open price and close price.
   // The interface has 'price' (entry). Close price might be inferred or missing.
   // Let's use 'price' as left. Right can be computed if we have close info or hiding it.
@@ -412,7 +411,9 @@ const HistoryCard = ({
               {isHistoryOrder ? (
                 <div>{statusValue}</div>
               ) : !isHistoryOrder ? (
-                <div className={pnlColorClass}>{pnl.toFixed(2)}</div>
+                <div className={`${pnlColorClass} font-secondary`}>
+                  {pnl.toFixed(2)}
+                </div>
               ) : (
                 ""
               )}

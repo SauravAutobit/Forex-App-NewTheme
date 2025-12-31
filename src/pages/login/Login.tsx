@@ -19,7 +19,6 @@ const Login = () => {
   const [password, setPassword] = useState(""); // Default for testing
   const [showPassword, setShowPassword] = useState(false);
 
-  const theme = useAppSelector((state) => state.theme.mode);
   const { status, error, user } = useAppSelector((state) => state.auth);
 
   const navigate = useNavigate();
@@ -30,7 +29,10 @@ const Login = () => {
     if (user && status === "succeeded") {
       // Reinitialize sockets with new token
       reinitializeSockets(store);
-      navigate("/app");
+
+      // Navigate to home - MainLayout will handle setting the correct initial tab
+      // based on whether favorites exist or not
+      navigate("/app/home");
     }
   }, [user, status, navigate]);
 

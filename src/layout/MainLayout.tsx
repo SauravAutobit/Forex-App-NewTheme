@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import useLocalStorage from "../utils/useLocalStorage";
 import OrderStatus from "../components/orderStatus/OrderStatus";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
 // import { initializeSockets } from "../services/socketService.ts";
 // import { store } from "../store/store";
 
@@ -119,12 +121,34 @@ const MainLayout = () => {
 
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
 
+  const { data: categories } = useSelector(
+    (state: RootState) => state.categories
+  );
+
+  // Handle initial tab selection on mount based on favorites
   useEffect(() => {
-    if (pathname === "/app/home") {
-      setActive("Favorites");
-    } else if (pathname === "/app/charts") {
+    // Only run once on initial mount when categories are loaded
+    if (categories.length > 0) {
+      if (favoriteItems.length === 0) {
+        // No favorites - set first category as active
+        const firstCategory =
+          categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
+        setActive(firstCategory);
+      } else {
+        // Has favorites - set Favorites as active
+        setActive("Favorites");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories.length]); // Only run when categories are first loaded
+
+  // Handle tab changes when navigating to different pages
+  useEffect(() => {
+    if (pathname === "/app/charts") {
       setActive("Chart");
     }
+    // Note: We don't reset to "Favorites" when returning to /app/home
+    // This allows the back button from charts to preserve the category
   }, [pathname]);
 
   useEffect(() => {

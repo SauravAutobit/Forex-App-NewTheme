@@ -183,7 +183,7 @@ const Trade = () => {
     },
     {
       id: "closed",
-      label: "Close",
+      label: "Closed",
       content: (
         <div>
           {historyPositions.map((pos, index) => {
