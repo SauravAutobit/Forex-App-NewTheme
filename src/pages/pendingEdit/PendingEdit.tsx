@@ -82,7 +82,7 @@ const PendingEdit = () => {
 
   return (
     <div className="h-full flex flex-col justify-between overflow-y-auto pb-5">
-      <div>
+      <div className="h-[calc(100vh-200px)]">
         <PositionCard
           position={{} as any}
           openOrderData={order}
