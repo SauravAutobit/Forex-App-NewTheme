@@ -35,12 +35,31 @@ export const formatPrice = (price: number, pip?: number | string): FormattedPric
   }
 
   // Fallback to original logic if pip formatting is not applicable
-  const priceStr = price.toFixed(4); // Use toFixed(4) as a standard fallback
+  // Fallback to original logic if pip formatting is not applicable
+  const priceStr = price.toString();
   const parts = priceStr.split(".");
+  
+  // Handle integers or limited decimals
+  if (parts.length === 1) {
+    return {
+      isPipFormatted: false,
+      main: `${parts[0]}.00`,
+      pipsOrSmall: "",
+      small: "",
+    };
+  }
+  
+  const decimals = parts[1];
+  const mainDecimals = decimals.slice(0, 2);
+  const restDecimals = decimals.slice(2);
+
+  // Ensure consistent 2 decimal display for "main" even if input has only 1 decimal (e.g. 1.5 -> 1.50)
+  const formattedMainDecimals = mainDecimals.length < 2 ? mainDecimals.padEnd(2, "0") : mainDecimals;
+
   return {
     isPipFormatted: false,
-    main: `${parts[0]}.${parts[1].slice(0, 2)}`,
-    pipsOrSmall: parts[1].slice(2),
+    main: `${parts[0]}.${formattedMainDecimals}`,
+    pipsOrSmall: restDecimals,
     small: "",
   };
 };
