@@ -1,16 +1,22 @@
+import { useState, useMemo } from "react";
 import Button from "../../components/button/Button";
 import EditOrderList from "../../components/editOrderList/EditOrderList";
 import { type ProfitBalanceProps } from "../../components/editOrderList/EditOrderList";
-import MarketCard from "../../components/marketCard/MarketCard";
+// import MarketCard from "../../components/marketCard/MarketCard";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import CheckList from "../../components/checkList/CheckList";
 import Counter from "../../components/counter/Counter";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import type { Position } from "../../store/slices/positionsSlice";
+import { type Position } from "../../store/slices/positionsSlice";
+import { useAppSelector } from "../../store/hook";
+import PositionCard from "../../components/positionCard/PositionCard";
+import { useDispatch } from "react-redux";
+import { type AppDispatch } from "../../store/store";
+import { updateOrder } from "../../store/slices/openOrdersSlice";
+import { closePosition } from "../../store/slices/ordersSlice";
 
 interface TabItem {
   id: string;
@@ -22,13 +28,38 @@ const MarketEdit = () => {
   const theme = useSelector((s: RootState) => s.theme.mode);
   const navigate = useNavigate();
   const location = useLocation();
-  const position = location.state?.position as Position | undefined;
+  const positionSnapshot = location.state?.position as Position | undefined;
+
+  // Select latest position data from store to get live quotes/PnL
+  const allPositions = useAppSelector((state) => state.positions.positions);
+  const position = useMemo(() => {
+    return (
+      allPositions.find((p) => p.id === positionSnapshot?.id) ||
+      positionSnapshot
+    );
+  }, [allPositions, positionSnapshot]);
 
   const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>({
     trailingStop: false,
     breakEven: false,
     orderExpiration: false,
   });
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Resolve initial TP/SL from position torders
+  const initialTp = useMemo(() => {
+    const tpOrder = position?.torders?.find((o) => o.order_type === "limit");
+    return tpOrder?.metadata?.legs?.target ?? 0;
+  }, [position]);
+
+  const initialSl = useMemo(() => {
+    const slOrder = position?.torders?.find((o) => o.order_type === "stop");
+    return slOrder?.metadata?.legs?.stoploss ?? 0;
+  }, [position]);
+
+  const [tp, setTp] = useState(initialTp);
+  const [sl, setSl] = useState(initialSl);
 
   const editOptions = [
     { label: "Trailing stop", key: "trailingStop" },
@@ -50,17 +81,35 @@ const MarketEdit = () => {
         })
       : "-";
 
-  // Calculate P&L roughly or use pre-calculated if available in Position type
-  // Note: Position type has 'closed_pnl' for closed, but for open?
-  // Usually calculated live. For now, showing placeholder or basic calcs if needed.
-  // We'll stick to static/passed data. P&L usually needs live quote.
-  const pnlDisplay = "$0.00"; // Ideally calculated with live quotes
+  // Calculate P&L live using Buy -> live_ask, Sell -> live_bid
+  const pnl = useMemo(() => {
+    if (!position) return 0;
+    const currentPrice =
+      position.side === "buy" ? position.live_ask : position.live_bid;
+    if (currentPrice !== undefined && typeof position.price === "number") {
+      if (position.side === "buy") {
+        return (currentPrice - position.price) * (position.qty || 0);
+      } else if (position.side === "sell") {
+        return (position.price - currentPrice) * (position.qty || 0);
+      }
+    }
+    return 0;
+  }, [position]);
+
+  const pnlDisplay = `${pnl >= 0 ? "+" : "-"}$${Math.abs(pnl).toFixed(2)}`;
 
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
-      { label: "Open  time", value: formatTime(position?.created_at) },
-      { label: "Gross Profit", value: pnlDisplay }, // Placeholder, needs live calculation or passed P&L
-      { label: "Overnight Fee", value: "$0.00" }, // Need swap data
+      { label: "Open time", value: formatTime(position?.created_at) },
+      {
+        label: "Gross Profit",
+        value: (
+          <span className={pnl >= 0 ? "text-profit" : "text-loss"}>
+            {pnlDisplay}
+          </span>
+        ),
+      },
+      { label: "Overnight Fee", value: "$0.00" }, // Swap logic if needed
       {
         label: "Position ID",
         value: position?.id ? `#${position.tid || position.id}` : "-",
@@ -80,6 +129,26 @@ const MarketEdit = () => {
   if (!position) {
     return <div className="p-5 text-center">No position selected</div>;
   }
+
+  const handleClosePosition = () => {
+    if (position) {
+      // OLD APP Logic: Close position by placing an opposite market order
+      const closingSide = position.side === "buy" ? "sell" : "buy";
+      dispatch(
+        closePosition({
+          instrument_id: position.instrument_id,
+          qty: position.qty,
+          price: 0, // Market order
+          order_type: "market",
+          side: closingSide,
+          stoploss: 0,
+          target: 0,
+          position_id: position.id,
+        })
+      );
+      navigate(-1);
+    }
+  };
 
   const tabsData: TabItem[] = [
     {
@@ -116,6 +185,7 @@ const MarketEdit = () => {
                 bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
                 textColor="#FAFAFA"
                 fontWeight={500}
+                onClick={handleClosePosition}
               />
             </div>
           </div>
@@ -129,8 +199,18 @@ const MarketEdit = () => {
         <div className="px-5 h-[calc(100vh-250px)]">
           <div className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-2.5 mt-5">
-              <Counter label="Take Profit" />
-              <Counter label="Stop Loss" />
+              <Counter
+                label="Take Profit"
+                initialValue={tp}
+                onValueChange={(val) => setTp(val)}
+                step={0.0001}
+              />
+              <Counter
+                label="Stop Loss"
+                initialValue={sl}
+                onValueChange={(val) => setSl(val)}
+                step={0.0001}
+              />
               <CheckList
                 activeOptions={activeOptions}
                 setActiveOptions={setActiveOptions}
@@ -147,6 +227,7 @@ const MarketEdit = () => {
                 border={
                   theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
                 }
+                onClick={() => navigate(-1)}
               />
               <Button
                 label="Confirm"
@@ -156,6 +237,23 @@ const MarketEdit = () => {
                 bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
                 textColor="#FAFAFA"
                 fontWeight={500}
+                onClick={() => {
+                  if (position) {
+                    dispatch(
+                      updateOrder({
+                        id: position.id,
+                        account_id: position.account_id,
+                        order_type: "market",
+                        price: position.price,
+                        qty: position.qty,
+                        side: position.side,
+                        stoploss: sl,
+                        target: tp,
+                      })
+                    );
+                    navigate(-1);
+                  }
+                }}
               />
             </div>
           </div>
@@ -165,22 +263,9 @@ const MarketEdit = () => {
   ];
   return (
     <div>
-      <MarketCard
-        key={1}
-        code={`EUR/GBP ${1}`}
-        bid={1678.256369}
-        ask={1078.256369}
-        high={253659}
-        low={235698}
-        ltp={30}
-        close={23.22}
-        pip={"5asa"}
-        timestamp={"15:23:00"}
-        onClick={() => console.log("hey")}
-        border={false}
-        // active={active}
-        // favourites={isFlag.favourites?.status}
-      />
+      {position && (
+        <PositionCard position={position} label="Position" onClick={() => {}} />
+      )}
 
       <NavigationTabs
         tabs={tabsData}

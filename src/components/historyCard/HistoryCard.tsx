@@ -72,9 +72,9 @@ const HistoryCard = ({
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // 1. Dismiss the tutorial arrow if this is the target card
-    if (isTutorialTarget && onCardClick) {
+    if (onCardClick) {
       onCardClick();
+      return;
     }
 
     // 2. Toggle the card details

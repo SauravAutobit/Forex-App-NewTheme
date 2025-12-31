@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
-import { useAppDispatch, useAppSelector } from "../../store/hook";
+import { useAppSelector } from "../../store/hook";
 import { refreshAllHistoryData } from "../../services/socketService";
 import type { RootState } from "../../store/store";
 import type { Deal } from "../../store/slices/dealsSlice";
@@ -17,6 +17,7 @@ import {
 } from "../../store/slices/instrumentsSlice";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
 import HistoryCard from "../../components/historyCard/HistoryCard";
+import type { AppDispatch } from "../../store/store";
 
 // --- Custom Interfaces for Type Safety ---
 
@@ -53,13 +54,9 @@ interface TabItem {
   content?: React.ReactNode;
 }
 
-interface HistoryProps {
-  onDismissTutorial: () => void;
-  showTutorial: boolean;
-}
-
-const History = ({}: HistoryProps) => {
-  const dispatch = useAppDispatch();
+const History = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTabId = searchParams.get("tab") || "position";
 
@@ -283,6 +280,11 @@ const History = ({}: HistoryProps) => {
                 key={pos.id}
                 label="Position"
                 historyPositionData={pos}
+                onCardClick={() => {
+                  navigate("/app/closedEdit", {
+                    state: { historyPosition: pos, type: "closed" },
+                  });
+                }}
               />
             );
           })
@@ -315,6 +317,11 @@ const History = ({}: HistoryProps) => {
                 label="Deals"
                 dealData={deal}
                 instrumentName={instrument?.trading_name}
+                onCardClick={() => {
+                  navigate("/app/closedEdit", {
+                    state: { deal: deal, type: "closed" },
+                  });
+                }}
               />
             );
           })
@@ -344,6 +351,11 @@ const History = ({}: HistoryProps) => {
                 label="Orders"
                 historyOrderData={order}
                 instrumentName={instrument?.trading_name}
+                onCardClick={() => {
+                  navigate("/app/closedEdit", {
+                    state: { historyOrder: order, type: "closed" },
+                  });
+                }}
               />
             );
           })

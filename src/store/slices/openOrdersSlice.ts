@@ -56,7 +56,12 @@ export interface ApiQueryResponse {
 
 // --- NEW TYPE FOR CANCEL ORDER API RESPONSE ---
 interface CancelOrderApiResponse {
-  data: string; // The ID of the canceled order, e.g., "SEP25-c190c039..."
+  message: string;
+  status: "success" | "failed";
+}
+
+interface UpdateOrderApiResponse {
+  data: RawOrderData;
   message: string;
   status: "success" | "failed";
 }
@@ -210,6 +215,62 @@ export const cancelOrder = createAsyncThunk<
   }
 });
 
+/**
+ * Thunk for updating an order.
+ * @param payload The order update payload.
+ */
+export interface UpdateOrderPayload {
+  id: string;
+  account_id: string;
+  order_type: "market" | "limit" | "stop" | string;
+  price: number;
+  qty: number;
+  side: "buy" | "sell";
+  stoploss: number;
+  target: number;
+}
+
+export const updateOrder = createAsyncThunk<
+  OpenOrder, // Return type is the updated OpenOrder
+  UpdateOrderPayload, // Argument type is the payload
+  { state: RootState }
+>("openOrders/updateOrder", async (payload, { rejectWithValue, dispatch }) => {
+  try {
+    dispatch(showLoader());
+    const response = await apiClient.send<UpdateOrderApiResponse>(
+      "account/order/update",
+      payload
+    );
+
+    if (response.status === "success" && response.data) {
+      // Map the raw data to OpenOrder (same logic as in fetchOpenOrders)
+      const raw = response.data as any;
+      const instrumentData = raw.instruments?.[0];
+      const contractSize =
+        instrumentData?.static_data?.contractsize ||
+        instrumentData?.static_data?.contract_size ||
+        1;
+
+      const updatedOrder: OpenOrder = {
+        ...raw,
+        instruments: [],
+        trading_name: instrumentData?.trading_name || "N/A",
+        contract_size: contractSize,
+      } as any;
+
+      return updatedOrder;
+    } else {
+      return rejectWithValue(response.message || "Failed to update order");
+    }
+  } catch (error) {
+    const errorMessage =
+      (error as { message?: string }).message || "An unknown error occurred";
+    return rejectWithValue(errorMessage);
+  } finally {
+    dispatch(hideLoader());
+  }
+});
+
 export const openOrdersSlice = createSlice({
   name: "openOrders",
   initialState,
@@ -242,6 +303,15 @@ export const openOrdersSlice = createSlice({
       .addCase(cancelOrder.rejected, (_state, action) => {
         // Log or display an error if the cancellation API call fails
         console.error("Order cancellation failed:", action.payload);
+      })
+      .addCase(updateOrder.fulfilled, (state, action: PayloadAction<OpenOrder>) => {
+        const index = state.orders.findIndex(o => o.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
+      })
+      .addCase(updateOrder.rejected, (_state, action) => {
+        console.error("Order update failed:", action.payload);
       });
   },
 });
