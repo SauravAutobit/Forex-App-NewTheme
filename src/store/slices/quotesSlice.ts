@@ -30,13 +30,19 @@ type StreamDataPayload = {
   askq?: number[];
   bid?: number[];
   bidq?: number[];
+  // New OHLC format
+  c?: number | number[]; // close
+  h?: number | number[]; // high
+  l?: number | number[]; // low
+  o?: number | number[]; // open
+  // Old format (backward compatibility)
   close?: number[];
   high?: number[];
   low?: number[];
+  open?: number[];
   ltp?: number[];
   ltpq?: number[];
   ltpt?: number[];
-  open?: number[];
 };
 
 interface QuotesState {
@@ -89,19 +95,35 @@ export const quotesSlice = createSlice({
     updateQuoteData: (state, action: PayloadAction<{ instrumentId: string; data: StreamDataPayload }>) => {
       const { instrumentId, data } = action.payload;
 
+      // Helper to safely get value (whether it's number, array, or undefined)
+      const getValue = (val: number | number[] | undefined): number | undefined => {
+        if (typeof val === 'number') return val;
+        if (Array.isArray(val) && val.length > 0) return val[0];
+        return undefined;
+      };
+
+      // Debug logging
+      const c = getValue(data.c);
+      const h = getValue(data.h);
+      const l = getValue(data.l);
+      const o = getValue(data.o);
+      
+      console.log('[QuotesSlice] Received data for', instrumentId, ':', data);
+      console.log('[QuotesSlice] OHLC safe values - c:', c, 'h:', h, 'l:', l, 'o:', o);
+
       // 1. Update watchlist if it exists there
       state.quotes = state.quotes.map(quote => {
         if (quote.id !== instrumentId) return quote;
         return {
           ...quote,
-          bid: data.bid?.[0] ?? quote.bid,
-          ask: data.ask?.[0] ?? quote.ask,
-          low: data.low?.[0] ?? quote.low,
-          high: data.high?.[0] ?? quote.high,
-          close: data.close?.[0] ?? quote.close,
-          open: data.open?.[0] ?? quote.open,
-          ltp: data.ltp?.[0] ?? quote.ltp,
-          timestamp: data.ltpt?.[0] ?? quote.timestamp,
+          bid: getValue(data.bid) ?? quote.bid,
+          ask: getValue(data.ask) ?? quote.ask,
+          low: l ?? getValue(data.low) ?? quote.low,
+          high: h ?? getValue(data.high) ?? quote.high,
+          close: c ?? getValue(data.close) ?? quote.close,
+          open: o ?? getValue(data.open) ?? quote.open,
+          ltp: getValue(data.ltp) ?? quote.ltp,
+          timestamp: getValue(data.ltpt) ?? quote.timestamp,
         };
       });
 
@@ -117,15 +139,17 @@ export const quotesSlice = createSlice({
              bid: 0, ask: 0, low: 0, high: 0, close: 0, open: 0, timestamp: 0, ltp: 0,
              contract_size: 100000, static_data: {}
         }),
-        bid: data.bid?.[0] ?? (existingLive?.bid || 0),
-        ask: data.ask?.[0] ?? (existingLive?.ask || 0),
-        low: data.low?.[0] ?? (existingLive?.low || 0),
-        high: data.high?.[0] ?? (existingLive?.high || 0),
-        close: data.close?.[0] ?? (existingLive?.close || 0),
-        open: data.open?.[0] ?? (existingLive?.open || 0),
-        ltp: data.ltp?.[0] ?? (existingLive?.ltp || 0),
-        timestamp: data.ltpt?.[0] ?? (existingLive?.timestamp || 0),
+        bid: getValue(data.bid) ?? (existingLive?.bid || 0),
+        ask: getValue(data.ask) ?? (existingLive?.ask || 0),
+        low: l ?? getValue(data.low) ?? (existingLive?.low || 0),
+        high: h ?? getValue(data.high) ?? (existingLive?.high || 0),
+        close: c ?? getValue(data.close) ?? (existingLive?.close || 0),
+        open: o ?? getValue(data.open) ?? (existingLive?.open || 0),
+        ltp: getValue(data.ltp) ?? (existingLive?.ltp || 0),
+        timestamp: getValue(data.ltpt) ?? (existingLive?.timestamp || 0),
       };
+
+      console.log('[QuotesSlice] Updated liveQuote for', instrumentId, ':', state.liveQuotes[instrumentId]);
     },  
 
     removeInstrumentsFromQuotes: (state, action: PayloadAction<string[]>) => {

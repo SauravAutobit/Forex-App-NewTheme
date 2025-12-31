@@ -21,7 +21,6 @@ import {
 import type { Instrument } from "../../store/slices/instrumentsSlice";
 
 const menuItems = [
-  { label: "Popularity" },
   { label: "Daily Changes" },
   { label: "Daily gain" },
   { label: "Daily loss" },
@@ -208,9 +207,66 @@ const Home = () => {
   // --- Search Filtering Logic ---
 
   // Filter regular instruments based on search query
-  const filteredInstruments = currentCategoryInstruments.filter((inst) =>
+  let filteredInstruments = currentCategoryInstruments.filter((inst) =>
     inst.trading_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log("filteredInstruments HOME", filteredInstruments);
+
+  // Apply filter based on percentage change
+  if (activeFilter.filterOption) {
+    filteredInstruments = filteredInstruments.filter((inst) => {
+      const quotes = liveQuotes[inst.id];
+      const ltp = quotes?.ltp ?? 0;
+      const close = quotes?.close ?? 0;
+      const percentageChange = close !== 0 ? ((ltp - close) / close) * 100 : 0;
+
+      switch (activeFilter.filterOption) {
+        case "Daily gain":
+          return percentageChange > 0;
+        case "Daily loss":
+          return percentageChange < 0;
+        case "Daily Changes":
+          return percentageChange !== 0;
+        default:
+          return true;
+      }
+    });
+  }
+
+  // Apply sorting
+  if (activeFilter.sort.alphabetically) {
+    filteredInstruments = [...filteredInstruments].sort((a, b) => {
+      const nameA = a.trading_name.toLowerCase();
+      const nameB = b.trading_name.toLowerCase();
+      if (activeFilter.sort.alphabetically === "asc") {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    });
+  }
+
+  if (activeFilter.sort.price) {
+    filteredInstruments = [...filteredInstruments].sort((a, b) => {
+      const quotesA = liveQuotes[a.id];
+      const quotesB = liveQuotes[b.id];
+      const ltpA = quotesA?.ltp ?? 0;
+      const closeA = quotesA?.close ?? 0;
+      const ltpB = quotesB?.ltp ?? 0;
+      const closeB = quotesB?.close ?? 0;
+      const percentageChangeA =
+        closeA !== 0 ? ((ltpA - closeA) / closeA) * 100 : 0;
+      const percentageChangeB =
+        closeB !== 0 ? ((ltpB - closeB) / closeB) * 100 : 0;
+
+      if (activeFilter.sort.price === "asc") {
+        return percentageChangeA - percentageChangeB;
+      } else {
+        return percentageChangeB - percentageChangeA;
+      }
+    });
+  }
 
   // Filter favorite items based on search query
   const filteredFavorites = favoriteItems.filter((item) =>
@@ -247,12 +303,28 @@ const Home = () => {
           {filteredInstruments.length > 0 ? (
             filteredInstruments.map((instrument) => {
               const quotes = liveQuotes[instrument.id];
+              console.log(
+                "[Home] Instrument:",
+                instrument.trading_name,
+                "Quotes:",
+                quotes
+              );
               const bid = quotes?.bid ?? 0;
               const ask = quotes?.ask ?? 0;
               const high = quotes?.high ?? 0;
               const low = quotes?.low ?? 0;
               const ltp = quotes?.ltp ?? 0;
               const close = quotes?.close ?? 0;
+              console.log(
+                "[Home] Values - close:",
+                close,
+                "ltp:",
+                ltp,
+                "bid:",
+                bid,
+                "ask:",
+                ask
+              );
               const timestamp = quotes?.timestamp
                 ? new Date(quotes.timestamp).toLocaleTimeString()
                 : "N/A";

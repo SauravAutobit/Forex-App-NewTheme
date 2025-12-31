@@ -31,8 +31,23 @@ import { fetchOpenOrders } from "../store/slices/openOrdersSlice";
 type StreamDataPayload = {
   bid?: number[];
   ask?: number[];
-  // Include other properties you might receive
-  // e.g., low?: number[];
+  // New OHLC format from backend (can be number or array)
+  c?: number | number[]; // close
+  h?: number | number[]; // high
+  l?: number | number[]; // low
+  o?: number | number[]; // open
+  // Old format (backward compatibility)
+  close?: number[];
+  high?: number[];
+  low?: number[];
+  open?: number[];
+  // LTP fields
+  ltp?: number[];
+  ltpq?: number[];
+  ltpt?: number[];
+  // Bid/Ask quantities
+  bidq?: number[];
+  askq?: number[];
 };
 
 function isStreamQuoteMessage(msg: unknown): msg is {

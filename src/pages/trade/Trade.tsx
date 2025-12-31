@@ -28,8 +28,6 @@ import RadioButton from "../../components/radioButton/RadioButton";
 import Button from "../../components/button/Button";
 import { useAppSelector } from "../../store/hook";
 
-const menuItems = [{ label: "Instruments" }];
-
 interface TabItem {
   id: string;
   label: string;
@@ -127,13 +125,93 @@ const Trade = () => {
   }$${Math.abs(availableBalance).toFixed(2)}`;
   const formattedTotalValue = `$${totalValue.toFixed(2)}`;
 
+  // Helper function to calculate PnL for a position
+  const calculatePnL = (position: any) => {
+    const currentPrice =
+      position.side === "buy" ? position.live_bid : position.live_ask;
+    let pnl = 0;
+    if (currentPrice !== undefined && position.qty !== undefined) {
+      if (position.side === "buy") {
+        pnl = (currentPrice - position.price) * position.qty;
+      } else if (position.side === "sell") {
+        pnl = (position.price - currentPrice) * position.qty;
+      }
+    }
+    return pnl;
+  };
+
+  // Helper function to get instrument name
+  const getInstrumentName = (item: any) => {
+    // For positions/orders, check trading_name or instrument_id
+    return item.trading_name || item.instrument_id || "";
+  };
+
+  // Apply sorting to positions
+  let sortedOpenPositions = [...openPositions];
+  let sortedOpenOrders = [...openOrders];
+  let sortedHistoryPositions = [...historyPositions];
+
+  // Sort by alphabetically (instrument name)
+  if (activeFilter.sort.alphabetically) {
+    const sortAlphabetically = (a: any, b: any) => {
+      const nameA = getInstrumentName(a).toLowerCase();
+      const nameB = getInstrumentName(b).toLowerCase();
+      if (activeFilter.sort.alphabetically === "asc") {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    };
+
+    sortedOpenPositions = sortedOpenPositions.sort(sortAlphabetically);
+    sortedOpenOrders = sortedOpenOrders.sort(sortAlphabetically);
+    sortedHistoryPositions = sortedHistoryPositions.sort(sortAlphabetically);
+  }
+
+  // Sort by price (P&L)
+  if (activeFilter.sort.price) {
+    // Sort open positions by live P&L
+    sortedOpenPositions = sortedOpenPositions.sort((a, b) => {
+      const pnlA = calculatePnL(a);
+      const pnlB = calculatePnL(b);
+      if (activeFilter.sort.price === "asc") {
+        return pnlA - pnlB;
+      } else {
+        return pnlB - pnlA;
+      }
+    });
+
+    // Sort history positions by closed_pnl
+    sortedHistoryPositions = sortedHistoryPositions.sort((a, b) => {
+      const pnlA = a.closed_pnl ?? 0;
+      const pnlB = b.closed_pnl ?? 0;
+      if (activeFilter.sort.price === "asc") {
+        return pnlA - pnlB;
+      } else {
+        return pnlB - pnlA;
+      }
+    });
+
+    // For pending orders, we can't sort by P&L as they don't have it yet
+    // Keep them in original order or sort by price
+    sortedOpenOrders = sortedOpenOrders.sort((a, b) => {
+      const priceA = a.price ?? 0;
+      const priceB = b.price ?? 0;
+      if (activeFilter.sort.price === "asc") {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+  }
+
   const tabsData: TabItem[] = [
     {
       id: "market",
       label: "Market",
       content: (
         <div>
-          {openPositions.map((pos, index) => {
+          {sortedOpenPositions.map((pos, index) => {
             return (
               <PositionCard
                 key={pos.id || index}
@@ -160,7 +238,7 @@ const Trade = () => {
       label: "Pending",
       content: (
         <div>
-          {openOrders.map((order, index) => {
+          {sortedOpenOrders.map((order, index) => {
             return (
               <PositionCard
                 key={order.id || index}
@@ -186,7 +264,7 @@ const Trade = () => {
       label: "Closed",
       content: (
         <div>
-          {historyPositions.map((pos, index) => {
+          {sortedHistoryPositions.map((pos, index) => {
             return (
               <PositionCard
                 key={pos.id || index}
@@ -287,35 +365,7 @@ const Trade = () => {
                 Clear
               </span>
             </div>
-            <ul className="flex flex-wrap gap-2.5 items-center pb-2.5 border-b border-primary">
-              {menuItems.map((item, index) => (
-                <li
-                  key={index}
-                  className={`px-2.5 py-1.5 rounded-[6px] h-[33px] border border-[#878787] ${
-                    activeFilter.filterOption === item.label
-                      ? "bg-quaternary"
-                      : ""
-                  }`}
-                >
-                  <button
-                    onClick={() =>
-                      setActiveFilter((prev) => ({
-                        ...prev,
-                        filterOption: item.label,
-                      }))
-                    }
-                    className={`w-full text-left text-secondary ${
-                      activeFilter.filterOption === item.label
-                        ? "text-[#0C0C0C]"
-                        : ""
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div className="text-lg font-tertiary my-2.5">Sort</div>
+            <div className="text-lg font-tertiary mb-2.5">Sort</div>
             <div>
               <div
                 className="py-2.5 flex items-center gap-2.5"
