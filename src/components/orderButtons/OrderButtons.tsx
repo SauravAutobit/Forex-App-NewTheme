@@ -296,13 +296,6 @@ const OrderButtons = ({
 
   const renderButtons = () => {
     if (mode === "closePosition") {
-      const pnlColorClass =
-        theme === "dark"
-          ? livePnl >= 0
-            ? "text-profit"
-            : "text-loss"
-          : "text-white";
-      const borderColorClass = livePnl >= 0 ? "border-profit" : "border-loss";
       const bgColorClass = livePnl >= 0 ? "bg-profit" : "bg-loss";
       const buttonText = livePnl >= 0 ? "Close with Profit" : "Close with Loss";
 

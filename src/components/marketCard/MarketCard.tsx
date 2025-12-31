@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import cardIcon from "../../assets/icons/cardIcon.svg";
 // import arrow from "../../assets/icons/arrow.svg";/
-import { useAppSelector } from "../../store/hook";
 
 // ✅ A custom hook to get the previous value
 function usePrevious<T>(value: T): T | undefined {
@@ -87,10 +85,6 @@ const MarketCard = ({
   paddingLeft = "20px",
   paddingRight = "20px",
 }: CardProps) => {
-  const { pathname } = useLocation();
-  const marketEdit = pathname === "/app/marketEdit";
-  // const theme = useAppSelector((state) => state.theme.mode);
-
   const askPrice = formatPrice(ask, pip);
   const bidPrice = formatPrice(bid, pip);
 

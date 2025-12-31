@@ -46,8 +46,7 @@ const Card = ({
   const [askColor, setAskColor] = useState("text-primary"); // Start neutral
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
 
-  const { favouriteInstrument, setFavouriteInstrument } =
-    useOutletContext<OutletContextType>();
+  const { setFavouriteInstrument } = useOutletContext<OutletContextType>();
   const [star, setStar] = useState(false);
 
   const theme = useAppSelector((state) => state.theme.mode);

@@ -17,10 +17,8 @@ interface HistoryCardProps {
 }
 
 const HistoryCard = ({
-  label, // kept for potential styling classes based on label if needed later, currently unused
   index,
   onCardClick,
-  isTutorialTarget,
   historyPositionData,
   historyOrderData,
   dealData,

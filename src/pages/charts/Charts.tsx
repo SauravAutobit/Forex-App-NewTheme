@@ -259,17 +259,6 @@ const Charts = () => {
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {filteredPositions.map((position) => {
-                return (
-                  <div key={position.id}>
-                    <PositionCard
-                      label="Position"
-                      position={position}
-                      onClick={() => {}}
-                    />
-                  </div>
-                );
-              })}
               {filteredHistoryPositions.map((pos) => {
                 return (
                   <HistoryCard
@@ -279,12 +268,11 @@ const Charts = () => {
                   />
                 );
               })}
-              {filteredPositions.length === 0 &&
-                filteredHistoryPositions.length === 0 && (
-                  <div className="text-center mt-10 text-secondary">
-                    No positions for this instrument
-                  </div>
-                )}
+              {filteredHistoryPositions.length === 0 && (
+                <div className="text-center mt-10 text-secondary">
+                  No history positions for this instrument
+                </div>
+              )}
             </div>
             <div
               className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
@@ -330,18 +318,6 @@ const Charts = () => {
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {filteredOrders.map((order) => {
-                return (
-                  <div key={order.id}>
-                    <PositionCard
-                      label="Orders"
-                      position={order}
-                      openOrderData={order}
-                      onClick={() => {}}
-                    />
-                  </div>
-                );
-              })}
               {filteredHistoryOrders.map((order) => {
                 return (
                   <HistoryCard
@@ -351,12 +327,11 @@ const Charts = () => {
                   />
                 );
               })}
-              {filteredOrders.length === 0 &&
-                filteredHistoryOrders.length === 0 && (
-                  <div className="text-center mt-10 text-secondary">
-                    No orders for this instrument
-                  </div>
-                )}
+              {filteredHistoryOrders.length === 0 && (
+                <div className="text-center mt-10 text-secondary">
+                  No history orders for this instrument
+                </div>
+              )}
             </div>
             <div
               className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"

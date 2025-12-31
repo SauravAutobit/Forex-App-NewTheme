@@ -277,11 +277,6 @@ const History = ({}: HistoryProps) => {
                 key={pos.id}
                 label="Position"
                 historyPositionData={pos}
-                onCardClick={() => {
-                  navigate("/app/closedEdit", {
-                    state: { historyPosition: pos, type: "closed" },
-                  });
-                }}
               />
             );
           })
@@ -314,11 +309,6 @@ const History = ({}: HistoryProps) => {
                 label="Deals"
                 dealData={deal}
                 instrumentName={instrument?.trading_name}
-                onCardClick={() => {
-                  navigate("/app/closedEdit", {
-                    state: { deal: deal, type: "closed" },
-                  });
-                }}
               />
             );
           })
@@ -348,11 +338,6 @@ const History = ({}: HistoryProps) => {
                 label="Orders"
                 historyOrderData={order}
                 instrumentName={instrument?.trading_name}
-                onCardClick={() => {
-                  navigate("/app/closedEdit", {
-                    state: { historyOrder: order, type: "closed" },
-                  });
-                }}
               />
             );
           })

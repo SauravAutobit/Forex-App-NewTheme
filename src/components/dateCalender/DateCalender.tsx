@@ -19,7 +19,6 @@ interface DateCalenderProps {
 }
 
 const DateCalender: React.FC<DateCalenderProps> = ({
-  activeTab,
   isOpen,
   onClose,
   initialStartDate,
@@ -27,7 +26,7 @@ const DateCalender: React.FC<DateCalenderProps> = ({
   showMonthYearPicker = false,
 }) => {
   const [tempStartDate, setTempStartDate] = useState<Date>(initialStartDate);
-  const [selectedTab, setSelectedTab] = useState("");
+  const [] = useState("");
 
   const theme = useSelector((state: RootState) => state.theme.mode);
 

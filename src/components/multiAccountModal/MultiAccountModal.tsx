@@ -13,10 +13,9 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
-  const theme = useAppSelector((state) => state.theme.mode);
   const authError = useAppSelector((state) => state.auth.error);
   const status = useAppSelector((state) => state.auth.status);
 
