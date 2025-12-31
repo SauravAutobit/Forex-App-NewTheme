@@ -1,4 +1,8 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import {
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router-dom";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
@@ -31,9 +35,15 @@ interface TabItem {
   label: string;
   content?: React.ReactNode;
 }
-
 const Trade = () => {
-  // const activeTabId = searchParams.get("tab") || "position"; // Default to 'position'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTabId = searchParams.get("tab") || "market";
+
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "market" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const [activeFilter, setActiveFilter] = useState({
     filterOption: "",
@@ -230,6 +240,10 @@ const Trade = () => {
     });
   };
 
+  const handleTabChange = (tabId: string) => {
+    setSearchParams({ tab: tabId });
+  };
+
   // helper to get icon based on state
   const getSortIcon = (state: string, type: "alphabetically" | "price") => {
     if (state === "asc") return upArrowFilter;
@@ -246,8 +260,8 @@ const Trade = () => {
       <NavigationTabs
         tabs={tabsData}
         totalPnl={totalPnl}
-        // defaultActiveTab={activeTabId} // Use state from URL
-        // onTabChange={handleTabChange} // New handler for URL update
+        defaultActiveTab={activeTabId}
+        onTabChange={handleTabChange}
         className="max-w-md mx-auto pb-2.5"
       />
 

@@ -155,7 +155,10 @@ const Home = () => {
   }, [active]);
 
   useEffect(() => {
-    if (apiStatus === "connected" && pathname === "/app/home") {
+    if (
+      apiStatus === "connected" &&
+      (pathname === "/app/home" || pathname === "/app")
+    ) {
       dispatch(fetchCategories());
     }
   }, [apiStatus, dispatch, pathname]);

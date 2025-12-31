@@ -34,31 +34,28 @@ interface TradeObject {
   qty: number;
 }
 
-interface DealInstrumentDetail {
-  contract_size?: number;
-  tick_size?: number;
-  instrument?: string;
-  instrument_id?: string;
-  trading_name?: string;
-  name?: string;
-  static_data?: unknown;
-}
-
-type DealWithSpecificInstruments = Omit<Deal, "instruments"> & {
-  instruments: DealInstrumentDetail[];
-};
-
 interface TabItem {
   id: string;
   label: string;
   content?: React.ReactNode;
 }
 
-const History = () => {
+interface HistoryProps {
+  onDismissTutorial?: () => void;
+  showTutorial?: boolean;
+}
+
+const History = ({}: HistoryProps) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTabId = searchParams.get("tab") || "position";
+
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "position" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const deals = useAppSelector((state) => state.deals.deals);
   const dealsStatus = useAppSelector((state) => state.deals.status);
@@ -254,10 +251,10 @@ const History = () => {
   }, [historyOrders]);
 
   useEffect(() => {
-    if (apiStatus === "connected" && historyPositionsStatus === "idle") {
+    if (apiStatus === "connected") {
       refreshAllHistoryData(dispatch);
     }
-  }, [dispatch, apiStatus, historyPositionsStatus]);
+  }, [dispatch, apiStatus]);
 
   const positionsContent = (
     <>
