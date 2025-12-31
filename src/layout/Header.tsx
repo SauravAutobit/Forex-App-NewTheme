@@ -147,6 +147,13 @@ export default function Header({
     }));
   };
 
+  const selectedInstrumentId = useAppSelector(
+    (state: RootState) => state.instruments.selectedInstrumentId
+  );
+  const liveQuotes = useAppSelector(
+    (state: RootState) => state.quotes.liveQuotes
+  );
+  console.log("selectedInstrumentId", selectedInstrumentId, liveQuotes);
   const iconSrc =
     theme === "light"
       ? star
@@ -199,8 +206,26 @@ export default function Header({
         break;
 
       case "/app/charts":
-        title = "EURUSD";
-        subTitle = "+30 (+23.2%)";
+        if (selectedInstrumentId && liveQuotes[selectedInstrumentId]) {
+          const quote = liveQuotes[selectedInstrumentId];
+          title = quote.trading_name || quote.name;
+          const change = quote.ltp - quote.close;
+          const percentageChange =
+            quote.close !== 0 ? (change / quote.close) * 100 : 0;
+          subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
+            2
+          )} (${percentageChange.toFixed(2)}%)`;
+        } else if (selectedInstrumentId) {
+          const allInstruments = Object.values(instrumentsData).flat();
+          const instrument = allInstruments.find(
+            (i: any) => i.id === selectedInstrumentId
+          );
+          title = instrument?.trading_name || instrument?.name || "Loading...";
+          subTitle = "";
+        } else {
+          title = "Select Instrument";
+          subTitle = "";
+        }
         if (active === "Chart") {
           actions = (
             <div className="flex items-center gap-5">
@@ -265,8 +290,26 @@ export default function Header({
         break;
 
       case "/app/newOrder":
-        title = "EURUSD";
-        subTitle = "+30 (+23.2%)";
+        if (selectedInstrumentId && liveQuotes[selectedInstrumentId]) {
+          const quote = liveQuotes[selectedInstrumentId];
+          title = quote.trading_name || quote.name;
+          const change = quote.ltp - quote.close;
+          const percentageChange =
+            quote.close !== 0 ? (change / quote.close) * 100 : 0;
+          subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
+            2
+          )} (${percentageChange.toFixed(2)}%)`;
+        } else if (selectedInstrumentId) {
+          const allInstruments = Object.values(instrumentsData).flat();
+          const instrument = allInstruments.find(
+            (i: any) => i.id === selectedInstrumentId
+          );
+          title = instrument?.trading_name || instrument?.name || "Loading...";
+          subTitle = "";
+        } else {
+          title = "Select Instrument";
+          subTitle = "";
+        }
         actions = null;
         break;
 
@@ -344,7 +387,7 @@ when isFlag.favourites.status is true. Otherwise, show the menu. */}
               closedEdit: { status: false },
               editHistory: { status: false },
             }));
-            navigate("home");
+            navigate(-1);
           }}
         >
           <img src={theme === "dark" ? back : backLight} alt="back" />

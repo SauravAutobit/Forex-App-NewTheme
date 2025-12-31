@@ -142,7 +142,7 @@ const Counter: React.FC<CounterProps> = ({
           } text-center ${theme === "dark" ? "bg-cardBg" : "bg-[#F1F1F1]"}`}
         >
           {pathname === "/app/charts" && (
-            <span className={`text-xs text-primary`}>Price:</span>
+            <span className={`text-xs text-primary`}>Vol</span>
           )}
           <input
             type="number"

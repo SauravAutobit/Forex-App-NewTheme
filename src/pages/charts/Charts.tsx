@@ -1,7 +1,7 @@
 // src/pages/Charts/Charts.tsx
 
 import { useState, useMemo, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux"; // 1. Import useDispatch
+import { useDispatch } from "react-redux"; // 1. Import useDispatch
 import type { AppDispatch, RootState } from "../../store/store"; // 2. Import AppDispatch
 // import { useOutletContext } from "react-router-dom";
 import ChartComponent from "../../components/chartComponent/ChartComponent";
@@ -10,12 +10,10 @@ import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 // import TradeButtonsDrawer from "../../components/tradeButtonsDrawer/TradeButtonsDrawer";
 // import type { OutletContextType } from "../../layout/MainLayout";
 
-// 3. Import the async thunk
 import { fetchChartData } from "../../store/slices/chartSlice";
-import { mockInstruments, mockTimeframes } from "../../mockData";
+import { mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
 import Info from "../info/Info";
-import HistoryCard from "../../components/historyCard/HistoryCard";
 import Calender from "../../components/calender/Calender";
 import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
@@ -25,6 +23,16 @@ import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 import CheckList, {
   type OptionItem,
 } from "../../components/checkList/CheckList";
+import { useAppSelector } from "../../store/hook";
+import { placeNewOrder } from "../../store/slices/ordersSlice";
+import { fetchPositions } from "../../store/slices/positionsSlice";
+import { fetchOpenOrders } from "../../store/slices/openOrdersSlice";
+import {
+  subscribeToInstruments,
+  refreshAllHistoryData,
+} from "../../services/socketService";
+import PositionCard from "../../components/positionCard/PositionCard";
+import HistoryCard from "../../components/historyCard/HistoryCard";
 import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
 
 const Charts = () => {
@@ -64,23 +72,50 @@ const Charts = () => {
     makeInitialState(chartOptions)
   );
 
-  // //   const allActiveQuotes = useSelector(
-  // //     (state: RootState) => state.quotes.quotes
-  // //   );
+  const allInstrumentsData = useAppSelector(
+    (state: RootState) => state.instruments.data
+  );
+  const reduxSelectedId = useAppSelector(
+    (state: RootState) => state.instruments.selectedInstrumentId
+  );
 
-  const allActiveQuotes = mockInstruments;
   const instrumentsForDropdown = useMemo(() => {
-    return allActiveQuotes.map((quote) => ({
-      id: quote.id,
-      name: quote.name,
-    }));
-  }, [allActiveQuotes]);
+    return Object.values(allInstrumentsData)
+      .flat()
+      .map((inst) => ({
+        id: inst.id,
+        name: inst.trading_name,
+      }));
+  }, [allInstrumentsData]);
 
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1m");
 
   const [selectedInstrumentId, setSelectedInstrumentId] = useState<
     string | null
-  >(instrumentsForDropdown[0]?.id || null);
+  >(reduxSelectedId || instrumentsForDropdown[0]?.id || null);
+
+  useEffect(() => {
+    if (reduxSelectedId) {
+      setSelectedInstrumentId(reduxSelectedId);
+    }
+  }, [reduxSelectedId]);
+
+  const [volume, setVolume] = useState(0.01);
+
+  const handlePlaceOrder = (side: "buy" | "sell") => {
+    if (!selectedInstrumentId) return;
+    dispatch(
+      placeNewOrder({
+        instrument_id: selectedInstrumentId,
+        qty: volume,
+        price: 0,
+        order_type: "market",
+        side,
+        stoploss: 0,
+        target: 0,
+      })
+    );
+  };
 
   // 4. Effect to manage selectedInstrumentId synchronization
   useEffect(() => {
@@ -106,9 +141,6 @@ const Charts = () => {
   // 5. Effect to fetch data whenever the selected instrument ID changes
   useEffect(() => {
     if (selectedInstrumentId && selectedTimeframe) {
-      // Dispatch the thunk to fetch/mock data for the new instrument.
-      // Since your thunk currently returns 100 mock points,
-      // we can use a fixed range (e.g., [0:99]) for initial load.
       dispatch(
         fetchChartData({
           instrumentId: selectedInstrumentId,
@@ -118,7 +150,24 @@ const Charts = () => {
         })
       );
     }
-  }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
+  }, [selectedInstrumentId, dispatch, selectedTimeframe]);
+
+  // 6. Effect to subscribe to quotes for the selected instrument
+  useEffect(() => {
+    if (selectedInstrumentId) {
+      subscribeToInstruments([selectedInstrumentId]);
+    }
+  }, [selectedInstrumentId]);
+
+  const apiStatus = useAppSelector((state) => state.websockets.apiStatus);
+
+  useEffect(() => {
+    if (apiStatus === "connected") {
+      dispatch(fetchPositions());
+      dispatch(fetchOpenOrders());
+      refreshAllHistoryData(dispatch);
+    }
+  }, [dispatch, apiStatus]);
 
   // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
   const height = `calc(100vh - 160px)`;
@@ -127,10 +176,28 @@ const Charts = () => {
   // const heightWithButtons = "calc(100vh - 250px)";
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
+  const positions = useAppSelector((state) => state.positions.positions);
+  const openOrders = useAppSelector((state) => state.openOrders.orders);
+  const historyPositions = useAppSelector(
+    (state) => state.historyPositions.data
+  );
+  const historyOrders = useAppSelector((state) => state.historyOrders.data);
 
-  // console.log("active options", activeOptions);
+  const filteredPositions = positions.filter(
+    (p) => p.instrument_id === selectedInstrumentId
+  );
+  const filteredOrders = openOrders.filter(
+    (o) => o.instrument_id === selectedInstrumentId
+  );
 
-  const theme = useSelector((s: RootState) => s.theme.mode);
+  const filteredHistoryPositions = historyPositions.filter(
+    (p) => p.instrument_id === selectedInstrumentId
+  );
+  const filteredHistoryOrders = historyOrders.filter(
+    (o) => o.instrument_id === selectedInstrumentId
+  );
+
+  const theme = useAppSelector((s: RootState) => s.theme.mode);
 
   return (
     <div className="relative">
@@ -162,28 +229,62 @@ const Charts = () => {
         </>
       )}
 
-      {active === "Overview" && <Overview />}
+      {active === "Overview" && (
+        <Overview
+          selectedInstrumentId={selectedInstrumentId}
+          handlePlaceOrder={handlePlaceOrder}
+          volume={volume}
+          setVolume={setVolume}
+        />
+      )}
 
-      {active === "Calendar" && <Calender />}
+      {active === "Calendar" && (
+        <Calender
+          handlePlaceOrder={handlePlaceOrder}
+          volume={volume}
+          setVolume={setVolume}
+        />
+      )}
 
-      {active === "Info" && <Info />}
+      {active === "Info" && (
+        <Info
+          selectedInstrumentId={selectedInstrumentId}
+          handlePlaceOrder={handlePlaceOrder}
+          volume={volume}
+          setVolume={setVolume}
+        />
+      )}
 
       {active === "Positions" && (
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {Array.from({ length: 10 }).map((_, index) => {
+              {filteredPositions.map((position) => {
                 return (
-                  <div key={index}>
-                    <HistoryCard
-                      index={index}
-                      label={"Position"}
-                      onCardClick={() => {}}
-                      isTutorialTarget={false}
+                  <div key={position.id}>
+                    <PositionCard
+                      label="Position"
+                      position={position}
+                      onClick={() => {}}
                     />
                   </div>
                 );
               })}
+              {filteredHistoryPositions.map((pos) => {
+                return (
+                  <HistoryCard
+                    key={pos.id}
+                    label="Position"
+                    historyPositionData={pos}
+                  />
+                );
+              })}
+              {filteredPositions.length === 0 &&
+                filteredHistoryPositions.length === 0 && (
+                  <div className="text-center mt-10 text-secondary">
+                    No positions for this instrument
+                  </div>
+                )}
             </div>
             <div
               className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
@@ -201,8 +302,14 @@ const Charts = () => {
                 textColor="#FAFAFA"
                 fontWeight={600}
                 textShadow="0px 0px 10px 0px #950101"
+                onClick={() => handlePlaceOrder("sell")}
               />
-              <Counter label="Take Profit" />
+              <Counter
+                label="0"
+                initialValue={volume}
+                onValueChange={setVolume}
+                step={0.01}
+              />
 
               <Button
                 label={"Buy"}
@@ -212,6 +319,7 @@ const Charts = () => {
                 textShadow="0px 0px 10px 0px #008508"
                 textColor="#FAFAFA"
                 fontWeight={600}
+                onClick={() => handlePlaceOrder("buy")}
               />
             </div>
           </div>
@@ -222,16 +330,33 @@ const Charts = () => {
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {Array.from({ length: 10 }).map((_, index) => {
+              {filteredOrders.map((order) => {
+                return (
+                  <div key={order.id}>
+                    <PositionCard
+                      label="Orders"
+                      position={order}
+                      openOrderData={order}
+                      onClick={() => {}}
+                    />
+                  </div>
+                );
+              })}
+              {filteredHistoryOrders.map((order) => {
                 return (
                   <HistoryCard
-                    index={index}
+                    key={order.id}
                     label="Orders"
-                    onCardClick={() => {}}
-                    isTutorialTarget={false}
+                    historyOrderData={order}
                   />
                 );
               })}
+              {filteredOrders.length === 0 &&
+                filteredHistoryOrders.length === 0 && (
+                  <div className="text-center mt-10 text-secondary">
+                    No orders for this instrument
+                  </div>
+                )}
             </div>
             <div
               className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
@@ -249,8 +374,14 @@ const Charts = () => {
                 textColor="#FAFAFA"
                 fontWeight={600}
                 textShadow="0px 0px 10px 0px #950101"
+                onClick={() => handlePlaceOrder("sell")}
               />
-              <Counter label="Take Profit" />
+              <Counter
+                label="0"
+                initialValue={volume}
+                onValueChange={setVolume}
+                step={0.01}
+              />
 
               <Button
                 label={"Buy"}
@@ -260,6 +391,7 @@ const Charts = () => {
                 textShadow="0px 0px 10px 0px #008508"
                 textColor="#FAFAFA"
                 fontWeight={600}
+                onClick={() => handlePlaceOrder("buy")}
               />
             </div>
           </div>

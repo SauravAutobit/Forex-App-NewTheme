@@ -6,7 +6,19 @@ import EditOrderList, {
 } from "../../components/editOrderList/EditOrderList";
 import type { RootState } from "../../store/store";
 
-const Info = () => {
+interface InfoProps {
+  selectedInstrumentId: string | null;
+  handlePlaceOrder: (side: "buy" | "sell") => void;
+  volume: number;
+  setVolume: (v: number) => void;
+}
+
+const Info = ({
+  selectedInstrumentId,
+  handlePlaceOrder,
+  volume,
+  setVolume,
+}: InfoProps) => {
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
       { label: "Digits", value: "2" },
@@ -26,7 +38,7 @@ const Info = () => {
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
           <div className="text-[26px] font-secondary text-primary">
-            Gold on Spot
+            {selectedInstrumentId || "Gold on Spot"}
           </div>
           <p className="text-secondary">
             Figma ipsum component variant main layer. Frame comment editor text
@@ -52,8 +64,14 @@ const Info = () => {
             textColor="#FAFAFA"
             fontWeight={600}
             textShadow="0px 0px 10px 0px #950101"
+            onClick={() => handlePlaceOrder("sell")}
           />
-          <Counter label="Take Profit" />
+          <Counter
+            label="0"
+            initialValue={volume}
+            onValueChange={setVolume}
+            step={0.01}
+          />
 
           <Button
             label={"Buy"}
@@ -63,6 +81,7 @@ const Info = () => {
             textShadow="0px 0px 10px 0px #008508"
             textColor="#FAFAFA"
             fontWeight={600}
+            onClick={() => handlePlaceOrder("buy")}
           />
         </div>
       </div>

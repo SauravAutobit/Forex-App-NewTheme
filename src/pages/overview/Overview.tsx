@@ -6,7 +6,19 @@ import OverviewPerformance from "../../components/overviewPerformance/OverviewPe
 import ProgressBar from "../../components/progressBar/ProgressBar";
 import type { RootState } from "../../store/store";
 
-const Overview = () => {
+interface OverviewProps {
+  selectedInstrumentId: string | null;
+  handlePlaceOrder: (side: "buy" | "sell") => void;
+  volume: number;
+  setVolume: (v: number) => void;
+}
+
+const Overview = ({
+  selectedInstrumentId,
+  handlePlaceOrder,
+  volume,
+  setVolume,
+}: OverviewProps) => {
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
@@ -15,7 +27,7 @@ const Overview = () => {
         <div>
           <OverviewCard
             key={1}
-            code={`EUR/GBP ${1}`}
+            code={selectedInstrumentId || "EUR/GBP"}
             bid={1678.256369}
             ask={1078.256369}
             high={253659}
@@ -67,8 +79,14 @@ const Overview = () => {
             textColor="#FAFAFA"
             fontWeight={600}
             textShadow="0px 0px 10px 0px #950101"
+            onClick={() => handlePlaceOrder("sell")}
           />
-          <Counter label="Take Profit" />
+          <Counter
+            label="0"
+            initialValue={volume}
+            onValueChange={setVolume}
+            step={0.01}
+          />
 
           <Button
             label={"Buy"}
@@ -78,6 +96,7 @@ const Overview = () => {
             textShadow="0px 0px 10px 0px #008508"
             textColor="#FAFAFA"
             fontWeight={600}
+            onClick={() => handlePlaceOrder("buy")}
           />
         </div>
       </div>

@@ -4,7 +4,13 @@ import Button from "../button/Button";
 import Counter from "../counter/Counter";
 import type { RootState } from "../../store/store";
 
-const Calender = () => {
+interface CalenderProps {
+  handlePlaceOrder: (side: "buy" | "sell") => void;
+  volume: number;
+  setVolume: (v: number) => void;
+}
+
+const Calender = ({ handlePlaceOrder, volume, setVolume }: CalenderProps) => {
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
@@ -129,8 +135,14 @@ const Calender = () => {
             textColor="#FAFAFA"
             fontWeight={600}
             textShadow="0px 0px 10px 0px #950101"
+            onClick={() => handlePlaceOrder("sell")}
           />
-          <Counter label="Take Profit" />
+          <Counter
+            label="0"
+            initialValue={volume}
+            onValueChange={setVolume}
+            step={0.01}
+          />
 
           <Button
             label={"Buy"}
@@ -140,6 +152,7 @@ const Calender = () => {
             textShadow="0px 0px 10px 0px #008508"
             textColor="#FAFAFA"
             fontWeight={600}
+            onClick={() => handlePlaceOrder("buy")}
           />
         </div>
       </div>
