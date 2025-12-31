@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 // import lightAiStar from "../../assets/icons/lightAiStar.svg";
 import Theme from "../theme/Theme";
 // import { useAppSelector } from "../../store/hook";
-import avatar from "../../assets/icons/avatar.jpg";
 import Button from "../button/Button";
 import AccountList from "../accountList/AccountList";
 import { useAppSelector } from "../../store/hook";
@@ -42,11 +41,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div>
           <div className="py-3 px-4 flex items-center gap-3">
-            <img
-              src={avatar}
-              alt="avatar"
-              className="rounded-[200px] w-[40px] h-[40px]"
-            />
+            <div className="rounded-full w-[40px] h-[40px] bg-quaternary flex items-center justify-center font-tertiary text-[#0c0c0c] text-lg">
+              {user?.username ? user.username.charAt(0).toUpperCase() : "G"}
+            </div>
             <div
               className="w-[20px] h-[20px] bg-[#12B76A] rounded-[50px]"
               style={{
