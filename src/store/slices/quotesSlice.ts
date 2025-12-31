@@ -108,8 +108,8 @@ export const quotesSlice = createSlice({
       const l = getValue(data.l);
       const o = getValue(data.o);
       
-      console.log('[QuotesSlice] Received data for', instrumentId, ':', data);
-      console.log('[QuotesSlice] OHLC safe values - c:', c, 'h:', h, 'l:', l, 'o:', o);
+      // console.log('[QuotesSlice] Received data for', instrumentId, ':', data);
+      // console.log('[QuotesSlice] OHLC safe values - c:', c, 'h:', h, 'l:', l, 'o:', o);
 
       // 1. Update watchlist if it exists there
       state.quotes = state.quotes.map(quote => {
@@ -130,7 +130,7 @@ export const quotesSlice = createSlice({
       // 2. Update live cache for general UI consumption (like category view)
       const existingLive = state.liveQuotes[instrumentId];
       if (!state.liveQuotes[instrumentId]) {
-        console.log(`[QuotesSlice] Initializing liveQuote for ${instrumentId}`);
+        // console.log(`[QuotesSlice] Initializing liveQuote for ${instrumentId}`);
       }
       state.liveQuotes[instrumentId] = {
         ...(existingLive || {
@@ -149,7 +149,7 @@ export const quotesSlice = createSlice({
         timestamp: getValue(data.ltpt) ?? (existingLive?.timestamp || 0),
       };
 
-      console.log('[QuotesSlice] Updated liveQuote for', instrumentId, ':', state.liveQuotes[instrumentId]);
+      // console.log('[QuotesSlice] Updated liveQuote for', instrumentId, ':', state.liveQuotes[instrumentId]);
     },  
 
     removeInstrumentsFromQuotes: (state, action: PayloadAction<string[]>) => {

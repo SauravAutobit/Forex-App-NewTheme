@@ -160,11 +160,11 @@ export const initializeSockets = (store: Store) => {
     // NEW: Central message handler using the universal type guard
     streamClient.setMessageHandler((msg: unknown) => {
       // Log all incoming stream messages for debugging
-      if (typeof msg === "object" && msg !== null && "component" in msg) {
-        console.log(`[Stream] Received: component=${(msg as any).component}, id=${(msg as any).instrument?.id}`);
-      } else {
-        console.log("[Stream] Received unknown message format:", msg);
-      }
+      // if (typeof msg === "object" && msg !== null && "component" in msg) {
+      //   console.log(`[Stream] Received: component=${(msg as any).component}, id=${(msg as any).instrument?.id}`);
+      // } else {
+      //   console.log("[Stream] Received unknown message format:", msg);
+      // }
 
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it

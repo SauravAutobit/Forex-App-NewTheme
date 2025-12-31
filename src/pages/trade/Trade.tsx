@@ -18,6 +18,7 @@ import {
 } from "../../store/slices/accountSlice";
 import { fetchPositions } from "../../store/slices/positionsSlice";
 import { fetchOpenOrders } from "../../store/slices/openOrdersSlice";
+import { bulkClosePositions } from "../../store/slices/ordersSlice";
 import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
 import PositionCard from "../../components/positionCard/PositionCard";
 import price from "../../assets/icons/price.svg";
@@ -54,15 +55,6 @@ const Trade = () => {
   const [selectedOption, setSelectedOption] = useState("");
 
   const theme = useAppSelector((state) => state.theme.mode);
-
-  const options = [
-    "All currently Open",
-    "All profitable",
-    "All loosing",
-    "All long",
-    "All short",
-    "Use(-) this if data not available",
-  ];
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -424,30 +416,66 @@ const Trade = () => {
             </div>
 
             <div className="flex flex-col gap-2.5">
-              {options.map((option, index) => (
-                <div key={option} className="flex items-center justify-between">
-                  <span
-                    className={`${
-                      theme === "dark"
-                        ? index === options.length - 1
-                          ? "text-secondary"
-                          : ""
-                        : index === options.length - 1
-                        ? "text-[#505050]"
-                        : ""
-                    }`}
+              {[
+                {
+                  id: "all",
+                  label: "All currently Open",
+                  list: openPositions,
+                },
+                {
+                  id: "profitable",
+                  label: "All profitable",
+                  list: openPositions.filter((p) => calculatePnL(p) > 0),
+                },
+                {
+                  id: "losing",
+                  label: "All losing",
+                  list: openPositions.filter((p) => calculatePnL(p) < 0),
+                },
+                {
+                  id: "long",
+                  label: "All long",
+                  list: openPositions.filter((p) => p.side === "buy"),
+                },
+                {
+                  id: "short",
+                  label: "All short",
+                  list: openPositions.filter((p) => p.side === "sell"),
+                },
+              ].map((option) => {
+                const groupPnl = option.list.reduce(
+                  (acc, p) => acc + calculatePnL(p),
+                  0
+                );
+                return (
+                  <div
+                    key={option.id}
+                    className="flex items-center justify-between"
                   >
-                    {option}
-                  </span>
-                  <div className="flex items-center gap-5">
-                    <span className="font-secondary text-profit">+$0.13</span>
-                    <RadioButton
-                      isChecked={selectedOption === option}
-                      onClick={() => setSelectedOption(option)}
-                    />
+                    <span
+                      className={`${
+                        theme === "dark" ? "text-[#FAFAFA]" : "text-[#2D2D2D]"
+                      }`}
+                    >
+                      {option.label} ({option.list.length})
+                    </span>
+                    <div className="flex items-center gap-5">
+                      <span
+                        className={`font-secondary ${
+                          groupPnl >= 0 ? "text-profit" : "text-loss"
+                        }`}
+                      >
+                        {groupPnl >= 0 ? "+" : "-"}
+                        {Math.abs(groupPnl).toFixed(2)}
+                      </span>
+                      <RadioButton
+                        isChecked={selectedOption === option.id}
+                        onClick={() => setSelectedOption(option.id)}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="flex items-center justify-between mt-5 mb-2.5">
@@ -458,6 +486,12 @@ const Trade = () => {
                 bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
                 textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
                 border="1px solid #505050"
+                onClick={() =>
+                  setIsDrawerOpen((prev) => ({
+                    ...prev,
+                    tradeMarketDrawer: false,
+                  }))
+                }
               />
               <Button
                 label="Confirm"
@@ -467,6 +501,42 @@ const Trade = () => {
                 textColor="#2D2D2D"
                 border="1px solid #AEED09"
                 fontWeight={500}
+                onClick={() => {
+                  let targetPositions: typeof openPositions = [];
+                  switch (selectedOption) {
+                    case "all":
+                      targetPositions = openPositions;
+                      break;
+                    case "profitable":
+                      targetPositions = openPositions.filter(
+                        (p) => calculatePnL(p) > 0
+                      );
+                      break;
+                    case "losing":
+                      targetPositions = openPositions.filter(
+                        (p) => calculatePnL(p) < 0
+                      );
+                      break;
+                    case "long":
+                      targetPositions = openPositions.filter(
+                        (p) => p.side === "buy"
+                      );
+                      break;
+                    case "short":
+                      targetPositions = openPositions.filter(
+                        (p) => p.side === "sell"
+                      );
+                      break;
+                  }
+
+                  if (targetPositions.length > 0) {
+                    dispatch(bulkClosePositions(targetPositions));
+                    setIsDrawerOpen((prev) => ({
+                      ...prev,
+                      tradeMarketDrawer: false,
+                    }));
+                  }
+                }}
               />
             </div>
           </div>

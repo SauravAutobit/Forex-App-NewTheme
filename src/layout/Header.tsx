@@ -153,7 +153,7 @@ export default function Header({
   const liveQuotes = useAppSelector(
     (state: RootState) => state.quotes.liveQuotes
   );
-  console.log("selectedInstrumentId", selectedInstrumentId, liveQuotes);
+  // console.log("selectedInstrumentId", selectedInstrumentId, liveQuotes);
   const iconSrc =
     theme === "light"
       ? star
