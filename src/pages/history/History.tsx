@@ -6,7 +6,7 @@ import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
 import { useAppSelector } from "../../store/hook";
-import { refreshAllHistoryData } from "../../services/socketService";
+// import { refreshAllHistoryData } from "../../services/socketService";
 import type { RootState } from "../../store/store";
 import type { Deal } from "../../store/slices/dealsSlice";
 import type { HistoryPosition } from "../../store/slices/historyPositionsSlice";
@@ -16,6 +16,9 @@ import {
   type Instrument,
 } from "../../store/slices/instrumentsSlice";
 import { fetchCategories } from "../../store/slices/categoriesSlice";
+import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
+import { fetchHistoryOrders } from "../../store/slices/historyOrdersSlice";
+import { fetchDeals } from "../../store/slices/dealsSlice";
 import HistoryCard from "../../components/historyCard/HistoryCard";
 import type { AppDispatch } from "../../store/store";
 
@@ -56,18 +59,25 @@ const History = ({}: HistoryProps) => {
     }
   }, [searchParams, setSearchParams]);
 
-  const deals = useAppSelector((state) => state.deals.deals);
-  const dealsStatus = useAppSelector((state) => state.deals.status);
-  const historyOrders = useAppSelector((state) => state.historyOrders.data);
-  const historyOrdersStatus = useAppSelector(
-    (state) => state.historyOrders.status
-  );
-  const historyPositions = useAppSelector(
-    (state) => state.historyPositions.data
-  );
-  const historyPositionsStatus = useAppSelector(
-    (state) => state.historyPositions.status
-  );
+  // Selectors for pagination state
+  const {
+    offset: dealsOffset,
+    hasMore: dealsHasMore,
+    status: dealsStatus,
+    deals,
+  } = useAppSelector((state) => state.deals);
+  const {
+    offset: ordersOffset,
+    hasMore: ordersHasMore,
+    status: historyOrdersStatus,
+    data: historyOrders,
+  } = useAppSelector((state) => state.historyOrders);
+  const {
+    offset: positionsOffset,
+    hasMore: positionsHasMore,
+    status: historyPositionsStatus,
+    data: historyPositions,
+  } = useAppSelector((state) => state.historyPositions);
 
   const apiStatus = useSelector(
     (state: RootState) => state.websockets.apiStatus
@@ -94,6 +104,54 @@ const History = ({}: HistoryProps) => {
       });
     }
   }, [apiStatus, categories, categoriesStatus, dispatch]);
+
+  // Initial Fetch Effect - replacing refreshAllHistoryData
+  useEffect(() => {
+    if (apiStatus === "connected") {
+      // Fetch initial data (offset 0) for all tabs when connected
+      // Checks ensure we don't re-fetch if we already have data (unless we want to force refresh on mount)
+      // For simplicity and correctness with pagination, typically we might want to ensure at least the first page is loaded
+      if (historyPositionsStatus === "idle")
+        dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
+      if (historyOrdersStatus === "idle")
+        dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
+      if (dealsStatus === "idle")
+        dispatch(fetchDeals({ offset: 0, limit: 30 }));
+    }
+  }, [
+    apiStatus,
+    dispatch,
+    historyPositionsStatus,
+    historyOrdersStatus,
+    dealsStatus,
+  ]);
+
+  // Scroll Handler
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 10) {
+      // Threshold of 10px
+      if (
+        activeTabId === "position" &&
+        positionsHasMore &&
+        historyPositionsStatus !== "loading"
+      ) {
+        dispatch(fetchHistoryPositions({ offset: positionsOffset, limit: 30 }));
+      } else if (
+        activeTabId === "orders" &&
+        ordersHasMore &&
+        historyOrdersStatus !== "loading"
+      ) {
+        dispatch(fetchHistoryOrders({ offset: ordersOffset, limit: 30 }));
+      } else if (
+        activeTabId === "deals" &&
+        dealsHasMore &&
+        dealsStatus !== "loading"
+      ) {
+        dispatch(fetchDeals({ offset: dealsOffset, limit: 30 }));
+      }
+    }
+  };
 
   const instrumentsData = useAppSelector((state) => state.instruments.data);
 
@@ -136,7 +194,11 @@ const History = ({}: HistoryProps) => {
   };
 
   const historyPositionDataCalculated: ProfitBalanceProps = useMemo(() => {
-    if (historyPositionsStatus !== "succeeded") {
+    if (
+      historyPositionsStatus === "idle" ||
+      (historyPositionsStatus === "loading" && historyPositions.length === 0)
+    ) {
+      // Only show empty state if loading and NO data
       return {
         headerLabel: "Equity",
         showProfitLoss: true,
@@ -182,7 +244,10 @@ const History = ({}: HistoryProps) => {
   }, [historyPositions, historyPositionsStatus]);
 
   const dealDataCalculated: ProfitBalanceProps = useMemo(() => {
-    if (dealsStatus !== "succeeded") {
+    if (
+      dealsStatus === "idle" ||
+      (dealsStatus === "loading" && deals.length === 0)
+    ) {
       return {
         headerLabel: "Equity",
         showProfitLoss: true,
@@ -249,18 +314,14 @@ const History = ({}: HistoryProps) => {
     };
   }, [historyOrders]);
 
-  useEffect(() => {
-    if (apiStatus === "connected") {
-      refreshAllHistoryData(dispatch);
-    }
-  }, [dispatch, apiStatus]);
-
   const positionsContent = (
     <>
       <div className="mt-4 flex flex-col gap-0 w-full">
-        {historyPositionsStatus === "loading" ? (
+        {historyPositionsStatus === "loading" &&
+        historyPositions.length === 0 ? (
           <></>
-        ) : historyPositionsStatus === "failed" ? (
+        ) : historyPositionsStatus === "failed" &&
+          historyPositions.length === 0 ? (
           <p className="text-center text-loss">
             Failed to load closed positions.
           </p>
@@ -280,6 +341,10 @@ const History = ({}: HistoryProps) => {
             );
           })
         )}
+        {historyPositionsStatus === "loading" &&
+          historyPositions.length > 0 && (
+            <div className="text-center py-2 text-primary">Loading more...</div>
+          )}
       </div>
     </>
   );
@@ -287,9 +352,9 @@ const History = ({}: HistoryProps) => {
   const dealsContent = (
     <>
       <div className="mt-4 flex flex-col gap-0 w-full">
-        {dealsStatus === "loading" ? (
+        {dealsStatus === "loading" && deals.length === 0 ? (
           <></>
-        ) : dealsStatus === "failed" ? (
+        ) : dealsStatus === "failed" && deals.length === 0 ? (
           <p className="text-center text-loss">
             Failed to load deals. Retrying on event.
           </p>
@@ -312,6 +377,9 @@ const History = ({}: HistoryProps) => {
             );
           })
         )}
+        {dealsStatus === "loading" && deals.length > 0 && (
+          <div className="text-center py-2 text-primary">Loading more...</div>
+        )}
       </div>
     </>
   );
@@ -319,9 +387,9 @@ const History = ({}: HistoryProps) => {
   const ordersContent = (
     <>
       <div className="mt-4 flex flex-col gap-0 w-full">
-        {historyOrdersStatus === "loading" ? (
+        {historyOrdersStatus === "loading" && historyOrders.length === 0 ? (
           <></>
-        ) : historyOrdersStatus === "failed" ? (
+        ) : historyOrdersStatus === "failed" && historyOrders.length === 0 ? (
           <p className="text-center text-loss">Failed to load orders.</p>
         ) : historyOrders?.length === 0 ? (
           <div className="text-secondary text-center flex flex-col items-center justify-center gap-4 mt-6">
@@ -340,6 +408,9 @@ const History = ({}: HistoryProps) => {
               />
             );
           })
+        )}
+        {historyOrdersStatus === "loading" && historyOrders.length > 0 && (
+          <div className="text-center py-2 text-primary">Loading more...</div>
         )}
       </div>
     </>
@@ -368,7 +439,7 @@ const History = ({}: HistoryProps) => {
       : historyPositionDataCalculated;
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto" onScroll={handleScroll}>
       <InstrumentInfoCard {...activeSummaryProps} marginTop="0" />
       <NavigationTabs
         tabs={tabsData}

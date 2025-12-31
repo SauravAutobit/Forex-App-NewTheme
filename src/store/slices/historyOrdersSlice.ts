@@ -39,28 +39,32 @@ interface HistoryOrdersState {
   data: HistoryOrder[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  offset: number;
+  hasMore: boolean;
 }
 
 const initialState: HistoryOrdersState = {
   data: [],
   status: "idle",
   error: null,
+  offset: 0,
+  hasMore: true,
 };
 
 export const fetchHistoryOrders = createAsyncThunk<
-  HistoryOrder[],
-  number,
+  { data: HistoryOrder[]; isLoadMore: boolean },
+  { offset: number; limit: number },
   { rejectValue: string }
 >(
   "historyOrders/fetchHistoryOrders",
-  async (_timestamp, { dispatch, rejectWithValue }) => {
+  async ({ offset, limit }, { dispatch, rejectWithValue }) => {
     try {
-dispatch(showLoader())
+      if (offset === 0) dispatch(showLoader());
       type ApiResp =
         | { status: "success"; data: HistoryOrder[] }
         | { status: "error"; message: string };
       const response = await apiClient.send<ApiResp>("query", {
-        query: `fintrabit.orders[status="filled" and placed_time>${1}]._desc(placed_time)[0:30]{instruments.trading_name,account_id,end_execution_time,filled_qty,id,instrument_id,metadata,order_type,placed_qty,placed_time,position_id,price,side,start_execution_time,status,tid,instruments.static_data}`,
+        query: `fintrabit.orders[status="filled" and placed_time>${1}]._desc(placed_time)[${offset}:${offset + limit}]{instruments.trading_name,account_id,end_execution_time,filled_qty,id,instrument_id,metadata,order_type,placed_qty,placed_time,position_id,price,side,start_execution_time,status,tid,instruments.static_data}`,
       });
 
       if (
@@ -68,7 +72,7 @@ dispatch(showLoader())
         response.status === "success" &&
         Array.isArray(response.data)
       ) {
-        return response.data;
+        return { data: response.data, isLoadMore: offset > 0 };
       }
       return rejectWithValue(
         response?.message || "Failed to fetch history orders."
@@ -88,14 +92,14 @@ dispatch(showLoader())
         Object.keys(errorResponse.data).length === 0;
 
       if (isExpectedEmptyError) {
-        return [] as HistoryOrder[];
+        return { data: [] as HistoryOrder[], isLoadMore: offset > 0 };
       }
 
       const errorMessage =
         (error as { message?: string }).message || "An unknown error occurred";
       return rejectWithValue(errorMessage);
     } finally {
-      dispatch(hideLoader());
+      if (offset === 0) dispatch(hideLoader());
     }
   }
 );
@@ -103,7 +107,14 @@ dispatch(showLoader())
 const historyOrdersSlice = createSlice({
   name: "historyOrders",
   initialState,
-  reducers: {},
+  reducers: {
+    resetHistoryOrders: (state) => {
+      state.data = [];
+      state.offset = 0;
+      state.hasMore = true;
+      state.status = "idle";
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchHistoryOrders.pending, (state) => {
@@ -112,17 +123,30 @@ const historyOrdersSlice = createSlice({
       })
       .addCase(
         fetchHistoryOrders.fulfilled,
-        (state, action: PayloadAction<HistoryOrder[]>) => {
+        (state, action: PayloadAction<{ data: HistoryOrder[]; isLoadMore: boolean }>) => {
           state.status = "succeeded";
-          state.data = action.payload;
+          const { data, isLoadMore } = action.payload;
+
+          if (isLoadMore) {
+            state.data = [...state.data, ...data];
+          } else {
+            state.data = data;
+          }
+
+          state.offset += data.length;
+          state.hasMore = data.length === 30; // Assuming limit is 30
         }
       )
       .addCase(fetchHistoryOrders.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-        state.data = [];
+        if (state.offset === 0) {
+          state.data = [];
+        }
       });
   },
 });
+
+export const { resetHistoryOrders } = historyOrdersSlice.actions;
 
 export default historyOrdersSlice.reducer;

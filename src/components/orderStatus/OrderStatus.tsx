@@ -1,7 +1,8 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { XCircle, Loader, Check } from "lucide-react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { XCircle, Loader } from "lucide-react";
 import type { RootState } from "../../store/store";
+import { resetOrderStatus } from "../../store/slices/orderStatusSlice";
 
 import success from "../../assets/sounds/success.mp3";
 import failure from "../../assets/sounds/failure.mp3";
@@ -11,35 +12,53 @@ const successSound = new Audio(success);
 const failureSound = new Audio(failure);
 
 const OrderStatus: React.FC = () => {
+  const dispatch = useDispatch();
   const { status, message } = useSelector(
     (state: RootState) => state.orderStatus
   );
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (status === "succeeded" || status === "failed") {
+      // Play sound
+      if (status === "succeeded") {
+        successSound.play();
+      } else {
+        failureSound.play();
+      }
+
+      // Auto-dismiss after 2 seconds
+      timer = setTimeout(() => {
+        dispatch(resetOrderStatus());
+      }, 2000);
+    }
+    return () => clearTimeout(timer);
+  }, [status, dispatch]);
 
   if (status === "idle") {
     return null;
   }
 
-  if (status === "succeeded") {
-    successSound.play();
-  } else if (status === "failed") {
-    failureSound.play();
-  }
+  // Allow clicking anywhere to dismiss immediately
+  const handleDismiss = () => {
+    if (status !== "loading") {
+      dispatch(resetOrderStatus());
+    }
+  };
 
   return (
     <div
       // Full-screen, opaque overlay
       className="fixed inset-0 flex flex-col items-center justify-center bg-primaryBg z-[60] text-white transition-opacity duration-300"
+      onClick={handleDismiss}
     >
       {/* Inner container for icon and text */}
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col items-center space-y-4 pointer-events-none">
         {/* Status-based icon */}
         {status === "loading" && (
           <Loader className="h-24 w-24 animate-spin text-primary" />
         )}
         {status === "succeeded" && (
-          // <div className="bg-profit w-[139px] h-[139px] rounded-[80px] flex justify-center items-center">
-          // {/* {<Check className="h-24 w-24" />} */}
-          // </div>
           <img src={successOrder} alt="successOrder" />
         )}
         {status === "failed" && <XCircle className="h-24 w-24 text-red-500" />}

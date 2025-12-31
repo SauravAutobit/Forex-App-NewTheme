@@ -78,8 +78,8 @@ const Trade = () => {
       dispatch(fetchOpenOrders());
 
       // Fetch history (last 24h as default)
-      const oneDayAgo = Math.floor(Date.now() / 1000) - 86400;
-      dispatch(fetchHistoryPositions(oneDayAgo));
+
+      dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
     }
   }, [apiStatus, dispatch]);
 

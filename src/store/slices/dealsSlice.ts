@@ -38,34 +38,38 @@ interface DealsState {
   deals: Deal[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  offset: number;
+  hasMore: boolean;
 }
 
 const initialState: DealsState = {
   deals: [],
   status: "idle",
   error: null,
+  offset: 0,
+  hasMore: true,
 };
 
 /**
- * fetchDeals expects a unix-timestamp (seconds).
- * On success: returns Deal[]
+ * fetchDeals expects { offset, limit }.
+ * On success: returns { data: Deal[], isLoadMore: boolean }
  * On failure: returns rejectWithValue(string)
  */
 export const fetchDeals = createAsyncThunk<
-  Deal[],
-  number,
+  { data: Deal[]; isLoadMore: boolean },
+  { offset: number; limit: number },
   { rejectValue: string }
->("deals/fetchDeals", async (_timestamp, { dispatch, rejectWithValue }) => {
+>("deals/fetchDeals", async ({ offset, limit }, { dispatch, rejectWithValue }) => {
   if (!apiClient) {
     return rejectWithValue("API Client not initialized.");
   }
 
   const dealsQuery = {
-    query: `fintrabit.trades[time>${1}]._desc(time){account_id,charges,closed_pnl,id,instrument_id,order_id,position_id,price,qty,side,status,tid,time,type,orders.tid,positions.tid,instruments.trading_name,instruments.static_data}`,
+    query: `fintrabit.trades[time>${1}]._desc(time)[${offset}:${offset + limit}]{account_id,charges,closed_pnl,id,instrument_id,order_id,position_id,price,qty,side,status,tid,time,type,orders.tid,positions.tid,instruments.trading_name,instruments.static_data}`,
   };
 
   try {
-    dispatch(showLoader());
+    if (offset === 0) dispatch(showLoader());
     // apiClient.send may be typed in your codebase; using `any` here for safety then validating
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = await apiClient.send<any>("query", dealsQuery);
@@ -77,7 +81,7 @@ export const fetchDeals = createAsyncThunk<
     }
 
     if (response.status === "success" && Array.isArray(response.data)) {
-      return response.data as Deal[];
+      return { data: response.data as Deal[], isLoadMore: offset > 0 };
     }
 
     const msg =
@@ -100,7 +104,7 @@ export const fetchDeals = createAsyncThunk<
       Object.keys(errorResponse.data).length === 0;
 
     if (isExpectedEmptyError) {
-      return [] as Deal[];
+      return { data: [] as Deal[], isLoadMore: offset > 0 };
     }
     console.error("Error fetching deals:", err);
     const msg =
@@ -111,9 +115,8 @@ export const fetchDeals = createAsyncThunk<
 
     return rejectWithValue(msg);
   } finally {
-      // 💡 2. HIDE LOADER on success, fail, or crash
-      dispatch(hideLoader());
-    }
+      if (offset === 0) dispatch(hideLoader());
+  }
 });
 
 const dealsSlice = createSlice({
@@ -124,6 +127,8 @@ const dealsSlice = createSlice({
       state.deals = [];
       state.status = "idle";
       state.error = null;
+      state.offset = 0;
+      state.hasMore = true;
     },
   },
   extraReducers: (builder) => {
@@ -132,14 +137,25 @@ const dealsSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchDeals.fulfilled, (state, action: PayloadAction<Deal[]>) => {
+      .addCase(fetchDeals.fulfilled, (state, action: PayloadAction<{ data: Deal[]; isLoadMore: boolean }>) => {
         state.status = "succeeded";
-        state.deals = action.payload;
+        const { data, isLoadMore } = action.payload;
+
+        if (isLoadMore) {
+          state.deals = [...state.deals, ...data];
+        } else {
+          state.deals = data;
+        }
+        
+        state.offset += data.length;
+        state.hasMore = data.length === 30; // Assuming limit is 30
       })
       .addCase(fetchDeals.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-        state.deals = [];
+        if (state.offset === 0) {
+          state.deals = [];
+        }
       });
   },
 });

@@ -88,10 +88,10 @@ export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number)
 
   console.log("🔄 Triggering refresh for all history data with timestamp:", ts);
 
-  // Use the same timestamp for all three thunks
-  dispatch(fetchHistoryPositions(ts));
-  dispatch(fetchDeals(ts));
-  dispatch(fetchHistoryOrders(ts));
+  // Use pagination objects (reset to first page) for history fetches
+  dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
+  dispatch(fetchDeals({ offset: 0, limit: 30 }));
+  dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
 
   // Other non-history thunks
   dispatch(fetchAccountBalance());
