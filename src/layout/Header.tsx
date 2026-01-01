@@ -300,24 +300,34 @@ export default function Header({
         break;
 
       case "/app/newOrder":
-        if (selectedInstrumentId && liveQuotes[selectedInstrumentId]) {
-          const quote = liveQuotes[selectedInstrumentId];
-          title = quote.trading_name || quote.name;
-          const change = quote.ltp - quote.close;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
+        const allInstrumentsNewOrder = Object.values(instrumentsData).flat();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
+        const staticInstrumentNewOrder = allInstrumentsNewOrder.find(
+          (i: any) => i.id === selectedInstrumentId
+        );
+
+        // eslint-disable-next-line no-case-declarations
+        const quoteNewOrder = selectedInstrumentId
+          ? liveQuotes[selectedInstrumentId]
+          : null;
+
+        title =
+          staticInstrumentNewOrder?.trading_name ||
+          quoteNewOrder?.trading_name ||
+          quoteNewOrder?.name ||
+          (selectedInstrumentId ? "Loading..." : "Select Instrument");
+
+        if (quoteNewOrder) {
+          const change = quoteNewOrder.ltp - quoteNewOrder.close;
           const percentageChange =
-            quote.close !== 0 ? (change / quote.close) * 100 : 0;
+            quoteNewOrder.close !== 0
+              ? (change / quoteNewOrder.close) * 100
+              : 0;
           subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
             2
           )} (${percentageChange.toFixed(2)}%)`;
-        } else if (selectedInstrumentId) {
-          const allInstruments = Object.values(instrumentsData).flat();
-          const instrument = allInstruments.find(
-            (i: any) => i.id === selectedInstrumentId
-          );
-          title = instrument?.trading_name || instrument?.name || "Loading...";
-          subTitle = "";
         } else {
-          title = "Select Instrument";
           subTitle = "";
         }
         actions = null;

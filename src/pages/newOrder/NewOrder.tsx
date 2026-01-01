@@ -4,7 +4,8 @@ import CheckList from "../../components/checkList/CheckList";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useOutletContext } from "react-router-dom";
+import type { OutletContextType } from "../../layout/MainLayout";
 import OrderButtons from "../../components/orderButtons/OrderButtons";
 import { setOrderStatus } from "../../store/slices/orderStatusSlice";
 import { useAppDispatch } from "../../store/hook";
@@ -28,6 +29,14 @@ function usePrevious<T>(value: T): T | undefined {
 const NewOrder = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
+  const { setIsFlag } = useOutletContext<OutletContextType>();
+
+  useEffect(() => {
+    setIsFlag((prev) => ({ ...prev, newOrder: { status: true } }));
+    return () => {
+      setIsFlag((prev) => ({ ...prev, newOrder: { status: false } }));
+    };
+  }, [setIsFlag]);
 
   useEffect(() => {
     // Reset status on mount

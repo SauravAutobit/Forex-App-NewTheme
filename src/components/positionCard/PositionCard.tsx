@@ -609,7 +609,7 @@ const PositionCard = ({
   return (
     <div className="select-none no-select">
       <div
-        className="text-primary px-5 py-2.5 border-b border-primary cursor-pointer"
+        className="text-primary px-5 py-2.5 cursor-pointer"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleClick}

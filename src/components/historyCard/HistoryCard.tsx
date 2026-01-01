@@ -318,7 +318,7 @@ const HistoryCard = ({
           <div className="mt-2 ml-[-15px]">
             {(dealData as any).orders[0] || "-"}
           </div>
-          <div className="mt-2">{dealData?.position_id || "-"}</div>
+          <div className="mt-2 ml-[-15px]">{dealData?.tid || "-"}</div>
         </div>
         {/* Right Column Group */}
         <div className="text-left">

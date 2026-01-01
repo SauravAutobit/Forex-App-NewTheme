@@ -23,6 +23,7 @@ export interface PlaceOrderPayload {
   side: "buy" | "sell";
   stoploss: number;
   target: number;
+  position_id?: string;
 }
 
 export interface OrderResponse {

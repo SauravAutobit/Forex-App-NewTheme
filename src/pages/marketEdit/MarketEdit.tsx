@@ -15,7 +15,8 @@ import { useAppSelector } from "../../store/hook";
 import PositionCard from "../../components/positionCard/PositionCard";
 import { useDispatch } from "react-redux";
 import { type AppDispatch } from "../../store/store";
-import { updateOrder } from "../../store/slices/openOrdersSlice";
+import { updateOrder, cancelOrder } from "../../store/slices/openOrdersSlice";
+import { placeNewOrder } from "../../store/slices/ordersSlice";
 import { closePosition } from "../../store/slices/ordersSlice";
 
 interface TabItem {
@@ -50,12 +51,12 @@ const MarketEdit = () => {
   // Resolve initial TP/SL from position torders
   const initialTp = useMemo(() => {
     const tpOrder = position?.torders?.find((o) => o.order_type === "limit");
-    return tpOrder?.metadata?.legs?.target ?? 0;
+    return tpOrder?.price ?? tpOrder?.metadata?.legs?.target ?? 0;
   }, [position]);
 
   const initialSl = useMemo(() => {
     const slOrder = position?.torders?.find((o) => o.order_type === "stop");
-    return slOrder?.metadata?.legs?.stoploss ?? 0;
+    return slOrder?.price ?? slOrder?.metadata?.legs?.stoploss ?? 0;
   }, [position]);
 
   const [tp, setTp] = useState(initialTp);
@@ -239,18 +240,78 @@ const MarketEdit = () => {
                 fontWeight={500}
                 onClick={() => {
                   if (position) {
-                    dispatch(
-                      updateOrder({
-                        id: position.id,
-                        account_id: position.account_id,
-                        order_type: "market",
-                        price: position.price,
-                        qty: position.qty,
-                        side: position.side,
-                        stoploss: sl,
-                        target: tp,
-                      })
+                    const originalTpOrder = position.torders?.find(
+                      (o) => o.order_type === "limit"
                     );
+                    const originalSlOrder = position.torders?.find(
+                      (o) => o.order_type === "stop"
+                    );
+
+                    // Handle TP (Limit)
+                    if (originalTpOrder) {
+                      if (!tp || tp === 0) {
+                        dispatch(cancelOrder(originalTpOrder.id));
+                      } else if (tp !== originalTpOrder.price) {
+                        dispatch(
+                          updateOrder({
+                            id: originalTpOrder.id,
+                            account_id: position.account_id,
+                            order_type: "limit",
+                            price: tp,
+                            qty: position.qty,
+                            side: position.side === "buy" ? "sell" : "buy",
+                            stoploss: 0,
+                            target: 0,
+                          })
+                        );
+                      }
+                    } else if (tp && tp > 0) {
+                      dispatch(
+                        placeNewOrder({
+                          instrument_id: position.instrument_id,
+                          qty: position.qty,
+                          price: tp,
+                          order_type: "limit",
+                          side: position.side === "buy" ? "sell" : "buy",
+                          stoploss: 0,
+                          target: 0,
+                          position_id: position.id,
+                        })
+                      );
+                    }
+
+                    // Handle SL (Stop)
+                    if (originalSlOrder) {
+                      if (!sl || sl === 0) {
+                        dispatch(cancelOrder(originalSlOrder.id));
+                      } else if (sl !== originalSlOrder.price) {
+                        dispatch(
+                          updateOrder({
+                            id: originalSlOrder.id,
+                            account_id: position.account_id,
+                            order_type: "stop",
+                            price: sl,
+                            qty: position.qty,
+                            side: position.side === "buy" ? "sell" : "buy",
+                            stoploss: 0,
+                            target: 0,
+                          })
+                        );
+                      }
+                    } else if (sl && sl > 0) {
+                      dispatch(
+                        placeNewOrder({
+                          instrument_id: position.instrument_id,
+                          qty: position.qty,
+                          price: sl,
+                          order_type: "stop",
+                          side: position.side === "buy" ? "sell" : "buy",
+                          stoploss: 0,
+                          target: 0,
+                          position_id: position.id,
+                        })
+                      );
+                    }
                     navigate(-1);
                   }
                 }}
