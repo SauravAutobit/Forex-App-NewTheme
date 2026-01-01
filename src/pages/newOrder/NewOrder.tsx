@@ -17,15 +17,6 @@ interface TabItem {
   content?: React.ReactNode;
 }
 
-// A custom hook to get the previous value of a prop or state
-function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T | undefined>(undefined);
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
-
 const NewOrder = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
@@ -129,31 +120,6 @@ const NewOrder = () => {
   const [stoploss, setStoploss] = useState(0);
   const [target, setTarget] = useState(0);
   const [priceStep, setPriceStep] = useState(0.01);
-  const [askColor, setAskColor] = useState("text-primary");
-  const [bidColor, setBidColor] = useState("text-primary");
-
-  const prevAsk = usePrevious(selectedQuote?.ask);
-  const prevBid = usePrevious(selectedQuote?.bid);
-
-  // Update Price Colors
-  useEffect(() => {
-    if (selectedQuote) {
-      if (prevAsk !== undefined && selectedQuote.ask !== 0) {
-        if (selectedQuote.ask > prevAsk) {
-          setAskColor("text-profit");
-        } else if (selectedQuote.ask < prevAsk) {
-          setAskColor("text-loss");
-        }
-      }
-      if (prevBid !== undefined && selectedQuote.bid !== 0) {
-        if (selectedQuote.bid > prevBid) {
-          setBidColor("text-profit");
-        } else if (selectedQuote.bid < prevBid) {
-          setBidColor("text-loss");
-        }
-      }
-    }
-  }, [selectedQuote, prevAsk, prevBid]);
 
   // Initialize price for limit/stop orders
   useEffect(() => {

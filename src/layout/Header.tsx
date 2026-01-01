@@ -398,24 +398,38 @@ when isFlag.favourites.status is true. Otherwise, show the menu. */}
           aria-label="Exit selection mode"
           onClick={() => {
             // Restore the previous category when coming back from charts
-            if (isFlag.charts?.status === true) {
+            if (pathname === "/app/charts") {
               const previousCategory = localStorage.getItem("previousCategory");
               if (previousCategory) {
                 setActive(previousCategory);
                 localStorage.removeItem("previousCategory"); // Clean up
               }
+              setIsFlag((prev) => ({ ...prev, charts: { status: false } }));
+            } else if (pathname === "/app/newOrder") {
+              setIsFlag((prev) => ({ ...prev, newOrder: { status: false } }));
+            } else if (pathname === "/app/marketEdit") {
+              setIsFlag((prev) => ({ ...prev, marketEdit: { status: false } }));
+            } else if (pathname === "/app/pendingEdit") {
+              setIsFlag((prev) => ({
+                ...prev,
+                pendingEdit: { status: false },
+              }));
+            } else if (pathname === "/app/closedEdit") {
+              setIsFlag((prev) => ({ ...prev, closedEdit: { status: false } }));
+            } else if (pathname === "/app/editHistory") {
+              setIsFlag((prev) => ({
+                ...prev,
+                editHistory: { status: false },
+              }));
+            } else if (isFlag.favourites.status) {
+              setIsFlag((prev) => ({
+                ...prev,
+                favourites: { status: false },
+              }));
+              // For favourites, we don't navigate(-1) because we're still on the Home page
+              return;
             }
 
-            setIsFlag((prev) => ({
-              ...prev,
-              favourites: { status: false },
-              charts: { status: false },
-              newOrder: { status: false },
-              marketEdit: { status: false },
-              pendingEdit: { status: false },
-              closedEdit: { status: false },
-              editHistory: { status: false },
-            }));
             navigate(-1);
           }}
         >

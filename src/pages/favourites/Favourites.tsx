@@ -54,9 +54,7 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
   }
 
   const handleCardClick = (instrumentId: string) => {
-    // Store the current active tab before navigating
     localStorage.setItem("previousCategory", "Favorites");
-
     dispatch(setSelectedInstrument(instrumentId));
     setIsFlag((prev) => ({
       ...prev,

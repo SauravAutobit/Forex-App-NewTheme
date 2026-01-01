@@ -14,6 +14,7 @@ interface HistoryCardProps {
   historyOrderData?: HistoryOrder | null;
   dealData?: Deal | null;
   instrumentName?: string;
+  defaultExpanded?: boolean;
 }
 
 const HistoryCard = ({
@@ -23,8 +24,9 @@ const HistoryCard = ({
   historyOrderData,
   dealData,
   instrumentName,
+  defaultExpanded = false,
 }: HistoryCardProps) => {
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+  const [isDetailsVisible, setIsDetailsVisible] = useState(defaultExpanded);
   const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
 
   // console.log("instrumentsMap", instrumentsMap, instrumentName);
@@ -69,14 +71,10 @@ const HistoryCard = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-
+    toggleDetails();
     if (onCardClick) {
       onCardClick();
-      return;
     }
-
-    // 2. Toggle the card details
-    toggleDetails();
   };
 
   // --- Dynamic Data Logic ---

@@ -31,13 +31,20 @@ import {
   subscribeToInstruments,
   refreshAllHistoryData,
 } from "../../services/socketService";
-import PositionCard from "../../components/positionCard/PositionCard";
+
 import HistoryCard from "../../components/historyCard/HistoryCard";
 import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
 
 const Charts = () => {
-  const { active, setActive, isDrawerOpen, setIsDrawerOpen } =
+  const { active, setActive, isDrawerOpen, setIsDrawerOpen, setIsFlag } =
     useOutletContext<OutletContextType>();
+
+  useEffect(() => {
+    setIsFlag((prev) => ({ ...prev, charts: { status: true } }));
+    return () => {
+      setIsFlag((prev) => ({ ...prev, charts: { status: false } }));
+    };
+  }, [setIsFlag]);
 
   // const [active, setActive] = useState("Chart");
   // //   // Use the typed dispatch hook
@@ -176,19 +183,10 @@ const Charts = () => {
   // const heightWithButtons = "calc(100vh - 250px)";
 
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
-  const positions = useAppSelector((state) => state.positions.positions);
-  const openOrders = useAppSelector((state) => state.openOrders.orders);
   const historyPositions = useAppSelector(
     (state) => state.historyPositions.data
   );
   const historyOrders = useAppSelector((state) => state.historyOrders.data);
-
-  const filteredPositions = positions.filter(
-    (p) => p.instrument_id === selectedInstrumentId
-  );
-  const filteredOrders = openOrders.filter(
-    (o) => o.instrument_id === selectedInstrumentId
-  );
 
   const filteredHistoryPositions = historyPositions.filter(
     (p) => p.instrument_id === selectedInstrumentId

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
@@ -21,6 +21,7 @@ import { fetchHistoryOrders } from "../../store/slices/historyOrdersSlice";
 import { fetchDeals } from "../../store/slices/dealsSlice";
 import HistoryCard from "../../components/historyCard/HistoryCard";
 import type { AppDispatch } from "../../store/store";
+import DirectionArrow from "../../components/directionArrow/DirectionArrow";
 
 // --- Custom Interfaces for Type Safety ---
 
@@ -108,9 +109,6 @@ const History = ({}: HistoryProps) => {
   // Initial Fetch Effect - replacing refreshAllHistoryData
   useEffect(() => {
     if (apiStatus === "connected") {
-      // Fetch initial data (offset 0) for all tabs when connected
-      // Checks ensure we don't re-fetch if we already have data (unless we want to force refresh on mount)
-      // For simplicity and correctness with pagination, typically we might want to ensure at least the first page is loaded
       if (historyPositionsStatus === "idle")
         dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
       if (historyOrdersStatus === "idle")
@@ -198,7 +196,6 @@ const History = ({}: HistoryProps) => {
       historyPositionsStatus === "idle" ||
       (historyPositionsStatus === "loading" && historyPositions.length === 0)
     ) {
-      // Only show empty state if loading and NO data
       return {
         headerLabel: "Equity",
         showProfitLoss: true,
@@ -314,9 +311,43 @@ const History = ({}: HistoryProps) => {
     };
   }, [historyOrders]);
 
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [hasDismissed, setHasDismissed] = useState(false);
+
+  useEffect(() => {
+    if (activeTabId === "position") {
+      setHasDismissed(false);
+    }
+  }, [activeTabId]);
+
+  useEffect(() => {
+    if (
+      activeTabId === "position" &&
+      historyPositions.length > 0 &&
+      !hasDismissed
+    ) {
+      setShowTutorial(true);
+    } else {
+      setShowTutorial(false);
+    }
+  }, [activeTabId, historyPositions.length, hasDismissed]);
+
+  const handleDismissTutorial = () => {
+    setShowTutorial(false);
+    setHasDismissed(true);
+  };
+
   const positionsContent = (
     <>
-      <div className="mt-4 flex flex-col gap-0 w-full">
+      <div className="mt-4 flex flex-col gap-0 w-full relative">
+        {/* Tutorial Backdrop */}
+        {showTutorial && activeTabId === "position" && (
+          <div
+            className="fixed inset-0 bg-black/70 z-[50]"
+            onClick={handleDismissTutorial}
+          ></div>
+        )}
+
         {historyPositionsStatus === "loading" &&
         historyPositions.length === 0 ? (
           <></>
@@ -331,15 +362,34 @@ const History = ({}: HistoryProps) => {
             No closed positions found.
           </div>
         ) : (
-          historyPositions.map((pos) => {
-            return (
+          historyPositions.map((pos, index) => (
+            <div
+              key={pos.id}
+              className={index === 0 && showTutorial ? "relative z-[60]" : ""}
+            >
               <HistoryCard
-                key={pos.id}
                 label="Position"
+                index={index}
                 historyPositionData={pos}
+                defaultExpanded={index === 0 && showTutorial}
+                onCardClick={() => {
+                  if (index === 0 && showTutorial) {
+                    setShowTutorial(false);
+                  }
+                }}
               />
-            );
-          })
+              {index === 0 && showTutorial && (
+                <div className="absolute top-[40px] right-2 flex flex-col items-end pointer-events-none">
+                  <DirectionArrow className="mb-2" />
+                  <div className="text-[#FAFAFA] text-lg font-bold leading-tight text-right w-[150px]">
+                    Tap on Trade to{" "}
+                    <span className="text-yellow-400">Expand</span> and{" "}
+                    <span className="text-yellow-400">Collapse</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
         )}
         {historyPositionsStatus === "loading" &&
           historyPositions.length > 0 && (
@@ -365,7 +415,6 @@ const History = ({}: HistoryProps) => {
           </div>
         ) : (
           deals.map((deal) => {
-            // Use instrumentMap to resolve name, matching orders/positions logic
             const instrument = instrumentMap[deal.instrument_id];
             return (
               <HistoryCard
@@ -430,7 +479,6 @@ const History = ({}: HistoryProps) => {
     setSearchParams({ tab: tabId });
   };
 
-  // Determine which summary card props to use based on the active tab
   const activeSummaryProps =
     activeTabId === "orders"
       ? orderDataCalculated

@@ -195,13 +195,6 @@ const MainLayout = () => {
     dispatch(hideToasty());
   };
 
-  const handleDeleteSelected = () => {
-    // Current app doesn't seem to use this, but keeping it as user referenced it
-    // Or implementing it if needed.
-    // The user's snippet had it, so I'll include an empty placeholder or basic logic if relevant.
-    // Since selectedQuotesForDelete isn't in this version's state, I'll omit it to avoid errors.
-  };
-
   return (
     <div className="min-h-screen flex flex-col relative text-white bg-primaryBg">
       <AnimatePresence>

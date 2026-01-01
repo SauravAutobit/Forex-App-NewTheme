@@ -52,6 +52,7 @@ interface PositionCardProps {
   historyPositionData?: HistoryPosition | null;
   openOrderData?: OpenOrder | null;
   instrumentName?: string | null;
+  hideBorder?: boolean;
 }
 
 const PositionCard = ({
@@ -65,6 +66,7 @@ const PositionCard = ({
   historyPositionData = null,
   openOrderData = null,
   instrumentName: instrumentNameProp = null,
+  hideBorder = false,
 }: PositionCardProps) => {
   const longPressTimer = useRef<number | null>(null);
   const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
@@ -609,7 +611,9 @@ const PositionCard = ({
   return (
     <div className="select-none no-select">
       <div
-        className="text-primary px-5 py-2.5 cursor-pointer"
+        className={`text-primary px-5 py-2.5 cursor-pointer ${
+          !hideBorder ? "border-b border-primary" : ""
+        }`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleClick}

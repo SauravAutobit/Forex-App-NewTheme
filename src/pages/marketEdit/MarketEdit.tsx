@@ -1,23 +1,21 @@
-import { useState, useMemo } from "react";
-import Button from "../../components/button/Button";
-import EditOrderList from "../../components/editOrderList/EditOrderList";
-import { type ProfitBalanceProps } from "../../components/editOrderList/EditOrderList";
-// import MarketCard from "../../components/marketCard/MarketCard";
-import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
-import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
-import CheckList from "../../components/checkList/CheckList";
-import Counter from "../../components/counter/Counter";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
-import { type Position } from "../../store/slices/positionsSlice";
-import { useAppSelector } from "../../store/hook";
 import PositionCard from "../../components/positionCard/PositionCard";
-import { useDispatch } from "react-redux";
-import { type AppDispatch } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { type AppDispatch, type RootState } from "../../store/store";
 import { updateOrder, cancelOrder } from "../../store/slices/openOrdersSlice";
-import { placeNewOrder } from "../../store/slices/ordersSlice";
-import { closePosition } from "../../store/slices/ordersSlice";
+import { placeNewOrder, closePosition } from "../../store/slices/ordersSlice";
+import { setOrderStatus } from "../../store/slices/orderStatusSlice";
+
+import Button from "../../components/button/Button";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { useAppSelector } from "../../store/hook";
+import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
+import EditOrderList, {
+  type ProfitBalanceProps,
+} from "../../components/editOrderList/EditOrderList";
+import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
+import Counter from "../../components/counter/Counter";
+import CheckList from "../../components/checkList/CheckList";
 
 interface TabItem {
   id: string;
@@ -26,12 +24,12 @@ interface TabItem {
 }
 
 const MarketEdit = () => {
-  const theme = useSelector((s: RootState) => s.theme.mode);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const positionSnapshot = location.state?.position as Position | undefined;
+  const positionSnapshot = location.state?.position;
 
-  // Select latest position data from store to get live quotes/PnL
+  // Real-time position update
   const allPositions = useAppSelector((state) => state.positions.positions);
   const position = useMemo(() => {
     return (
@@ -40,35 +38,191 @@ const MarketEdit = () => {
     );
   }, [allPositions, positionSnapshot]);
 
-  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>({
-    trailingStop: false,
-    breakEven: false,
-    orderExpiration: false,
-  });
+  const instrumentsData = useSelector(
+    (state: RootState) => state.instruments.data
+  );
+  const theme = useSelector((s: RootState) => s.theme.mode);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const [tp, setTp] = useState(0);
+  const [sl, setSl] = useState(0);
+  const [activeTabId, setActiveTabId] = useState("info");
+  const [priceStep, setPriceStep] = useState(0.0001);
+
+  // Initialize Price Step based on Instrument
+  useEffect(() => {
+    if (position && instrumentsData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const allInstruments = Object.values(instrumentsData).flat() as any[];
+      const instr = allInstruments.find((i) => i.id === position.instrument_id);
+
+      if (instr) {
+        let step = 0.0001;
+        const staticData = instr.static_data;
+        if (staticData?.ticksize) {
+          step = Number(staticData.ticksize);
+        } else if (staticData?.tick_size) {
+          step = Number(staticData.tick_size);
+        } else if (staticData?.pip) {
+          step = Number(staticData.pip);
+        }
+        setPriceStep(step);
+      }
+    }
+  }, [position, instrumentsData]);
 
   // Resolve initial TP/SL from position torders
   const initialTp = useMemo(() => {
-    const tpOrder = position?.torders?.find((o) => o.order_type === "limit");
+    const tpOrder = position?.torders?.find(
+      (o: any) => o.order_type === "limit"
+    );
     return tpOrder?.price ?? tpOrder?.metadata?.legs?.target ?? 0;
   }, [position]);
 
   const initialSl = useMemo(() => {
-    const slOrder = position?.torders?.find((o) => o.order_type === "stop");
+    const slOrder = position?.torders?.find(
+      (o: any) => o.order_type === "stop"
+    );
     return slOrder?.price ?? slOrder?.metadata?.legs?.stoploss ?? 0;
   }, [position]);
 
-  const [tp, setTp] = useState(initialTp);
-  const [sl, setSl] = useState(initialSl);
+  useEffect(() => {
+    setTp(initialTp);
+    setSl(initialSl);
+  }, [initialTp, initialSl]);
 
-  const editOptions = [
-    { label: "Trailing stop", key: "trailingStop" },
-    { label: "Break even", key: "breakEven" },
-    { label: "Order expiration", key: "orderExpiration" },
-  ];
+  const handleClosePosition = () => {
+    if (position) {
+      dispatch(
+        closePosition({
+          instrument_id: position.instrument_id,
+          qty: position.qty,
+          price: 0,
+          order_type: "market",
+          side: position.side === "buy" ? "sell" : "buy",
+          stoploss: 0,
+          target: 0,
+          position_id: position.id,
+        })
+      );
+      navigate(-1);
+    }
+  };
 
-  // Helper formats
+  const handleConfirm = async () => {
+    if (!position) return;
+
+    dispatch(
+      setOrderStatus({ status: "loading", message: "Updating orders..." })
+    );
+
+    const originalTpOrder = position.torders?.find(
+      (o: any) => o.order_type === "limit"
+    );
+    const originalSlOrder = position.torders?.find(
+      (o: any) => o.order_type === "stop"
+    );
+
+    const promises = [];
+
+    // TP Logic
+    if (originalTpOrder) {
+      if (!tp || tp === 0) {
+        promises.push(dispatch(cancelOrder(originalTpOrder.id)).unwrap());
+      } else if (tp !== originalTpOrder.price) {
+        promises.push(
+          dispatch(
+            updateOrder({
+              id: originalTpOrder.id,
+              account_id: position.account_id,
+              order_type: "limit",
+              price: tp,
+              qty: position.qty,
+              side: position.side === "buy" ? "sell" : "buy",
+              stoploss: 0,
+              target: 0,
+            })
+          ).unwrap()
+        );
+      }
+    } else if (tp && tp > 0) {
+      promises.push(
+        dispatch(
+          placeNewOrder({
+            instrument_id: position.instrument_id,
+            qty: position.qty,
+            price: tp,
+            order_type: "limit",
+            side: position.side === "buy" ? "sell" : "buy",
+            stoploss: 0,
+            target: 0,
+            position_id: position.id,
+          })
+        ).unwrap()
+      );
+    }
+
+    // SL Logic
+    if (originalSlOrder) {
+      if (!sl || sl === 0) {
+        promises.push(dispatch(cancelOrder(originalSlOrder.id)).unwrap());
+      } else if (sl !== originalSlOrder.price) {
+        promises.push(
+          dispatch(
+            updateOrder({
+              id: originalSlOrder.id,
+              account_id: position.account_id,
+              order_type: "stop",
+              price: sl,
+              qty: position.qty,
+              side: position.side === "buy" ? "sell" : "buy",
+              stoploss: 0,
+              target: 0,
+            })
+          ).unwrap()
+        );
+      }
+    } else if (sl && sl > 0) {
+      promises.push(
+        dispatch(
+          placeNewOrder({
+            instrument_id: position.instrument_id,
+            qty: position.qty,
+            price: sl,
+            order_type: "stop",
+            side: position.side === "buy" ? "sell" : "buy",
+            stoploss: 0,
+            target: 0,
+            position_id: position.id,
+          })
+        ).unwrap()
+      );
+    }
+
+    try {
+      await Promise.all(promises);
+      dispatch(
+        setOrderStatus({
+          status: "succeeded",
+          message: "Orders updated successfully",
+        })
+      );
+      // Wait for user to see the success message
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      navigate(-1);
+    } catch (error) {
+      console.error("Failed to update orders", error);
+      dispatch(
+        setOrderStatus({ status: "failed", message: "Failed to update orders" })
+      );
+    }
+  };
+
+  if (!position) {
+    return <div className="p-5 text-primary">No position selected</div>;
+  }
+
+  const formatPrice = (p?: number) =>
+    p !== undefined ? p.toFixed(5) : "0.00000";
   const formatTime = (ts?: number) =>
     ts
       ? new Date(ts * 1000).toLocaleString("en-US", {
@@ -82,39 +236,13 @@ const MarketEdit = () => {
         })
       : "-";
 
-  // Calculate P&L live using Buy -> live_ask, Sell -> live_bid
-  const pnl = useMemo(() => {
-    if (!position) return 0;
-    const currentPrice =
-      position.side === "buy" ? position.live_ask : position.live_bid;
-    if (currentPrice !== undefined && typeof position.price === "number") {
-      if (position.side === "buy") {
-        return (currentPrice - position.price) * (position.qty || 0);
-      } else if (position.side === "sell") {
-        return (position.price - currentPrice) * (position.qty || 0);
-      }
-    }
-    return 0;
-  }, [position]);
-
-  const pnlDisplay = `${pnl >= 0 ? "+" : "-"}${Math.abs(pnl).toFixed(2)}`;
-
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
-      { label: "Open time", value: formatTime(position?.created_at) },
-      {
-        label: "Gross Profit",
-        value: (
-          <span className={pnl >= 0 ? "text-profit" : "text-loss"}>
-            {pnlDisplay}
-          </span>
-        ),
-      },
-      { label: "Overnight Fee", value: "0.00" }, // Swap logic if needed
-      {
-        label: "Position ID",
-        value: position?.id ? `#${position.tid || position.id}` : "-",
-      },
+      { label: "Create time", value: formatTime(position.created_at) },
+      { label: "Take profit", value: formatPrice(initialTp) },
+      { label: "Stop loss", value: formatPrice(initialSl) },
+      { label: "Position ID", value: `#${position.tid || position.id}` },
+      { label: "Swap", value: "0.00" },
       {
         label: "History",
         value: <img src={rightArrowHistory} alt="rightArrowHistory" />,
@@ -123,217 +251,123 @@ const MarketEdit = () => {
     marginTop: "16px",
   };
 
-  const editHistoryHandler = () => {
-    navigate("/app/editHistory", { state: { type: "market" } });
-  };
+  const InfoTabContent = (
+    <div className="px-5 h-[calc(100vh-250px)]">
+      <div className="flex flex-col justify-between h-full">
+        <div>
+          <EditOrderList
+            {...profitBalanceProps}
+            onClick={() =>
+              navigate("/app/editHistory", { state: { type: "position" } })
+            }
+            lastListColor={true}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-3 mb-2.5">
+          <Button
+            label="Show Chart"
+            width="169.5px"
+            height="44px"
+            bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
+            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
+            border="1px solid #505050"
+          />
+          <Button
+            label="Close Position"
+            width="169.5px"
+            height="44px"
+            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
+            textColor="#FAFAFA"
+            fontWeight={500}
+            onClick={handleClosePosition}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
-  if (!position) {
-    return <div className="p-5 text-center">No position selected</div>;
-  }
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>({
+    trailingStop: false,
+    breakEven: false,
+    orderExpiration: false,
+  });
 
-  const handleClosePosition = () => {
-    if (position) {
-      // OLD APP Logic: Close position by placing an opposite market order
-      const closingSide = position.side === "buy" ? "sell" : "buy";
-      dispatch(
-        closePosition({
-          instrument_id: position.instrument_id,
-          qty: position.qty,
-          price: 0, // Market order
-          order_type: "market",
-          side: closingSide,
-          stoploss: 0,
-          target: 0,
-          position_id: position.id,
-        })
-      );
-      navigate(-1);
-    }
-  };
+  const editOptions = [
+    { label: "Trailing stop", key: "trailingStop" },
+    { label: "Break even", key: "breakEven" },
+    { label: "Order expiration", key: "orderExpiration" },
+  ];
+
+  const EditTabContent = (
+    <div className="px-5 h-[calc(100vh-250px)] overflow-y-auto">
+      <div className="flex flex-col justify-between h-full">
+        <div className="flex flex-col gap-2.5 mt-5">
+          <Counter
+            label="Take Profit"
+            initialValue={tp}
+            step={priceStep}
+            onValueChange={setTp}
+          />
+          <Counter
+            label="Stop Loss"
+            initialValue={sl}
+            step={priceStep}
+            onValueChange={setSl}
+          />
+          <CheckList
+            activeOptions={activeOptions}
+            setActiveOptions={setActiveOptions}
+            options={editOptions}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-3 mb-2.5">
+          <Button
+            label="Discard"
+            width="169.5px"
+            height="44px"
+            bgColor={theme === "dark" ? "#505050" : "#E5E5E5"}
+            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
+            border={
+              theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
+            }
+            onClick={() => navigate(-1)}
+          />
+          <Button
+            label="Confirm"
+            textShadow="1px 1px 3.5px 0px #02900B"
+            width="169.5px"
+            height="44px"
+            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
+            textColor="#FAFAFA"
+            fontWeight={500}
+            onClick={handleConfirm}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   const tabsData: TabItem[] = [
-    {
-      id: "info",
-      label: "Info",
-      content: (
-        <div className="px-5 h-[calc(100vh-250px)]">
-          <div className="flex flex-col justify-between h-full">
-            <div>
-              <EditOrderList
-                {...profitBalanceProps}
-                onClick={editHistoryHandler}
-                lastListColor={true}
-              />
-            </div>
-            <div className="flex items-center justify-between mt-3 mb-2.5">
-              <Button
-                label="Show Chart"
-                width="169.5px"
-                height="44px"
-                bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
-                textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-                border="1px solid #505050"
-              />
-              <Button
-                label={
-                  <div className="flex flex-col">
-                    Close Order
-                    <div>{pnlDisplay}</div>
-                  </div>
-                }
-                width="169.5px"
-                height="44px"
-                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-                textColor="#FAFAFA"
-                fontWeight={500}
-                onClick={handleClosePosition}
-              />
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "edit",
-      label: "Edit",
-      content: (
-        <div className="px-5 h-[calc(100vh-250px)]">
-          <div className="flex flex-col justify-between h-full">
-            <div className="flex flex-col gap-2.5 mt-5">
-              <Counter
-                label="Take Profit"
-                initialValue={tp}
-                onValueChange={(val) => setTp(val)}
-                step={0.0001}
-              />
-              <Counter
-                label="Stop Loss"
-                initialValue={sl}
-                onValueChange={(val) => setSl(val)}
-                step={0.0001}
-              />
-              <CheckList
-                activeOptions={activeOptions}
-                setActiveOptions={setActiveOptions}
-                options={editOptions}
-              />
-            </div>
-            <div className="flex items-center justify-between mt-3 mb-2.5">
-              <Button
-                label="Discard"
-                width="169.5px"
-                height="44px"
-                bgColor={theme === "dark" ? "#505050" : "#E5E5E5"}
-                textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-                border={
-                  theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
-                }
-                onClick={() => navigate(-1)}
-              />
-              <Button
-                label="Confirm"
-                textShadow="1px 1px 3.5px 0px #02900B"
-                width="169.5px"
-                height="44px"
-                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-                textColor="#FAFAFA"
-                fontWeight={500}
-                onClick={() => {
-                  if (position) {
-                    const originalTpOrder = position.torders?.find(
-                      (o) => o.order_type === "limit"
-                    );
-                    const originalSlOrder = position.torders?.find(
-                      (o) => o.order_type === "stop"
-                    );
-
-                    // Handle TP (Limit)
-                    if (originalTpOrder) {
-                      if (!tp || tp === 0) {
-                        dispatch(cancelOrder(originalTpOrder.id));
-                      } else if (tp !== originalTpOrder.price) {
-                        dispatch(
-                          updateOrder({
-                            id: originalTpOrder.id,
-                            account_id: position.account_id,
-                            order_type: "limit",
-                            price: tp,
-                            qty: position.qty,
-                            side: position.side === "buy" ? "sell" : "buy",
-                            stoploss: 0,
-                            target: 0,
-                          })
-                        );
-                      }
-                    } else if (tp && tp > 0) {
-                      dispatch(
-                        placeNewOrder({
-                          instrument_id: position.instrument_id,
-                          qty: position.qty,
-                          price: tp,
-                          order_type: "limit",
-                          side: position.side === "buy" ? "sell" : "buy",
-                          stoploss: 0,
-                          target: 0,
-                          position_id: position.id,
-                        })
-                      );
-                    }
-
-                    // Handle SL (Stop)
-                    if (originalSlOrder) {
-                      if (!sl || sl === 0) {
-                        dispatch(cancelOrder(originalSlOrder.id));
-                      } else if (sl !== originalSlOrder.price) {
-                        dispatch(
-                          updateOrder({
-                            id: originalSlOrder.id,
-                            account_id: position.account_id,
-                            order_type: "stop",
-                            price: sl,
-                            qty: position.qty,
-                            side: position.side === "buy" ? "sell" : "buy",
-                            stoploss: 0,
-                            target: 0,
-                          })
-                        );
-                      }
-                    } else if (sl && sl > 0) {
-                      dispatch(
-                        placeNewOrder({
-                          instrument_id: position.instrument_id,
-                          qty: position.qty,
-                          price: sl,
-                          order_type: "stop",
-                          side: position.side === "buy" ? "sell" : "buy",
-                          stoploss: 0,
-                          target: 0,
-                          position_id: position.id,
-                        })
-                      );
-                    }
-                    navigate(-1);
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ),
-    },
+    { id: "info", label: "Info", content: InfoTabContent },
+    { id: "edit", label: "Edit", content: EditTabContent },
   ];
-  return (
-    <div>
-      {position && (
-        <PositionCard position={position} label="Position" onClick={() => {}} />
-      )}
 
-      <NavigationTabs
-        tabs={tabsData}
-        // defaultActiveTab={activeTabId} // Use state from URL
-        // onTabChange={handleTabChange} // New handler for URL update
-        className="max-w-md mx-auto"
-      />
+  return (
+    <div className="h-full flex flex-col justify-between overflow-y-auto">
+      <div>
+        <PositionCard
+          position={position}
+          label="Position"
+          onClick={() => {}}
+          hideBorder={true}
+        />
+        <NavigationTabs
+          tabs={tabsData}
+          defaultActiveTab={activeTabId}
+          onActiveTabChange={(id) => setActiveTabId(id)}
+          className="max-w-md mx-auto"
+        />
+      </div>
     </div>
   );
 };

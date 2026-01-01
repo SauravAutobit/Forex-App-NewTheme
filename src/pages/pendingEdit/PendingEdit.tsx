@@ -13,6 +13,7 @@ import {
   cancelOrder,
   updateOrder,
 } from "../../store/slices/openOrdersSlice";
+import { setOrderStatus } from "../../store/slices/orderStatusSlice";
 import { useAppSelector } from "../../store/hook";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import Counter from "../../components/counter/Counter";
@@ -35,6 +36,9 @@ const PendingEdit = () => {
     return allOrders.find((o) => o.id === orderSnapshot?.id) || orderSnapshot;
   }, [allOrders, orderSnapshot]);
 
+  const instrumentsData = useSelector(
+    (state: RootState) => state.instruments.data
+  );
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   // Form State
@@ -42,6 +46,29 @@ const PendingEdit = () => {
   const [price, setPrice] = useState<number>(0);
   const [sl, setSl] = useState<number>(0);
   const [tp, setTp] = useState<number>(0);
+  const [priceStep, setPriceStep] = useState(0.0001);
+
+  // Initialize Price Step based on Instrument
+  useEffect(() => {
+    if (order && instrumentsData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const allInstruments = Object.values(instrumentsData).flat() as any[];
+      const instr = allInstruments.find((i) => i.id === order.instrument_id);
+
+      if (instr) {
+        let step = 0.0001;
+        const staticData = instr.static_data;
+        if (staticData?.ticksize) {
+          step = Number(staticData.ticksize);
+        } else if (staticData?.tick_size) {
+          step = Number(staticData.tick_size);
+        } else if (staticData?.pip) {
+          step = Number(staticData.pip);
+        }
+        setPriceStep(step);
+      }
+    }
+  }, [order, instrumentsData]);
 
   // Initialize form state when order loads
   useEffect(() => {
@@ -105,29 +132,71 @@ const PendingEdit = () => {
     marginTop: "16px",
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (order?.id) {
-      dispatch(cancelOrder(order.id));
-      navigate(-1);
+      dispatch(
+        setOrderStatus({ status: "loading", message: "Canceling order..." })
+      );
+      try {
+        await dispatch(cancelOrder(order.id)).unwrap();
+        dispatch(
+          setOrderStatus({
+            status: "succeeded",
+            message: "Order canceled successfully",
+          })
+        );
+        // Wait for user to see the success message
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        navigate(-1);
+      } catch (error) {
+        console.error("Cancel failed", error);
+        dispatch(
+          setOrderStatus({
+            status: "failed",
+            message: "Failed to cancel order",
+          })
+        );
+      }
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (order) {
       const cs = order.contract_size || 1;
       dispatch(
-        updateOrder({
-          id: order.id,
-          account_id: order.account_id,
-          order_type: order.order_type,
-          price: price,
-          qty: lot * cs,
-          side: order.side,
-          stoploss: sl,
-          target: tp,
-        })
+        setOrderStatus({ status: "loading", message: "Updating order..." })
       );
-      navigate(-1);
+      try {
+        await dispatch(
+          updateOrder({
+            id: order.id,
+            account_id: order.account_id,
+            order_type: order.order_type,
+            price: price,
+            qty: lot * cs,
+            side: order.side,
+            stoploss: sl,
+            target: tp,
+          })
+        ).unwrap();
+        dispatch(
+          setOrderStatus({
+            status: "succeeded",
+            message: "Order updated successfully",
+          })
+        );
+        // Wait for user to see the success message
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        navigate(-1);
+      } catch (error) {
+        console.error("Update failed", error);
+        dispatch(
+          setOrderStatus({
+            status: "failed",
+            message: "Failed to update order",
+          })
+        );
+      }
     }
   };
 
@@ -197,8 +266,8 @@ const PendingEdit = () => {
             <Counter
               label="Lot"
               initialValue={lot}
-              min={0.01}
-              step={0.01}
+              min={1}
+              step={1}
               onValueChange={(val) => !isQtyDisabled && setLot(val)}
             />
           </div>
@@ -212,19 +281,19 @@ const PendingEdit = () => {
             label="Price"
             initialValue={price}
             onValueChange={setPrice}
-            step={0.0001}
+            step={priceStep}
           />
           <Counter
             label="Take Profit"
             initialValue={tp}
             onValueChange={setTp}
-            step={0.0001}
+            step={priceStep}
           />
           <Counter
             label="Stop Loss"
             initialValue={sl}
             onValueChange={setSl}
-            step={0.0001}
+            step={priceStep}
           />
           <CheckList
             activeOptions={activeOptions}
@@ -272,6 +341,7 @@ const PendingEdit = () => {
           openOrderData={order}
           label="Orders"
           onClick={() => {}}
+          hideBorder={true}
         />
         <NavigationTabs tabs={tabsData} className="max-w-md mx-auto" />
       </div>

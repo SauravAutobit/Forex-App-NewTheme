@@ -219,6 +219,7 @@ const Trade = () => {
                 onLongPress={() => {
                   // Keep long press if needed, but click navigates
                 }}
+                hideBorder={true}
               />
             );
           })}
@@ -245,6 +246,7 @@ const Trade = () => {
                   navigate("/app/pendingEdit", { state: { order } });
                 }}
                 onLongPress={() => {}}
+                hideBorder={true}
               />
             );
           })}
