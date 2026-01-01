@@ -11,7 +11,7 @@ import {
   type ChatMessage,
 } from "../../store/slices/aiChatSlice";
 import { type RootState } from "../../store/store";
-import "./AiChat.css";
+import "./AiUiChat.css";
 
 // 1. Import the Markdown component
 import Markdown from "markdown-to-jsx";
