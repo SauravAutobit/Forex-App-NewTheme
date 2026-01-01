@@ -299,6 +299,7 @@ const PendingEdit = () => {
             activeOptions={activeOptions}
             setActiveOptions={setActiveOptions}
             options={editOptions}
+            readOnly={true}
           />
         </div>
         <div className="flex items-center justify-between mt-3 mb-2.5">

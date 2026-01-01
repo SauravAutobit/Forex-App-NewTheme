@@ -15,12 +15,14 @@ interface CheckListProps {
   setActiveOptions: React.Dispatch<
     React.SetStateAction<Record<string, boolean>>
   >;
+  readOnly?: boolean;
 }
 
 const CheckList = ({
   options,
   activeOptions,
   setActiveOptions,
+  readOnly = false,
 }: CheckListProps) => {
   //   const [isStopLossActive, setIsStopLossActive] = useState(true);
   // const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
@@ -40,6 +42,7 @@ const CheckList = ({
 
   // Toggle the specific option on/off
   const handleToggle = (key: string) => {
+    if (readOnly) return;
     setActiveOptions((prev) => ({
       ...prev,
       [key]: !prev[key],

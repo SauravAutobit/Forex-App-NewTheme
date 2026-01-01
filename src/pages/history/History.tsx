@@ -379,13 +379,8 @@ const History = ({}: HistoryProps) => {
                 }}
               />
               {index === 0 && showTutorial && (
-                <div className="absolute top-[40px] right-2 flex flex-col items-end pointer-events-none">
-                  <DirectionArrow className="mb-2" />
-                  <div className="text-[#FAFAFA] text-lg font-bold leading-tight text-right w-[150px]">
-                    Tap on Trade to{" "}
-                    <span className="text-yellow-400">Expand</span> and{" "}
-                    <span className="text-yellow-400">Collapse</span>
-                  </div>
+                <div className="absolute top-[50px] left-1/2 -translate-x-1/2 z-[70] pointer-events-none w-full flex justify-center">
+                  <DirectionArrow />
                 </div>
               )}
             </div>

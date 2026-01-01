@@ -2,16 +2,18 @@ import directionArrow from "../../assets/icons/directionArrow.svg";
 
 const DirectionArrow = ({ className }: { className?: string }) => {
   return (
-    <div className="bg-[#0C0C0CE5]">
-      <div className={`text-lg w-[173px] relative ${className}`}>
-        Tap on Trade to{" "}
-        <span className="font-tertiary text-quaternary">Expand</span> and{" "}
-        <span className="font-tertiary text-quaternary">Collapse</span>
+    <div
+      className={`relative flex flex-col items-center group pointer-events-none ${className}`}
+    >
+      <div className="text-white text-lg font-bold leading-tight text-center max-w-[200px] mb-4">
+        Tap on Trade to <br />
+        <span className="text-quaternary font-tertiary">Expand</span> and{" "}
+        <span className="text-quaternary font-tertiary">Collapse</span>
       </div>
       <img
         src={directionArrow}
         alt="directionArrow"
-        className="absolute left-[166px] top-[60px]"
+        className="w-[124px] h-[48px] object-contain"
       />
     </div>
   );

@@ -124,11 +124,14 @@ const MarketEdit = () => {
 
     const promises = [];
 
+    let hasUpdateOrPlace = false;
+
     // TP Logic
     if (originalTpOrder) {
       if (!tp || tp === 0) {
         promises.push(dispatch(cancelOrder(originalTpOrder.id)).unwrap());
       } else if (tp !== originalTpOrder.price) {
+        hasUpdateOrPlace = true;
         promises.push(
           dispatch(
             updateOrder({
@@ -145,6 +148,7 @@ const MarketEdit = () => {
         );
       }
     } else if (tp && tp > 0) {
+      hasUpdateOrPlace = true;
       promises.push(
         dispatch(
           placeNewOrder({
@@ -166,6 +170,7 @@ const MarketEdit = () => {
       if (!sl || sl === 0) {
         promises.push(dispatch(cancelOrder(originalSlOrder.id)).unwrap());
       } else if (sl !== originalSlOrder.price) {
+        hasUpdateOrPlace = true;
         promises.push(
           dispatch(
             updateOrder({
@@ -182,6 +187,7 @@ const MarketEdit = () => {
         );
       }
     } else if (sl && sl > 0) {
+      hasUpdateOrPlace = true;
       promises.push(
         dispatch(
           placeNewOrder({
@@ -198,12 +204,21 @@ const MarketEdit = () => {
       );
     }
 
+    if (promises.length === 0) {
+      navigate(-1);
+      return;
+    }
+
     try {
       await Promise.all(promises);
+      const message = hasUpdateOrPlace
+        ? "Orders updated successfully"
+        : "Order cancelled successfully";
+
       dispatch(
         setOrderStatus({
           status: "succeeded",
-          message: "Orders updated successfully",
+          message,
         })
       );
       // Wait for user to see the success message
@@ -318,6 +333,7 @@ const MarketEdit = () => {
             activeOptions={activeOptions}
             setActiveOptions={setActiveOptions}
             options={editOptions}
+            readOnly={true}
           />
         </div>
         <div className="flex items-center justify-between mt-3 mb-2.5">
