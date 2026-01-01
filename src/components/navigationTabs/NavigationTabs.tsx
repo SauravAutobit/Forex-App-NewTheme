@@ -22,26 +22,28 @@ interface MobileTabsProps {
 }
 
 // Define the motion variants for content sliding
-const slideVariants = (direction: number) => ({
-  // direction: 1 for right movement (exit left, enter right)
-  // direction: -1 for left movement (exit right, enter left)
-  // Initial position of the new content (comes from the side)
-  enter: {
-    x: direction > 0 ? 300 : -300, // Starts off-screen to the right or left
+const slideVariants: any = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
     opacity: 0,
-    transition: { duration: 0.3 },
-  }, // Active state (in the center)
+  }),
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.3 },
-  }, // Exit position of the old content (goes off to the side)
-  exit: {
-    x: direction > 0 ? -300 : 300, // Exits to the left or right
-    opacity: 0,
-    transition: { duration: 0.3 },
+    transition: {
+      x: { type: "spring", stiffness: 300, damping: 30 },
+      opacity: { duration: 0.2 },
+    },
   },
-});
+  exit: (direction: number) => ({
+    x: direction > 0 ? "-100%" : "100%",
+    opacity: 0,
+    transition: {
+      x: { type: "spring", stiffness: 300, damping: 30 },
+      opacity: { duration: 0.2 },
+    },
+  }),
+};
 
 // NOTE: Removed backgroundColor prop as it's now internally controlled for the segmented look.
 const NavigationTabs = ({
@@ -101,6 +103,18 @@ const NavigationTabs = ({
       onActiveTabChange?.(tabId);
     }
   };
+
+  // Sync internal activeTab with external defaultActiveTab prop
+  useEffect(() => {
+    if (defaultActiveTab && defaultActiveTab !== activeTab) {
+      const newIndex = tabs.findIndex((tab) => tab.id === defaultActiveTab);
+      if (newIndex !== -1) {
+        setDirection(newIndex > previousIndex.current ? 1 : -1);
+        previousIndex.current = newIndex;
+        setActiveTab(defaultActiveTab);
+      }
+    }
+  }, [defaultActiveTab]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
   //   const theme = useAppSelector((state) => state.theme.mode);
@@ -171,43 +185,21 @@ const NavigationTabs = ({
       {activeTab === "market" && totalPnl !== undefined && (
         <ProfitLossClose totalPnl={totalPnl} />
       )}
-      {/* {activeTab === "date" && (
-        <div className="px-5">
-          <DateChanger text={"Change Date"} date={"25/06/2025"} />
-        </div>
-      )} */}
-      {/* {activeTab === "monthly" && (
-        <div className="px-5">
-          <DateChanger
-            text={"Start Date"}
-            date={"25/06/2025"}
-            dualDate={true}
-            height={"82px"}
-            secondaryText="End Date"
-            secondaryDate="30/06/2025"
-          />
-        </div>
-      )} */}
 
       {/* Tab Content */}
-      <div className="mt-3 relative overflow-hidden">
-        <AnimatePresence mode="wait" initial={false} custom={direction}>
+      <div className="mt-3 grid grid-cols-1 overflow-hidden">
+        <AnimatePresence initial={false} custom={direction}>
           {tabs.map(
             (tab) =>
               tab.id === activeTab && (
                 <motion.div
-                  key={tab.id} // 👈 key is required for exit animation
-                  variants={slideVariants(direction)}
+                  key={tab.id}
+                  custom={direction}
+                  variants={slideVariants}
                   initial="enter"
                   animate="center"
-                  exit="exit" // Add absolute positioning to stack the exiting/entering content over each other
-                  // className="absolute w-full top-0 left-0"
-                  // initial={
-                  //   isInitialLoad.current ? false : { opacity: 0, y: 10 }
-                  // } // starting state
-                  // animate={{ opacity: 1, y: 0 }} // enter state
-                  // exit={{ opacity: 0, y: -10 }} // exit state
-                  // transition={{ duration: 0.25 }} // speed of animation
+                  exit="exit"
+                  className="col-start-1 row-start-1 w-full"
                 >
                   {tab.content}
                 </motion.div>

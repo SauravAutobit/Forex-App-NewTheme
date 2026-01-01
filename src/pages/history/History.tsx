@@ -315,8 +315,8 @@ const History = ({}: HistoryProps) => {
   const [hasDismissed, setHasDismissed] = useState(false);
 
   useEffect(() => {
-    if (activeTabId === "position") {
-      setHasDismissed(false);
+    if (activeTabId !== "position") {
+      setHasDismissed(true);
     }
   }, [activeTabId]);
 
