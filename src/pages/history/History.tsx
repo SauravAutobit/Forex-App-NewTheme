@@ -379,7 +379,8 @@ const History = ({}: HistoryProps) => {
                 }}
               />
               {index === 0 && showTutorial && (
-                <div className="absolute top-[50px] left-1/2 -translate-x-1/2 z-[70] pointer-events-none w-full flex justify-center">
+                // <div className="absolute top-[50px] left-1/2 -translate-x-1/2 z-[70] pointer-events-none w-full flex justify-center">
+                <div className="absolute top-[120px] left-1/2 -translate-x-1/2 z-[70] pointer-events-none w-full flex justify-center">
                   <DirectionArrow />
                 </div>
               )}

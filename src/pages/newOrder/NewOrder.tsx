@@ -234,6 +234,7 @@ const NewOrder = () => {
               activeOptions={activeOptions}
               setActiveOptions={setActiveOptions}
               options={editOptions}
+              readOnly={true}
             />
           </div>
           <div className="mb-9">

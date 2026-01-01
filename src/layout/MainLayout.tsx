@@ -145,11 +145,23 @@ const MainLayout = () => {
 
   // Handle tab changes when navigating to different pages
   useEffect(() => {
+    const chartTabs = [
+      "Chart",
+      "Overview",
+      "Calendar",
+      "Info",
+      "Positions",
+      "Orders",
+    ];
+
     if (pathname === "/app/charts") {
-      setActive("Chart");
+      // Only set to "Chart" if current active tab is not one of the chart-related tabs
+      if (!chartTabs.includes(active)) {
+        setActive("Chart");
+      }
     } else if (
       (pathname === "/app/home" || pathname === "/app") &&
-      active === "Chart"
+      chartTabs.includes(active)
     ) {
       // ✅ Restore previous category if coming back from Chart/Trade flow
       const prev = localStorage.getItem("previousCategory");
