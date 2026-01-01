@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
 import useLocalStorage from "../utils/useLocalStorage";
 import OrderStatus from "../components/orderStatus/OrderStatus";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
-// import { initializeSockets } from "../services/socketService.ts";
-// import { store } from "../store/store";
+import Toasty from "../components/toasty/Toasty";
+import { AnimatePresence, motion } from "framer-motion";
+import { hideToasty } from "../store/slices/notificationSlice";
 
 export type DrawerState = {
   homeDrawer: boolean;
@@ -146,10 +147,26 @@ const MainLayout = () => {
   useEffect(() => {
     if (pathname === "/app/charts") {
       setActive("Chart");
+    } else if (
+      (pathname === "/app/home" || pathname === "/app") &&
+      active === "Chart"
+    ) {
+      // ✅ Restore previous category if coming back from Chart/Trade flow
+      const prev = localStorage.getItem("previousCategory");
+      if (prev) {
+        setActive(prev);
+      } else {
+        setActive("Favorites");
+      }
     }
-    // Note: We don't reset to "Favorites" when returning to /app/home
-    // This allows the back button from charts to preserve the category
-  }, [pathname]);
+  }, [pathname, active]);
+
+  // ✅ NEW: Get Toasty state from Redux
+  const { isVisible, data } = useSelector(
+    (state: RootState) => state.notification
+  );
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleOpenSidebar = () => setIsSidebarOpen(true);
@@ -157,8 +174,51 @@ const MainLayout = () => {
     return () => document.removeEventListener("openSidebar", handleOpenSidebar);
   }, []);
 
+  // ✅ UNDO Logic
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleUndo = (item: any) => {
+    if (!item) return;
+
+    // Restore item to local state
+    setFavoriteItems((prev) => {
+      // Avoid duplicates just in case
+      if (prev.some((i) => i.id === item.id)) return prev;
+      return [...prev, item];
+    });
+
+    setFavouriteInstrument((prev) => {
+      if (prev.includes(item.code)) return prev;
+      return [...prev, item.code];
+    });
+
+    // Close toasty
+    dispatch(hideToasty());
+  };
+
+  const handleDeleteSelected = () => {
+    // Current app doesn't seem to use this, but keeping it as user referenced it
+    // Or implementing it if needed.
+    // The user's snippet had it, so I'll include an empty placeholder or basic logic if relevant.
+    // Since selectedQuotesForDelete isn't in this version's state, I'll omit it to avoid errors.
+  };
+
   return (
     <div className="min-h-screen flex flex-col relative text-white bg-primaryBg">
+      <AnimatePresence>
+        {isVisible && data && (
+          <>
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed bottom-[75px] left-0 right-0 z-50 flex justify-center" // Adjust bottom position to clear BottomNavbar
+            >
+              <Toasty onUndo={handleUndo} />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       <Header
         isFlag={isFlag}
         setIsFlag={setIsFlag}

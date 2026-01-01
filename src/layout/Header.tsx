@@ -118,6 +118,7 @@ export default function Header({
     });
 
     setFavoriteItems(newFavoriteObjects);
+    setActive("Favorites");
 
     // Close selection mode
     setIsFlag((prev) => ({

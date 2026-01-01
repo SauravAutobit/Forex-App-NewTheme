@@ -4,11 +4,14 @@ import noFavourites from "../../assets/icons/noFavourites.svg";
 import Button from "../../components/button/Button";
 import Card, { type CardProps } from "../../components/card/Card";
 import type { OutletContextType } from "../../layout/MainLayout";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { SwipeableList, SwipeableListItem } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
 import noFavouritesLight from "../../assets/icons/noFavouritesLight.svg";
 import { useAppSelector } from "../../store/hook";
+import { AnimatePresence, motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 
 interface FavoriteItemType
   extends Omit<CardProps, "onClick" | "active" | "favourites"> {
@@ -23,10 +26,12 @@ interface FavouritesProps {
 }
 
 const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
-  const { isFlag } = useOutletContext<OutletContextType>();
+  const { isFlag, setIsFlag } = useOutletContext<OutletContextType>();
   const [active] = useState("Favorites");
 
   const theme = useAppSelector((state) => state.theme.mode);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   if (items.length === 0) {
     return (
@@ -48,6 +53,18 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
     );
   }
 
+  const handleCardClick = (instrumentId: string) => {
+    // Store the current active tab before navigating
+    localStorage.setItem("previousCategory", "Favorites");
+
+    dispatch(setSelectedInstrument(instrumentId));
+    setIsFlag((prev) => ({
+      ...prev,
+      charts: { status: true },
+    }));
+    navigate("/app/charts");
+  };
+
   const TrailingActions = () => (
     <div className="bg-loss text-white p-4 h-full flex items-center justify-end pr-5 w-full">
       Remove
@@ -57,39 +74,52 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
   return (
     <>
       <SwipeableList threshold={0.3} fullSwipe={true}>
-        {items.map((item) => {
-          return (
-            <SwipeableListItem
-              key={item.id}
-              trailingActions={TrailingActions()}
-              onSwipeEnd={() => {
-                console.log(`Item ${item.id} removed via full swipe.`);
-                // ✅ FIXED: Pass item.code as the second argument
-                removeItem(item.id, item.code);
-              }}
-            >
-              <Card
-                code={item.code}
-                bid={item.bid}
-                ask={item.ask}
-                high={item.high}
-                low={item.low}
-                ltp={item.ltp}
-                close={item.close}
-                pip={item.pip}
-                timestamp={item.timestamp}
-                onClick={() => {
-                  console.log(`Card ${item.id} clicked`);
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.map((item) => {
+            return (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{
+                  x: "-100%",
+                  opacity: 0,
+                  height: 0,
+                  overflow: "hidden",
                 }}
-                active={active}
-                favourites={isFlag.favourites?.status}
-              />
-            </SwipeableListItem>
-          );
-        })}
+                animate={{ x: 0, opacity: 1, height: "auto" }}
+                exit={{ x: "-100%", opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SwipeableListItem
+                  trailingActions={TrailingActions()}
+                  onSwipeEnd={() => {
+                    console.log(`Item ${item.id} removed via full swipe.`);
+                    // ✅ FIXED: Pass item.code as the second argument
+                    removeItem(item.id, item.code);
+                  }}
+                >
+                  <Card
+                    code={item.code}
+                    bid={item.bid}
+                    ask={item.ask}
+                    high={item.high}
+                    low={item.low}
+                    ltp={item.ltp}
+                    close={item.close}
+                    pip={item.pip}
+                    timestamp={item.timestamp}
+                    onClick={() => handleCardClick(item.id)}
+                    active={active}
+                    favourites={isFlag.favourites?.status}
+                  />
+                </SwipeableListItem>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </SwipeableList>
     </>
   );
-};
+}; // End of component
 
 export default Favourites;

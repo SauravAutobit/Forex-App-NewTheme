@@ -4,11 +4,17 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 // Define the shape of the data needed for the Toasty component
 export interface ToastyData {
-  instrumentName: string; // e.g., "audnzd"
-  side: string; // e.g., "buy"
-  quantity: number; // e.g., 10
-  status: string; // e.g., "filled"
-  price: number; // e.g., 1.13442
+  type?: 'trade' | 'undo'; // Default to 'trade' if undefined for backward compatibility
+  // Trade specific
+  instrumentName?: string; 
+  side?: string; 
+  quantity?: number; 
+  status?: string; 
+  price?: number; 
+  // Undo specific
+  message?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  undoPayload?: any; 
 }
 
 interface NotificationState {
@@ -27,13 +33,12 @@ const notificationSlice = createSlice({
   reducers: {
     showToasty: (state, action: PayloadAction<ToastyData>) => {
       // Set new data and show
-      state.data = action.payload;
+      state.data = { ...action.payload, type: action.payload.type || 'trade' };
       state.isVisible = true;
     },
     hideToasty: (state) => {
-      // Hide and clear data after animation
+      // Only hide, preserve data for exit animation
       state.isVisible = false;
-      state.data = null;
     },
   },
 });

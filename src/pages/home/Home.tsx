@@ -19,6 +19,7 @@ import {
 } from "../../store/slices/instrumentsSlice";
 // Import the Instrument type for correct typing
 import type { Instrument } from "../../store/slices/instrumentsSlice";
+import { showToasty, hideToasty } from "../../store/slices/notificationSlice";
 
 const menuItems = [
   { label: "Daily Changes" },
@@ -99,8 +100,24 @@ const Home = () => {
   };
 
   const removeFavorite = (id: string | number, code: string) => {
+    const itemToRemove = favoriteItems.find((item) => item.id === id);
+
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
     setFavouriteInstrument((prevCodes) => prevCodes.filter((c) => c !== code));
+
+    if (itemToRemove) {
+      dispatch(
+        showToasty({
+          type: "undo",
+          message: "Instrument removed",
+          undoPayload: itemToRemove,
+        })
+      );
+
+      setTimeout(() => {
+        dispatch(hideToasty());
+      }, 3000);
+    }
   };
 
   const handleCardClick = (instrumentId: string) => {
@@ -211,7 +228,7 @@ const Home = () => {
     inst.trading_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  console.log("filteredInstruments HOME", filteredInstruments);
+  //   console.log("filteredInstruments HOME", filteredInstruments);
 
   // Apply filter based on percentage change
   if (activeFilter.filterOption) {
@@ -303,28 +320,28 @@ const Home = () => {
           {filteredInstruments.length > 0 ? (
             filteredInstruments.map((instrument) => {
               const quotes = liveQuotes[instrument.id];
-              console.log(
-                "[Home] Instrument:",
-                instrument.trading_name,
-                "Quotes:",
-                quotes
-              );
+              //   console.log(
+              //     "[Home] Instrument:",
+              //     instrument.trading_name,
+              //     "Quotes:",
+              //     quotes
+              //   );
               const bid = quotes?.bid ?? 0;
               const ask = quotes?.ask ?? 0;
               const high = quotes?.high ?? 0;
               const low = quotes?.low ?? 0;
               const ltp = quotes?.ltp ?? 0;
               const close = quotes?.close ?? 0;
-              console.log(
-                "[Home] Values - close:",
-                close,
-                "ltp:",
-                ltp,
-                "bid:",
-                bid,
-                "ask:",
-                ask
-              );
+              //   console.log(
+              //     "[Home] Values - close:",
+              //     close,
+              //     "ltp:",
+              //     ltp,
+              //     "bid:",
+              //     bid,
+              //     "ask:",
+              //     ask
+              //   );
               const timestamp = quotes?.timestamp
                 ? new Date(quotes.timestamp).toLocaleTimeString()
                 : "N/A";

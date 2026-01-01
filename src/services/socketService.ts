@@ -3,14 +3,13 @@ import { WebSocketClient } from "./WebSocketClient";
 import {
   setApiStatus,
   setStreamStatus,
-//   setEventStatus,
+  setEventStatus,
 } from "../store/slices/webSocketSlice";
 import {
   WEBSOCKET_API_URL,
-//   WEBSOCKET_EVENT_URL,
+  WEBSOCKET_EVENT_URL,
   WEBSOCKET_STREAM_URL,
 } from "../utils//constants/app.constants";
-// import { updateQuoteData } from "../store/slices/quotesSlice";
 import {
   fetchPositions,
   updatePositionQuote,
@@ -20,11 +19,11 @@ import type { RootState, AppDispatch } from "../store/store";
 import { updateQuoteData } from "../store/slices/quotesSlice";
 import { fetchHistoryOrders } from "../store/slices/historyOrdersSlice";
 import { fetchHistoryPositions } from "../store/slices/historyPositionsSlice";
-// import {
-//   showToasty,
-//   hideToasty,
-//   type ToastyData,
-// } from "../store/slices/notificationSlice";
+import {
+  showToasty,
+  hideToasty,
+  type ToastyData,
+} from "../store/slices/notificationSlice";
 import { fetchAccountBalance } from "../store/slices/accountSlice";
 import { fetchOpenOrders } from "../store/slices/openOrdersSlice";
 
@@ -101,7 +100,7 @@ export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number)
 
 const API_BASE_URL = WEBSOCKET_API_URL; 
 const STREAM_BASE_URL = WEBSOCKET_STREAM_URL; //import.meta.env.VITE_STREAM_URL;
-// const EVENT_BASE_URL = WEBSOCKET_EVENT_URL;
+const EVENT_BASE_URL = WEBSOCKET_EVENT_URL;
 
 let apiClient: WebSocketClient;
 let streamClient: WebSocketClient;
@@ -230,44 +229,44 @@ export const initializeSockets = (store: Store) => {
     console.log("Stream WebSocket Client Initialized.");
   }
   // --- Event Client Initialization ---
-  // if (!EVENT_BASE_URL) {
-  //   console.error(
-  //     "❌ WEBSOCKET_EVENT_URL is not defined. Event WebSocket connection will fail."
-  //   );
-  // } else if (!eventClient) {
-  //   const eventUrlWithToken = `${EVENT_BASE_URL}?t=${token}`;
-  //   eventClient = new WebSocketClient(eventUrlWithToken, store, setEventStatus); 
+  if (!EVENT_BASE_URL) {
+    console.error(
+      "❌ WEBSOCKET_EVENT_URL is not defined. Event WebSocket connection will fail."
+    );
+  } else if (!eventClient) {
+    const eventUrlWithToken = `${EVENT_BASE_URL}?t=${token}`;
+    eventClient = new WebSocketClient(eventUrlWithToken, store, setEventStatus); 
 
-  //   const appDispatch = store.dispatch as AppDispatch;
+    const appDispatch = store.dispatch as AppDispatch;
 
-  //   eventClient.setMessageHandler((msg: unknown) => {
-  //     console.log("🚨 Received EVENT message:", msg);
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     const eventData = msg as any;
-  //     if (eventData.event === "order" && eventData.order.status === "filled") {
-  //       const payload: ToastyData = {
-  //         instrumentName: eventData.instrument.name.toUpperCase(),
-  //         side: eventData.trade.side,
-  //         quantity: eventData.trade.qty,
-  //         status: eventData.order.status, 
-  //         price: eventData.trade.price,
-  //       };
+    eventClient.setMessageHandler((msg: unknown) => {
+      console.log("🚨 Received EVENT message:", msg);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const eventData = msg as any;
+      if (eventData.event === "order" && eventData.order.status === "filled") {
+        const payload: ToastyData = {
+          instrumentName: eventData.instrument.name.toUpperCase(),
+          side: eventData.trade.side,
+          quantity: eventData.trade.qty,
+          status: eventData.order.status, 
+          price: eventData.trade.price,
+        };
 
-  //       store.dispatch(showToasty(payload));
+        store.dispatch(showToasty(payload));
 
-  //       setTimeout(() => {
-  //         store.dispatch(hideToasty());
-  //       }, 3000);
-  //     }
+        setTimeout(() => {
+          store.dispatch(hideToasty());
+        }, 3000);
+      }
 
-  //     refreshAllHistoryData(appDispatch);
-  //   });
+      refreshAllHistoryData(appDispatch);
+    });
 
-  //   eventClient.onConnected(() => {
-  //     console.log("🎉 Event WebSocket connected. Ready to receive events.");
-  //   });
-  //   console.log("Event WebSocket Client Initialized.");
-  // }
+    eventClient.onConnected(() => {
+      console.log("🎉 Event WebSocket connected. Ready to receive events.");
+    });
+    console.log("Event WebSocket Client Initialized.");
+  }
 };
 
 // NEW: A single function to subscribe to multiple instruments
