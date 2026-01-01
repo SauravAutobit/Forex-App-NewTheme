@@ -36,22 +36,19 @@ const General = () => {
   const [activeTab, setActiveTab] = useState("date");
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm] = useState("");
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
 
   const { data: historyPositions } = useSelector(
     (state: RootState) => state.historyPositions
   );
   const { apiStatus } = useSelector((state: RootState) => state.websockets);
-  const theme = useSelector((state: RootState) => state.theme.mode);
 
   useEffect(() => {
     if (apiStatus === "connected") {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      dispatch(
-        fetchHistoryPositions(Math.floor(thirtyDaysAgo.getTime() / 1000))
-      );
+      dispatch(fetchHistoryPositions({ offset: 0, limit: 100 }));
     }
   }, [apiStatus, dispatch]);
 

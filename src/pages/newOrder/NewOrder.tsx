@@ -1,7 +1,7 @@
 import Counter from "../../components/counter/Counter";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import CheckList from "../../components/checkList/CheckList";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { useSearchParams, useOutletContext } from "react-router-dom";

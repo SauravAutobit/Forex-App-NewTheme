@@ -54,16 +54,11 @@ const initialState: ChartState = {
 export const fetchChartData = createAsyncThunk(
   "chart/fetchData",
   async (
-    {
-      instrumentId,
-      startIndex,
-      endIndex,
-      timeframe
-    }: {
+    _: {
       instrumentId: string;
       startIndex: number;
       endIndex: number;
-      timeframe: string
+      timeframe: string;
     },
     { rejectWithValue }
   ) => {

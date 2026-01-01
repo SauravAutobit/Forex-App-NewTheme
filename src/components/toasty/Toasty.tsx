@@ -51,8 +51,6 @@ const Toasty = ({ onUndo }: ToastyProps) => {
   }
 
   // ✅ TRADE MODE (Default)
-  const isBuy = data.side?.toLowerCase() === "buy";
-  const sideColor = isBuy ? "text-profit" : "text-loss";
 
   return (
     <div
