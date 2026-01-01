@@ -207,26 +207,35 @@ export default function Header({
         break;
 
       case "/app/charts":
-        if (selectedInstrumentId && liveQuotes[selectedInstrumentId]) {
-          const quote = liveQuotes[selectedInstrumentId];
-          title = quote.trading_name || quote.name;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
+        const allInstruments = Object.values(instrumentsData).flat();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
+        const staticInstrument = allInstruments.find(
+          (i: any) => i.id === selectedInstrumentId
+        );
+
+        // eslint-disable-next-line no-case-declarations
+        const quote = selectedInstrumentId
+          ? liveQuotes[selectedInstrumentId]
+          : null;
+
+        title =
+          staticInstrument?.trading_name ||
+          quote?.trading_name ||
+          quote?.name ||
+          (selectedInstrumentId ? "Loading..." : "Select Instrument");
+
+        if (quote) {
           const change = quote.ltp - quote.close;
           const percentageChange =
             quote.close !== 0 ? (change / quote.close) * 100 : 0;
           subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
             2
           )} (${percentageChange.toFixed(2)}%)`;
-        } else if (selectedInstrumentId) {
-          const allInstruments = Object.values(instrumentsData).flat();
-          const instrument = allInstruments.find(
-            (i: any) => i.id === selectedInstrumentId
-          );
-          title = instrument?.trading_name || instrument?.name || "Loading...";
-          subTitle = "";
         } else {
-          title = "Select Instrument";
           subTitle = "";
         }
+
         if (active === "Chart") {
           actions = (
             <div className="flex items-center gap-5">
