@@ -73,14 +73,14 @@ const MarketEdit = () => {
   // Resolve initial TP/SL from position torders
   const initialTp = useMemo(() => {
     const tpOrder = position?.torders?.find(
-      (o: any) => o.order_type === "limit"
+      (o: any) => o.order_type === "stop"
     );
     return tpOrder?.price ?? tpOrder?.metadata?.legs?.target ?? 0;
   }, [position]);
 
   const initialSl = useMemo(() => {
     const slOrder = position?.torders?.find(
-      (o: any) => o.order_type === "stop"
+      (o: any) => o.order_type === "limit"
     );
     return slOrder?.price ?? slOrder?.metadata?.legs?.stoploss ?? 0;
   }, [position]);
@@ -116,17 +116,17 @@ const MarketEdit = () => {
     );
 
     const originalTpOrder = position.torders?.find(
-      (o: any) => o.order_type === "limit"
+      (o: any) => o.order_type === "stop"
     );
     const originalSlOrder = position.torders?.find(
-      (o: any) => o.order_type === "stop"
+      (o: any) => o.order_type === "limit"
     );
 
     const promises = [];
 
     let hasUpdateOrPlace = false;
 
-    // TP Logic
+    // TP Logic (Stop Order)
     if (originalTpOrder) {
       if (!tp || tp === 0) {
         promises.push(dispatch(cancelOrder(originalTpOrder.id)).unwrap());
@@ -137,7 +137,7 @@ const MarketEdit = () => {
             updateOrder({
               id: originalTpOrder.id,
               account_id: position.account_id,
-              order_type: "limit",
+              order_type: "stop",
               price: tp,
               qty: position.qty,
               side: position.side === "buy" ? "sell" : "buy",
@@ -155,7 +155,7 @@ const MarketEdit = () => {
             instrument_id: position.instrument_id,
             qty: position.qty,
             price: tp,
-            order_type: "limit",
+            order_type: "stop",
             side: position.side === "buy" ? "sell" : "buy",
             stoploss: 0,
             target: 0,
@@ -165,7 +165,7 @@ const MarketEdit = () => {
       );
     }
 
-    // SL Logic
+    // SL Logic (Limit Order)
     if (originalSlOrder) {
       if (!sl || sl === 0) {
         promises.push(dispatch(cancelOrder(originalSlOrder.id)).unwrap());
@@ -176,7 +176,7 @@ const MarketEdit = () => {
             updateOrder({
               id: originalSlOrder.id,
               account_id: position.account_id,
-              order_type: "stop",
+              order_type: "limit",
               price: sl,
               qty: position.qty,
               side: position.side === "buy" ? "sell" : "buy",
@@ -194,7 +194,7 @@ const MarketEdit = () => {
             instrument_id: position.instrument_id,
             qty: position.qty,
             price: sl,
-            order_type: "stop",
+            order_type: "limit",
             side: position.side === "buy" ? "sell" : "buy",
             stoploss: 0,
             target: 0,

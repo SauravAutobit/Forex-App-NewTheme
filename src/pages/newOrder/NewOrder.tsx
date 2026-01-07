@@ -154,10 +154,10 @@ const NewOrder = () => {
       setSelectedLot(selectedPosition.qty / contractSize);
 
       const slOrder = selectedPosition.torders.find(
-        (o) => o.order_type === "stop"
+        (o) => o.order_type === "limit"
       );
       const tpOrder = selectedPosition.torders.find(
-        (o) => o.order_type === "limit"
+        (o) => o.order_type === "stop"
       );
 
       setStoploss(slOrder?.metadata?.legs?.stoploss || 0);
