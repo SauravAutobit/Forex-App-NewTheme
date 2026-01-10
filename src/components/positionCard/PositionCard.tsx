@@ -493,6 +493,16 @@ const PositionCard = ({
     const showSL = hasPositionId && orderType === "limit";
     const showTP = hasPositionId && orderType === "stop";
 
+    // Logic for right side price: buy -> live_ask, sell -> live_bid
+    const instrument = openOrderData?.instrument_id
+      ? instrumentById.get(openOrderData.instrument_id)
+      : null;
+
+    const livePrice =
+      openOrderData?.side === "buy"
+        ? instrument?.live_ask
+        : instrument?.live_bid;
+
     return (
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
@@ -526,7 +536,9 @@ const PositionCard = ({
               alt="rightArrow"
             />
             <span className="font-tertiary text-primary">
-              {(openOrderData?.price ?? 0).toFixed(5)}
+              {livePrice !== undefined && livePrice !== null
+                ? Number(livePrice).toFixed(5)
+                : ""}
             </span>
           </div>
           <div className="text-primary mt-1 uppercase">{dateTimeString}</div>

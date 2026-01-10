@@ -125,7 +125,8 @@ const Counter: React.FC<CounterProps> = ({
           disabled={
             buttonsDisabled || roundToDecimal(value - (step || 0)) < min
           }
-          className={`flex items-center justify-center w-12 h-12 disabled:cursor-not-allowed transition-colors duration-200  ${
+          // w-12
+          className={`flex items-center justify-center w-10 h-12 disabled:cursor-not-allowed transition-colors duration-200  ${
             theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
           }`}
         >
@@ -165,7 +166,8 @@ const Counter: React.FC<CounterProps> = ({
           disabled={
             buttonsDisabled || roundToDecimal(value + (step || 0)) > max
           }
-          className={`flex items-center justify-center w-12 h-12 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
+          // w-12
+          className={`flex items-center justify-center w-10 h-12 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
             theme === "dark" ? "bg-[#242424]" : "bg-[#E1E1E1]"
           }`}
         >
