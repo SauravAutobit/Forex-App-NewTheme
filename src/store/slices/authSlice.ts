@@ -36,7 +36,7 @@ export const loginUser = createAsyncThunk(
       // Using the IP found in constants or a placeholder.
       // const API_URL = "http://192.46.213.87:5001/login"; 
       
-      const response = await fetch("http://192.46.213.87:5858/api/account/login", { // Trying port 8000 commonly used with python/fastapi/django
+      const response = await fetch("https://api-test.swtik.com/api/account/login", { // Trying port 8000 commonly used with python/fastapi/django
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -4,15 +4,16 @@ import eye from "../../assets/icons/eye.svg";
 import { useNavigate } from "react-router-dom";
 import Checkbox from "../../components/checbox/Checbox";
 // import logoLight from "../../assets/icons/logoLight.svg";
-// import google from "../../assets/icons/google.svg";
-// import apple from "../../assets/icons/apple.svg";
-// import facebook from "../../assets/icons/facebook.svg";
+import google from "../../assets/icons/google.svg";
+import apple from "../../assets/icons/apple.svg";
+import facebook from "../../assets/icons/facebook.svg";
 import NeonGlowBackground from "../../components/neonGlowBackground/NeonGlowBackground";
 import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { loginUser, clearError } from "../../store/slices/authSlice";
-import { store } from "../../store/store";
+import { store, type RootState } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
-// import appleLight from "../../assets/icons/appleLight.svg";
+import appleLight from "../../assets/icons/appleLight.svg";
+import { useSelector } from "react-redux";
 
 const Login = () => {
   const [username, setUsername] = useState(""); // Default for testing
@@ -58,6 +59,8 @@ const Login = () => {
       dispatch(clearError());
     }
   };
+
+  const theme = useSelector((state: RootState) => state.theme.mode);
 
   const [activeOptions, setActiveOptions] = useState(false);
   return (
@@ -119,7 +122,12 @@ const Login = () => {
             </div>
 
             <div className="flex justify-end text-sm">
-              <a href="#" className="text-quaternary">
+              <a
+                href="#"
+                className={
+                  theme === "dark" ? "text-quaternary" : "text-primary"
+                }
+              >
                 Forgot Password?
               </a>
             </div>
@@ -145,6 +153,70 @@ const Login = () => {
               {status === "loading" ? "Logging in..." : "Login"}
             </button>
           </form>
+
+          <div className="flex flex-col items-center mt-[48px]">
+            <div className="flex items-center gap-3">
+              <div
+                className={`h-px w-10 my-2 ${
+                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
+                }`}
+              ></div>
+              <span className="text-secondary font-secondary text-sm">
+                or sign up with
+              </span>
+              <div
+                className={`h-px w-10 my-2  ${
+                  theme === "dark" ? "bg-gray-600" : "bg-[#4B5768]"
+                }`}
+              ></div>
+            </div>
+            <div className="flex items-center gap-1 mt-3.5">
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
+                <img src={google} alt="google" />
+                Google
+              </div>
+
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
+                <img src={theme === "dark" ? apple : appleLight} alt="apple" />
+                Apple
+              </div>
+
+              <div
+                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                  theme === "dark"
+                    ? "border border-[#FAFAFA]"
+                    : "border border-[#2D2D2D]"
+                }`}
+              >
+                <img src={facebook} alt="facebook" />
+                Facebook
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8 text-primary">
+            <span>Don't have an Account? </span>
+            <a
+              href="#"
+              className={`font-[700] hover:underline ${
+                theme === "dark" ? "text-quaternary" : "text-primary"
+              }`}
+            >
+              Sign up here
+            </a>
+          </div>
         </div>
       </div>
     </NeonGlowBackground>

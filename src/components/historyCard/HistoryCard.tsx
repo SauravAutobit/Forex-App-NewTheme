@@ -355,7 +355,7 @@ const HistoryCard = ({
         <div
           // Added a visual cue (border/shadow) when it's the target card
           className={`${
-            isDetailsVisible ? "bg-cardBg" : "bg-inherit"
+            isDetailsVisible ? "bg-cardBg" : "bg-primaryBg"
           } border-b border-primary px-5 py-4 backdrop-blur-[32px] cursor-pointer`}
           onClick={handleClick}
         >
