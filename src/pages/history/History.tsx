@@ -293,7 +293,7 @@ const History = ({}: HistoryProps) => {
       (o) => o.status === "filled"
     ).length;
     const canceledCount = historyOrders?.filter(
-      (o) => o.status === "cancelled"
+      (o) => o.status === "canceled"
     ).length;
     const totalCount = historyOrders?.length;
     return {

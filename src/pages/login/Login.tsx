@@ -72,7 +72,6 @@ const Login = () => {
               // src={theme === "dark" ? logo : logoLight}
               src={logo}
               alt="Intrabit Logo"
-              className="h-10"
             />
           </div>
           <form onSubmit={handleLogin} className="space-y-5">
