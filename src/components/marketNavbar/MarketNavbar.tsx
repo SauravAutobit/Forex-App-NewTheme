@@ -82,7 +82,7 @@ export default function MarketsNavbar({
           </div>
         </div>
 
-        {pathname === "/app/home" && !isFlag.favourites.status && (
+        {pathname === "/app/home" && !isFlag?.favourites?.status && (
           <img
             src={theme === "dark" ? filter : filterLight}
             alt="filter"

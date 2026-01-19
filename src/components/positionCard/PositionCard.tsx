@@ -70,6 +70,7 @@ const PositionCard = ({
 }: PositionCardProps) => {
   const longPressTimer = useRef<number | null>(null);
   const instrumentsMap = useSelector((s: RootState) => s.instruments.data);
+  const liveQuotes = useSelector((state: RootState) => state.quotes.liveQuotes);
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   // === FIX: Define isHistoryOrder to resolve TS2304 error ===
@@ -168,10 +169,10 @@ const PositionCard = ({
     pnl = 0;
   } else {
     // open/live position: use buy -> live_ask, sell -> live_bid
+    const instrumentId = (position as Position)?.instrument_id;
+    const quotes = instrumentId ? liveQuotes[instrumentId] : null;
     const currentPrice =
-      (position as Position)?.side === "buy"
-        ? (position as Position)?.live_ask
-        : (position as Position)?.live_bid;
+      (position as Position)?.side === "buy" ? quotes?.ask : quotes?.bid;
     if (
       currentPrice !== undefined &&
       typeof (position as Position)?.price === "number"
@@ -216,10 +217,10 @@ const PositionCard = ({
   const dateTimeString = `${formattedDate} | ${formattedTime}`;
 
   // Live instrument price to show on right side for live positions/trades
+  const instrumentId = (position as Position)?.instrument_id;
+  const quotes = instrumentId ? liveQuotes[instrumentId] : null;
   const instrumentLivePrice =
-    (position as Position)?.side === "buy"
-      ? (position as Position)?.live_ask
-      : (position as Position)?.live_bid;
+    (position as Position)?.side === "buy" ? quotes?.ask : quotes?.bid;
 
   // ⭐️⭐️⭐️ MAJOR FIX: Simplified and corrected instrument name resolution ⭐️⭐️⭐️
   const resolvedInstrumentName = useMemo(() => {
@@ -382,7 +383,7 @@ const PositionCard = ({
         return `${displayQty.toFixed(2)} at market`;
       }
       return `${displayQty.toFixed(2)} @ ${Number(
-        openOrderData.price ?? 0
+        openOrderData.price ?? 0,
       ).toFixed(5)}`;
     }
 
@@ -393,7 +394,7 @@ const PositionCard = ({
         return `${qty.toFixed(2)} at market`;
       }
       return `${qty.toFixed(2)} @ ${Number(historyOrderData.price ?? 0).toFixed(
-        5
+        5,
       )}`;
     }
     if (label === "Position") {
@@ -409,8 +410,8 @@ const PositionCard = ({
         typeof (position as any)?.price === "number"
           ? (position as any).price.toFixed(5)
           : dealData && (dealData as any).price
-          ? Number((dealData as any).price).toFixed(5)
-          : "0.00000";
+            ? Number((dealData as any).price).toFixed(5)
+            : "0.00000";
       return `${displayQty.toFixed(2)} @ ${price}`;
     }
     return `${displayQty.toFixed(2)}`;
@@ -488,20 +489,16 @@ const PositionCard = ({
 
   const renderPendingView = () => {
     // Determine if we should show SL or TP badge based on order type and position_id
-    const hasPositionId = openOrderData?.position_id;
     const orderType = openOrderData?.order_type?.toLowerCase();
-    const showSL = hasPositionId && orderType === "limit";
-    const showTP = hasPositionId && orderType === "stop";
+    const showSL = orderType === "limit";
+    const showTP = orderType === "stop";
 
     // Logic for right side price: buy -> live_ask, sell -> live_bid
-    const instrument = openOrderData?.instrument_id
-      ? instrumentById.get(openOrderData.instrument_id)
+    const quotes = openOrderData?.instrument_id
+      ? liveQuotes[openOrderData.instrument_id]
       : null;
 
-    const livePrice =
-      openOrderData?.side === "buy"
-        ? instrument?.live_ask
-        : instrument?.live_bid;
+    const livePrice = openOrderData?.side === "buy" ? quotes?.ask : quotes?.bid;
 
     return (
       <div className="flex justify-between items-center w-full">

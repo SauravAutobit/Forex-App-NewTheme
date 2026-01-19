@@ -142,7 +142,7 @@ const HistoryCard = ({
     const contractSize =
       historyPositionData?.instruments?.[0]?.contract_size || 1;
     const inTrade = historyPositionData?.trades?.find(
-      (t: any) => t.type === "in"
+      (t: any) => t.type === "in",
     );
     // Use inTrade qty if available (which is usually the open qty)
     const rawQty = inTrade?.qty ?? historyPositionData?.qty ?? 0;
@@ -207,7 +207,7 @@ const HistoryCard = ({
 
   if (isHistoryPosition) {
     const outTrade = historyPositionData?.trades?.find(
-      (t: any) => t.type === "out"
+      (t: any) => t.type === "out",
     );
     if (outTrade && typeof outTrade.price === "number") {
       topRightPrice = outTrade.price;
@@ -219,13 +219,16 @@ const HistoryCard = ({
   // Charges
   // Helper to sum charges
   const totalCharges = useMemo(() => {
-    if (historyPositionData?.trades) {
+    if (
+      historyPositionData?.trades &&
+      Array.isArray(historyPositionData.trades)
+    ) {
       return historyPositionData.trades.reduce((sum, t) => {
-        const ch = t.charges || [];
+        const ch = Array.isArray(t.charges) ? t.charges : [];
         return sum + ch.reduce((s, c) => s + (c.charge || 0), 0);
       }, 0);
     }
-    if (dealData?.charges) {
+    if (dealData?.charges && Array.isArray(dealData.charges)) {
       // @ts-ignore
       return dealData.charges.reduce((s, c) => s + (c.charge || 0), 0);
     }

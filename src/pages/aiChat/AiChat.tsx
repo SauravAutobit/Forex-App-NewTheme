@@ -114,7 +114,7 @@ const aiTradingPrompts = [
 const AIChat = () => {
   const [inputMessage, setInputMessage] = useState("");
   const { messages, status } = useAppSelector(
-    (state: RootState) => state.aiChat
+    (state: RootState) => state.aiChat,
   );
 
   const theme = useSelector((state: RootState) => state.theme.mode);
@@ -170,7 +170,7 @@ const AIChat = () => {
   const messageEndRef = useRef<HTMLDivElement>(null); // For auto-scroll
 
   const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
+    (state: RootState) => state.websockets.apiStatus,
   );
   // 🆕 EFFECT TO LOAD CHAT HISTORY ON MOUNT
   useEffect(() => {
@@ -273,9 +273,9 @@ const AIChat = () => {
                 msg.type === "user"
                   ? "bg-[#AEED09] text-[#181818] rounded-[20px] rounded-br-none"
                   : theme === "dark"
-                  ? "bg-[#181818] rounded-[20px] rounded-bl-none"
-                  : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
-              }`}
+                    ? "bg-[#181818] rounded-[20px] rounded-bl-none"
+                    : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
+              } break-words`}
             >
               {/* Always use Markdown for committed messages */}
               <Markdown>{msg.text}</Markdown>
@@ -292,7 +292,7 @@ const AIChat = () => {
               className="w-10 h-10 rounded-full flex-shrink-0"
             />
             <div
-              className={`p-3 rounded-[20px] rounded-bl-none inline-block max-w-[100%] min-w-[280px] ${
+              className={`p-3 rounded-[20px] rounded-bl-none inline-block max-w-[100%] min-w-[280px] break-words ${
                 theme === "dark" ? "bg-[#181818]" : "bg-[#E5E5E5]"
               }`}
             >

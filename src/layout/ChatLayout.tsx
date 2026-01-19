@@ -8,7 +8,7 @@ export default function ChatLayout() {
     <div className="flex flex-col h-screen bg-primaryBg">
       {/* Custom Header */}
       <header className="flex items-center px-4 h-[56px]">
-        <button onClick={() => navigate(-1)} className="hover:bg-gray-800 pr-4">
+        <button onClick={() => navigate(-1)} className="pr-4">
           <ChevronLeft size={24} />
         </button>
         <h1 className="text-xl font-secondary">Fintrabit AI</h1>

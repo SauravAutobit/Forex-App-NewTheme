@@ -73,11 +73,11 @@ export default function Header({
 
   // Function to handle the "Confirm" click and exit selection mode
   const instrumentsData = useAppSelector(
-    (state: RootState) => state.instruments.data
+    (state: RootState) => state.instruments.data,
   );
 
   const { data: categories } = useSelector(
-    (state: RootState) => state.categories
+    (state: RootState) => state.categories,
   );
 
   // ✅ SIMPLIFIED: Handle Confirm
@@ -149,10 +149,10 @@ export default function Header({
   };
 
   const selectedInstrumentId = useAppSelector(
-    (state: RootState) => state.instruments.selectedInstrumentId
+    (state: RootState) => state.instruments.selectedInstrumentId,
   );
   const liveQuotes = useAppSelector(
-    (state: RootState) => state.quotes.liveQuotes
+    (state: RootState) => state.quotes.liveQuotes,
   );
   // console.log("selectedInstrumentId", selectedInstrumentId, liveQuotes);
   const iconSrc =
@@ -161,8 +161,8 @@ export default function Header({
         ? favouriteTickLight
         : notFavouriteTickLight
       : star
-      ? favouriteTick
-      : notFavouriteTick;
+        ? favouriteTick
+        : notFavouriteTick;
 
   const conditionalRender = () => {
     let title = "";
@@ -172,7 +172,7 @@ export default function Header({
     switch (pathname) {
       case "/app/home":
         // 1. If in Selection Mode, show Confirm Button
-        if (isFlag.favourites.status) {
+        if (isFlag?.favourites?.status) {
           title = "Add to Favourites";
           actions = (
             // NOTE: Add your disabled styling/logic here based on if any items are selected
@@ -211,7 +211,7 @@ export default function Header({
         const allInstruments = Object.values(instrumentsData).flat();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
         const staticInstrument = allInstruments.find(
-          (i: any) => i.id === selectedInstrumentId
+          (i: any) => i.id === selectedInstrumentId,
         );
 
         // eslint-disable-next-line no-case-declarations
@@ -230,7 +230,7 @@ export default function Header({
           const percentageChange =
             quote.close !== 0 ? (change / quote.close) * 100 : 0;
           subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
-            2
+            2,
           )} (${percentageChange.toFixed(2)}%)`;
         } else {
           subTitle = "";
@@ -304,7 +304,7 @@ export default function Header({
         const allInstrumentsNewOrder = Object.values(instrumentsData).flat();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-case-declarations
         const staticInstrumentNewOrder = allInstrumentsNewOrder.find(
-          (i: any) => i.id === selectedInstrumentId
+          (i: any) => i.id === selectedInstrumentId,
         );
 
         // eslint-disable-next-line no-case-declarations
@@ -325,7 +325,7 @@ export default function Header({
               ? (change / quoteNewOrder.close) * 100
               : 0;
           subTitle = `${change >= 0 ? "+" : ""}${change.toFixed(
-            2
+            2,
           )} (${percentageChange.toFixed(2)}%)`;
         } else {
           subTitle = "";
@@ -365,7 +365,7 @@ export default function Header({
           className={`text-primary font-secondary flex-1 flex flex-col text-left`}
         >
           {/* Render the title based on the state */}
-          <span>{isFlag.favourites.status ? "Add to Favourites" : title}</span>
+          <span>{isFlag?.favourites?.status ? "Add to Favourites" : title}</span>
           {subTitle && (
             <span className="text-sm font-primary text-profit">{subTitle}</span>
           )}
