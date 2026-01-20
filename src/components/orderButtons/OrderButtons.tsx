@@ -355,7 +355,7 @@ const OrderButtons = ({
               <>
                 Sell{" "}
                 <span style={{ fontSize: "20px", marginLeft: "10px" }}>
-                  {selectedQuote?.bid?.toFixed(2) || "0.00"}
+                  {selectedQuote?.bid || "0.00"}
                 </span>
               </>
             }
@@ -371,7 +371,7 @@ const OrderButtons = ({
               <>
                 Buy{" "}
                 <span style={{ fontSize: "20px", marginLeft: "10px" }}>
-                  {selectedQuote?.ask?.toFixed(2) || "0.00"}
+                  {selectedQuote?.ask || "0.00"}
                 </span>
               </>
             }
@@ -392,7 +392,7 @@ const OrderButtons = ({
               <>
                 Sell{" "}
                 <span style={{ fontSize: "20px", marginLeft: "10px" }}>
-                  {orderPrice?.toFixed(2) || "0.00"}
+                  {orderPrice || "0.00"}
                 </span>
               </>
             }
@@ -408,7 +408,7 @@ const OrderButtons = ({
               <>
                 Buy{" "}
                 <span style={{ fontSize: "20px", marginLeft: "10px" }}>
-                  {orderPrice?.toFixed(2) || "0.00"}
+                  {orderPrice || "0.00"}
                 </span>
               </>
             }

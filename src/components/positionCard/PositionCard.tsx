@@ -509,12 +509,16 @@ const PositionCard = ({
                 {resolvedInstrumentName}
               </h2>
               {showTP && (
-                <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+                <span
+                  className={`${theme === "dark" ? "bg-tertiary" : "bg-cardBg border border-[#878787]"} w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
+                >
                   TP
                 </span>
               )}
               {showSL && (
-                <span className="w-[18px] h-[18px] bg-tertiary text-sm text-secondary flex justify-center items-center rounded-[4px]">
+                <span
+                  className={`${theme === "dark" ? "bg-tertiary" : "bg-cardBg border border-[#878787]"} w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
+                >
                   SL
                 </span>
               )}
