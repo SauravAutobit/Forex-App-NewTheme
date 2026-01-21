@@ -7,9 +7,8 @@ import "./DateCalender.css";
 import "./DateCalenderModal.css";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
-import leftArrow from "../../assets/icons/leftArrow.svg";
+// import leftArrow from "../../assets/icons/leftArrow.svg";
 import leftArrowBlack from "../../assets/icons/leftArrowBlack.svg";
-
 
 interface DateCalenderProps {
   activeTab: string;
@@ -93,7 +92,7 @@ const DateCalender: React.FC<DateCalenderProps> = ({
     } else {
       setTempEndDate(null);
     }
-  };  
+  };
 
   const handleApplyClick = () => {
     onApply(tempStartDate, tempEndDate, tempWeekIndex);
