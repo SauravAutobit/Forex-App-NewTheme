@@ -31,6 +31,10 @@ export const AppRoutes = createBrowserRouter([
     path: "/",
     element: <Login />,
   },
+  // {
+  //   path: "/login",
+  //   element: <Login />,
+  // },
   {
     // /app
     path: "/app",

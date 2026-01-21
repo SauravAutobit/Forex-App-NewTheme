@@ -18,6 +18,7 @@
     "@reduxjs/toolkit": "^2.9.0",
     "fintrabit-charts": "8.00",
     "framer-motion": "^12.23.13",
+    "jwt-decode": "^4.0.0",
     "lightweight-charts": "^4.2.3",
     "lucide-react": "^0.544.0",
     "markdown-to-jsx": "^7.7.13",

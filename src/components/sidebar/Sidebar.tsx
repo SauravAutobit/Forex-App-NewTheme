@@ -8,10 +8,17 @@ import Theme from "../theme/Theme";
 import Button from "../button/Button";
 import AccountList from "../accountList/AccountList";
 import { useAppSelector } from "../../store/hook";
-import logout from "../../assets/icons/logout.svg";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../store/store";
+import logoutIcon from "../../assets/icons/logout.svg";
 import logoutLight from "../../assets/icons/logoutLight.svg";
 import lightAiStar from "../../assets/icons/lightAiStar.svg";
 import aiStar from "../../assets/icons/aiStar.svg";
+import { useState } from "react";
+import Logout from "../logout/Logout";
+import { logoutCurrentAccount } from "../../store/slices/authSlice";
+import { store } from "../../store/store";
+import { reinitializeSockets } from "../../services/socketService";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,15 +27,45 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const theme = useAppSelector((state) => state.theme.mode);
   const { user } = useAppSelector((state) => state.auth);
+
+  const [showLogout, setShowLogout] = useState(false);
+
+  const handleLogoutConfirm = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await dispatch(logoutCurrentAccount()).unwrap()) as any;
+    setShowLogout(false);
+    onClose();
+
+    if (result) {
+      // A new user is active, re-initialize sockets
+      reinitializeSockets(store);
+      // Navigate to home to ensure fresh state, or stay depending on UX preference
+      navigate("/app/home");
+    } else {
+      // No active user, redirect to login
+      navigate("/");
+    }
+  };
 
   return (
     <>
       {/* Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/60" onClick={onClose} />
+      )}
+
+      {/* Logout Overlay */}
+      {showLogout && (
+        <div className="fixed inset-0 z-[2100] bg-black/60 flex items-center justify-center">
+          <Logout
+            onConfirm={handleLogoutConfirm}
+            onCancel={() => setShowLogout(false)}
+          />
+        </div>
       )}
 
       {/* Sidebar */}
@@ -85,8 +122,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <img src={theme === "dark" ? aiStar : lightAiStar} alt="aiStar" />
             Fintrabit AI
           </button>
-          <button className="w-full text-left py-2.5 px-4 rounded flex items-center gap-3 text-primary">
-            <img src={theme === "dark" ? logout : logoutLight} alt="aiStar" />
+          <button
+            onClick={() => setShowLogout(true)}
+            className="w-full text-left py-2.5 px-4 rounded flex items-center gap-3 text-primary"
+          >
+            <img
+              src={theme === "dark" ? logoutIcon : logoutLight}
+              alt="logout"
+            />
             Logout
           </button>
         </div>

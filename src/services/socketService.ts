@@ -332,5 +332,16 @@ export const reinitializeSockets = (store: Store) => {
   initializeSockets(store);
 };
 
+export const disconnectSockets = () => {
+    console.log("🔌 Disconnecting all sockets...");
+    if (apiClient) apiClient.close();
+    if (streamClient) streamClient.close();
+    if (eventClient) eventClient.close();
+    
+    apiClient = null as any;
+    streamClient = null as any;
+    eventClient = null as any;
+};
+
 export { apiClient, streamClient, eventClient };
 

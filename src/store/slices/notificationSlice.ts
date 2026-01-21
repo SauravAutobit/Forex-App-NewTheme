@@ -4,14 +4,15 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 // Define the shape of the data needed for the Toasty component
 export interface ToastyData {
-  type?: 'trade' | 'undo'; // Default to 'trade' if undefined for backward compatibility
+  type?: 'trade' | 'undo' | 'success' | 'error'; // Extended types
+  title?: string; // Add title support
   // Trade specific
   instrumentName?: string; 
   side?: string; 
   quantity?: number; 
   status?: string; 
   price?: number; 
-  // Undo specific
+  // Undo/General specific
   message?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   undoPayload?: any; 

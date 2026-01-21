@@ -1,4 +1,8 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
+import { apiClient, disconnectSockets } from "../../services/socketService";
+import { getSessionIdFromToken } from "../../utils/tokenUtils";
+import { showToasty } from "./notificationSlice";
+import { parseErrorMessage } from "../../utils/errorUtils";
 
 // Define the shape of the user/account object
 export interface User {
@@ -32,11 +36,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials: { username: string; password: string }, { rejectWithValue }) => {
     try {
-      // TODO: Replace with actual API URL. Assuming standard endpoint for now.
-      // Using the IP found in constants or a placeholder.
-      // const API_URL = "http://192.46.213.87:5001/login"; 
-      
-      const response = await fetch("https://api-test.swtik.com/api/account/login", { // Trying port 8000 commonly used with python/fastapi/django
+      const response = await fetch("https://api-test.swtik.com/api/account/login", { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,6 +61,78 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// Async thunk for robust logout
+export const logoutCurrentAccount = createAsyncThunk(
+  "auth/logoutCurrentAccount",
+  async (_, { dispatch, rejectWithValue, getState }) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const state: any = getState();
+      const token = state.auth.user?.token;
+      
+      if (!token) {
+         // Even if no token, perform client-side logout cleanup
+         dispatch(authSlice.actions.logout());
+         disconnectSockets();
+         return null;
+      }
+
+      const sessionId = getSessionIdFromToken(token);
+
+      if (apiClient && sessionId) {
+         // Attempt server-side logout
+         try {
+             await apiClient.send("account/logout", {
+                session_id: sessionId,
+              });
+              dispatch(
+                showToasty({
+                  title: "Logout Successful",
+                  message: "Logged out successfully",
+                  type: "success",
+                })
+              );
+         } catch (apiError) {
+             console.warn("API logout failed, proceeding with client logout:", apiError);
+         }
+      }
+      
+      // Perform client-side cleanup (removes current user, switches to next)
+      dispatch(authSlice.actions.logout());
+      
+      // Get new state to see if there is an active user
+      const updatedState: any = getState();
+      const newUser = updatedState.auth.user;
+
+      if (!newUser) {
+          // No users left, disconnect everything
+          disconnectSockets();
+          return null; // Signals complete logout
+      } else {
+          // User switched. We need to re-initialize sockets.
+          // Since we can't easily access 'store' here to pass to reinitializeSockets, 
+          // we will handle this in the UI or let the caller know.
+          // Or better: disconnect current sockets, and let the caller re-init?
+          // Actually, if we just return `newUser`, the Sidebar can handle it.
+          // BUT `disconnectSockets()` clears the clients. 
+          // We SHOULD disconnect old sockets first.
+          disconnectSockets();
+          return newUser;
+      }
+
+    } catch (error) {
+      dispatch(
+        showToasty({
+          title: "Logout Error",
+          message: parseErrorMessage(error),
+          type: "error",
+        })
+      );
+      return rejectWithValue(parseErrorMessage(error));
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -70,12 +142,20 @@ export const authSlice = createSlice({
       if (state.user) {
         state.accounts = state.accounts.filter(a => a.username !== state.user?.username);
       }
-      state.user = state.accounts.length > 0 ? state.accounts[0] : null;
+      
+      // Switch to next available account
+      if (state.accounts.length > 0) {
+          state.user = state.accounts[state.accounts.length - 1]; // Use last added as typical behavior, or index 0
+      } else {
+          state.user = null;
+      }
       
       // Update localStorage
       localStorage.setItem("accounts", JSON.stringify(state.accounts));
       if (state.user) {
         localStorage.setItem("activeAccount", JSON.stringify(state.user));
+        // Important: If we switch user, we might need to reload or re-init sockets. 
+        // The UI/App.tsx should handle the re-init based on user change.
       } else {
         localStorage.removeItem("activeAccount");
       }
