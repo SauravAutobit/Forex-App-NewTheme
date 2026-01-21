@@ -101,7 +101,7 @@ const Trade = () => {
   // ✅ CALCULATE USED BALANCE (OLD APP Logic: sum of used_balance from positions)
   const totalUsedBalance = openPositions.reduce(
     (sum, position) => sum + (position.used_balance || 0),
-    0
+    0,
   );
 
   // ✅ CALCULATE OTHER BALANCES (OLD APP Logic)
@@ -368,7 +368,7 @@ const Trade = () => {
                 <img
                   src={getSortIcon(
                     activeFilter.sort.alphabetically,
-                    "alphabetically"
+                    "alphabetically",
                   )}
                   alt="alphabets"
                 />
@@ -447,7 +447,7 @@ const Trade = () => {
               ].map((option) => {
                 const groupPnl = option.list.reduce(
                   (acc, p) => acc + calculatePnL(p),
-                  0
+                  0,
                 );
                 return (
                   <div
@@ -511,22 +511,22 @@ const Trade = () => {
                       break;
                     case "profitable":
                       targetPositions = openPositions.filter(
-                        (p) => calculatePnL(p) > 0
+                        (p) => calculatePnL(p) > 0,
                       );
                       break;
                     case "losing":
                       targetPositions = openPositions.filter(
-                        (p) => calculatePnL(p) < 0
+                        (p) => calculatePnL(p) < 0,
                       );
                       break;
                     case "long":
                       targetPositions = openPositions.filter(
-                        (p) => p.side === "buy"
+                        (p) => p.side === "buy",
                       );
                       break;
                     case "short":
                       targetPositions = openPositions.filter(
-                        (p) => p.side === "sell"
+                        (p) => p.side === "sell",
                       );
                       break;
                   }
@@ -549,3 +549,5 @@ const Trade = () => {
 };
 
 export default Trade;
+
+// as
