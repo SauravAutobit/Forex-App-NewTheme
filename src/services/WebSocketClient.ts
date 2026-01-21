@@ -42,6 +42,7 @@ export class WebSocketClient {
     private messageHandler: ((msg: unknown) => void) | null = null;
   // ✅ ADD THIS NEW PROPERTY
   private onConnectCallbacks: (() => void)[] = [];
+  private shouldReconnect = true; // ✅ Control flag for auto-reconnection
 
   constructor(
     url: string,
@@ -65,6 +66,7 @@ export class WebSocketClient {
   }
   
   public connect() {
+    this.shouldReconnect = true; // ✅ Allow reconnection attempts
     this.setStatus('connecting');
     if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
       console.warn("[WebSocket] Already connected or connecting.");
@@ -83,7 +85,6 @@ export class WebSocketClient {
     this.ws.onmessage = (event: MessageEvent) => {
       try {
         const msg = JSON.parse(event.data);
-
     
         if (msg.rid && this.pendingRequests.has(msg.rid)) {
           
@@ -121,28 +122,32 @@ export class WebSocketClient {
         });
         this.pendingRequests.delete(rid);
       });
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      
+      // ✅ Check shouldReconnect before attempting to reconnect
+      if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
         this.reconnectAttempts++;
         this.setStatus('reconnecting');
         setTimeout(() => this.connect(), this.reconnectInterval);
+      } else if (!this.shouldReconnect) {
+        console.log(`[WebSocket] Connection closed explicitly for ${this.url}. No reconnect attempt.`);
       } else {
         console.error(`[WebSocket] Max reconnect attempts reached for ${this.url}.`);
       }
     };
     this.ws.onerror = (err) => {
       console.error(`⚠️ WebSocket error for ${this.url}:`, err);
-      this.ws?.close();
+      // this.ws?.close(); // Let onclose handle it, or close if not closed
     };
   }
 
+  // ... (send, sendStreamMessage, setMessageHandler, startPinging, stopPinging methods remain the same) 
   
   /**
    * Sends a message and returns a Promise that resolves with the response.
    * @param target The API endpoint/target.
    * @param payload The data to send.
    * @param timeout Timeout in seconds.
-      * @param signal The AbortSignal for cancellation. ✅ NEW PARAMETER
-
+   * @param signal The AbortSignal for cancellation. ✅ NEW PARAMETER
    */
   public send<T>(target: string, payload: object, timeout = 30, signal?: AbortSignal): Promise<ResponsePayload<T>> {
     return new Promise((resolve, reject) => {
@@ -150,7 +155,6 @@ export class WebSocketClient {
         return reject({ message: "WebSocket is not connected.", status: "failed" });
       }
       const rid = crypto.randomUUID();
-      // const session = new URL(this.url).searchParams.get("t") || "xyz";
        const message = { rid, target, payload };
 
      // ✅ Cancellation Cleanup Function
@@ -187,16 +191,6 @@ export class WebSocketClient {
       this.ws.send(JSON.stringify(message));
     });
   }
-  //     const timer = setTimeout(() => {
-  //       if (this.pendingRequests.has(rid)) {
-  //         this.pendingRequests.delete(rid);
-  //         reject({ message: `Request timed out after ${timeout} seconds.`, status: "failed" });
-  //       }
-  //     }, timeout * 1000);
-  //     this.pendingRequests.set(rid, { resolve, reject, timer } as PendingRequest<unknown>);
-  //     this.ws.send(JSON.stringify(message));
-  //   });
-  // }
 
  public sendStreamMessage(message: object): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -239,6 +233,7 @@ export class WebSocketClient {
    * Close the WebSocket connection
    */
   public close(): void {
+    this.shouldReconnect = false; // ✅ Disable auto-reconnection
     if (this.ws) {
       this.stopPinging();
       this.ws.close();

@@ -240,7 +240,9 @@ export const initializeSockets = (store: Store) => {
     const appDispatch = store.dispatch as AppDispatch;
 
     eventClient.setMessageHandler((msg: unknown) => {
-      console.log("🚨 Received EVENT message:", msg);
+      // Requested Global Log for debugging
+      console.log("Global Event Message:", msg);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eventData = msg as any;
       
