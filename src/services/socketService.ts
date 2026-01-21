@@ -243,13 +243,15 @@ export const initializeSockets = (store: Store) => {
       console.log("🚨 Received EVENT message:", msg);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eventData = msg as any;
-      if (eventData.event === "order" && eventData.order.status === "filled") {
+      
+      // Handle all order events
+      if (eventData.event === "order" && eventData.order) {
         const payload: ToastyData = {
-          instrumentName: eventData.instrument.name.toUpperCase(),
-          side: eventData.trade.side,
-          quantity: eventData.trade.qty,
+          instrumentName: eventData.instrument?.name?.toUpperCase() || "UNKNOWN",
+          side: eventData.trade?.side || eventData.order?.side || "buy",
+          quantity: eventData.trade?.qty || eventData.order?.qty || 0,
           status: eventData.order.status, 
-          price: eventData.trade.price,
+          price: eventData.trade?.price || eventData.order?.price || 0,
         };
 
         store.dispatch(showToasty(payload));

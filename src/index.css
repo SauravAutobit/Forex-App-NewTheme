@@ -81,6 +81,8 @@
 
   --calender-date-btn-bgcolor: #aeed09;
   --calender-date-btn-text-color: #2d2d2d;
+  --calender-tab-bg-color: #dbdbdb;
+  --calender-tab-text-color: #1e1e1e;
   /* btn color */
   --primary-btn-color: #e42d4e;
   --secondary-btn-color: rgba(255, 255, 255, 0.08);
@@ -158,6 +160,8 @@
 
   --calender-date-btn-bgcolor: #aeed09;
   --calender-date-btn-text-color: #2d2d2d;
+  --calender-tab-bg-color: #2d2d2d;
+  --calender-tab-text-color: "#FAFAFA";
   /* btn color */
   --primary-btn-color: #e42d4e;
   --secondary-btn-color: rgba(255, 255, 255, 0.08);
@@ -235,7 +239,9 @@ body,
   /* scroll-behavior: smooth; */
   max-width: 390px;
   margin: auto;
-  transition: background-color 200ms linear, color 160ms linear;
+  transition:
+    background-color 200ms linear,
+    color 160ms linear;
 }
 
 /* Apply to body */

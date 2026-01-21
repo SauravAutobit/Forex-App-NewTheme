@@ -9,6 +9,7 @@ interface DateChangerProps {
   height?: string;
   onOpen?: () => void;
   width?: string;
+  changeText?: string;
 }
 
 const DateChanger = ({
@@ -20,6 +21,7 @@ const DateChanger = ({
   height = "41px",
   onOpen,
   width,
+  changeText = "Change Date",
 }: DateChangerProps) => {
   const theme = useAppSelector((state) => state.theme.mode);
 
@@ -37,10 +39,16 @@ const DateChanger = ({
           className={`font-secondary ${
             theme === "dark" ? "text-quaternary" : "text-primary"
           }`}
-          style={{ width }}
+          style={{
+            width: width || "auto",
+            textAlign: width ? "center" : "left",
+          }}
         >
           {date}
         </p>
+        {!dualDate && (
+          <p className="text-sm text-[#AEED09]">{changeText}</p>
+        )}
       </div>
       {dualDate && (
         <div className="w-full flex items-center justify-between mt-1">
@@ -49,10 +57,14 @@ const DateChanger = ({
             className={`font-secondary ${
               theme === "dark" ? "text-quaternary" : "text-primary"
             }`}
-            style={{ width }}
+            style={{
+              width: width || "auto",
+              textAlign: width ? "center" : "left",
+            }}
           >
             {secondaryDate}
           </p>
+          <p className="text-sm text-[#AEED09]">{changeText}</p>
         </div>
       )}
     </div>

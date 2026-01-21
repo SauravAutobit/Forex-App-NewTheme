@@ -1,36 +1,32 @@
 .react-datepicker__header {
-  /* background-color: #181818 !important; */
-  background-color: var(--card-color) !important;
-  border: none;
+  background-color: var(--tabs-searchbar-bg-color) !important;
+  border: none !important;
+  padding-top: 0 !important;
+}
 
-  /* background-color: var(--card-color) !important;
-  border: none !important; */
+/* Flickering fix */
+.calendar-content-area {
+  transition: opacity 0.2s ease;
 }
 
 .react-datepicker__current-month,
 .react-datepicker-time__header,
 .react-datepicker-year-header {
   color: var(--primary-color) !important;
-  /* color: var(--primary-color) !important; */
 }
 
 .react-datepicker__day-name,
 .react-datepicker__day,
 .react-datepicker__time-name {
-  /* color: #fafafa !important; */
-  color: #2d2d2d !important;
+  color: var(--primary-color) !important;
 }
 
 .react-datepicker {
-  /* background-color: #181818 !important; */
-  background-color: var(--card-color) !important;
-  /* background-color: var(--tabs-searchbar-bg-color) !important; */
+  width: 100% !important;
+  max-width: 335px !important;
+  background-color: var(--tabs-searchbar-bg-color) !important;
   border: none !important;
-  color: #fafafa !important;
-  /* color: var(--primary-color) !important; */
-  /* width: 280px; */
-  /* display: flex; */
-  /* justify-content: center; */
+  color: var(--primary-color) !important;
 }
 
 .react-datepicker__day-names {
@@ -50,36 +46,36 @@
 .react-datepicker__quarter-text--in-range,
 .react-datepicker__year-text--selected,
 .react-datepicker__year-text--in-selecting-range,
-.react-datepicker__year-text--in-range,
-.react-datepicker__day--today.react-datepicker__day--selected {
-  background-color: #aeed09 !important;
-  color: #000000 !important;
+.react-datepicker__year-text--in-range {
+  background: #aeed09 !important;
+  color: #2d2d2d !important;
 }
 
 .react-datepicker__day-name,
 .react-datepicker__day,
 .react-datepicker__time-name {
   width: 2.4rem !important;
-  color: var(--primary-color) !important;
 }
-/* .react-datepicker__day-name,
-.react-datepicker__day,
-.react-datepicker__time-name {
-  color: #aeed09 !important;
-} */
 
 .react-datepicker__day--keyboard-selected,
 .react-datepicker__month-text--keyboard-selected,
 .react-datepicker__quarter-text--keyboard-selected,
 .react-datepicker__year-text--keyboard-selected {
-  /* background: #505050 !important;
-  color: #aeed09 !important; */
-
   background: #aeed09 !important;
-  color: #000000 !important;
+  color: #2d2d2d !important;
+}
 
-  /* background: var(--calender-date-btn-bgcolor) !important;
-  color: #2d2d2d !important; */
+/* Default hover for any unselected day */
+.react-datepicker__day:hover,
+.react-datepicker__month-text:hover,
+.react-datepicker__quarter-text:hover,
+.react-datepicker__year-text:hover {
+  background-color: #aeed09 !important;
+  color: #2d2d2d !important;
+}
+
+.react-datepicker__navigation {
+  margin: 0 5px;
 }
 
 /* Days from previous / next month */
@@ -95,99 +91,40 @@
   cursor: default !important;
 }
 
-/* Default hover for any unselected day */
-.react-datepicker__day:hover,
-.react-datepicker__month-text:hover,
-.react-datepicker__quarter-text:hover,
-.react-datepicker__year-text:hover {
-  /* background: #505050 !important;
-  color: #aeed09 !important; */
-
-  background: #aeed09 !important;
-  color: #000000 !important;
-  /* background-color: var(
-    --calender-date-btn-bgColor-hover
-  ) !important; 
-  color: var(
-    --calender-date-btn-bgcolor
-  ) !important;  */
-}
-
+/* Hide default navigation since we use renderCustomHeader */
 .react-datepicker__navigation {
-  margin: 0 5px;
+  display: none !important;
 }
 
-/* Days from previous / next month */
-/* prevent default dimming */
-.react-datepicker__day--outside-month {
-  color: #878787 !important;
-  opacity: 1 !important;
+.react-datepicker__month-container {
+  width: 100% !important;
 }
 
-/* optional: remove hover for outside days */
-.react-datepicker__day--outside-month:hover {
-  background-color: transparent !important;
-  color: #878787 !important;
-  cursor: default !important;
-}
-
-/* Wrapper circle behind arrows */
-/* dark background */
-.react-datepicker__navigation {
-  background-color: #aeed09 !important;
-  border-radius: 6px !important;
-  width: 36px !important;
-  height: 36px !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-}
-
-/* keep the button's original placement/layout while ensuring its content is centered */
-.react-datepicker__navigation {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  box-sizing: border-box !important;
-  background-color: #aeed09 !important;
-  border-radius: 6px !important;
-}
-
-/* LEFT ARROW BUTTON */ /* shifts triangle to the left */
-.react-datepicker__navigation--previous {
-  padding-right: 7px !important;
-  width: 33.89px !important;
-  height: 33.89px !important;
-  border-radius: 4.24px !important;
-  background-color: #aeed09 !important;
-}
-
-/* RIGHT ARROW BUTTON */ /* shifts triangle to the left */
-.react-datepicker__navigation--next {
-  padding-left: 7px !important;
-  width: 33.89px !important;
-  height: 33.89px !important;
-  border-radius: 4.24px !important;
-  background-color: #aeed09 !important;
-}
-
-.react-datepicker__navigation-icon::before,
-.react-datepicker__year-read-view--down-arrow,
-.react-datepicker__month-read-view--down-arrow,
-.react-datepicker__month-year-read-view--down-arrow {
-  border-color: #2d2d2d !important;
-}
 /* Month Picker Styling */
 .react-datepicker__month-text {
-  width: 4.5rem !important;
-  height: 2.5rem !important;
-  line-height: 2.5rem !important;
+  width: 80px !important;
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   margin: 5px !important;
-  border-radius: 8px !important;
+  border-radius: 4px !important;
   font-size: 14px !important;
   font-weight: 500 !important;
+  /* background-color: #2a2a30 !important; */
+  /* background-color: #302f2f !important; #272626 */
+  background-color: var(--calender-tab-bg-color) !important;
+  color: var(--calender-tab-text-color) !important;
+}
+
+.react-datepicker__month-text--today {
+  /* background-color: #2a2a30 !important; */
+  font-weight: 500 !important;
+}
+
+.react-datepicker__month-text--selected {
+  background-color: #aeed09 !important;
+  color: #2d2d2d !important;
 }
 
 .react-datepicker__month-wrapper {
@@ -202,4 +139,76 @@
 
 .react-datepicker__month {
   margin: 10px 0 !important;
+}
+
+/* Weekly Picker Custom Styling */
+.weekly-picker-container {
+  width: 100%;
+  max-width: 335px;
+}
+
+.weekly-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.nav-btn {
+  background-color: #aeed09 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  width: 36px !important;
+  height: 36px !important;
+  color: #2d2d2d !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Add hover effect for nav buttons if desired, or keep simple */
+.nav-btn:hover {
+  background-color: #aeed09 !important;
+  opacity: 0.9;
+}
+
+.nav-title {
+  color: var(--primary-color) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+
+.weeks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 10px;
+  padding-top: 50px;
+}
+
+.week-btn {
+  /* background-color: #2a2a30 !important; */
+  /* background-color: #302f2f !important; #272626 */
+  /* color: #878787 !important; */
+  background-color: var(--calender-tab-bg-color) !important;
+  color: var(--calender-tab-text-color) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  height: 40px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease;
+}
+
+.week-btn.selected {
+  color: #2d2d2d !important;
+  background-color: #aeed09 !important;
+}
+
+.week-btn:hover {
+  background-color: #aeed09 !important;
+  color: #2d2d2d !important;
 }

@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import DateCalender from "../../components/dateCalender/DateCalender";
+import DateCalender, {
+  getWeeksInMonth,
+} from "../../components/dateCalender/DateCalender";
 import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
@@ -18,7 +20,7 @@ const formatDateStr = (date: Date | null | undefined): string => {
   if (!date) return "";
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+  const year = date.getFullYear(); //toString().slice(2);
   return `${day}/${month}/${year}`;
 };
 
@@ -35,12 +37,30 @@ const General = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [activeTab, setActiveTab] = useState("date");
   const [startDate, setStartDate] = useState<Date>(new Date());
+
+  // Weekly Logic State
+  const [weeklyRange, setWeeklyRange] = useState<{
+    start: Date;
+    end: Date;
+    index: number;
+  }>(() => {
+    const today = new Date();
+    const weeks = getWeeksInMonth(today);
+    const found =
+      weeks.find((w) => today >= w.start && today <= w.end) || weeks[0];
+    return {
+      start: found.start,
+      end: found.end,
+      index: weeks.indexOf(found) + 1,
+    };
+  });
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [searchTerm] = useState("");
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
 
   const { data: historyPositions } = useSelector(
-    (state: RootState) => state.historyPositions
+    (state: RootState) => state.historyPositions,
   );
   const { apiStatus } = useSelector((state: RootState) => state.websockets);
 
@@ -71,8 +91,20 @@ const General = () => {
     });
   }, [historyPositions]);
 
-  const handleApplyDate = (start: Date, _end: Date | null) => {
-    setStartDate(start);
+  const handleApplyDate = (
+    start: Date,
+    end: Date | null,
+    weekIndex?: number,
+  ) => {
+    if (activeTab === "date") {
+      setStartDate(start);
+    } else if (activeTab === "weekly") {
+      if (end) {
+        setWeeklyRange({ start, end, index: weekIndex || 1 });
+      }
+    } else if (activeTab === "monthly") {
+      setStartDate(start);
+    }
     setShowCalendar(false);
   };
 
@@ -92,14 +124,11 @@ const General = () => {
         );
       });
     } else if (activeTab === "weekly") {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-
-      const dayOfWeek = start.getDay();
-      const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-      const endOfWeek = new Date(start);
-      endOfWeek.setDate(start.getDate() + daysUntilSunday);
-      endOfWeek.setHours(23, 59, 59, 999);
+      const { start, end } = weeklyRange;
+      const startOfRange = new Date(start);
+      startOfRange.setHours(0, 0, 0, 0);
+      const endOfRange = new Date(end);
+      endOfRange.setHours(23, 59, 59, 999);
 
       filtered = filtered.filter((item) => {
         const dateTimeStr = String(item.dateTime || "");
@@ -107,7 +136,7 @@ const General = () => {
         const datePart = dateTimeStr.split(" | ")[0];
         const [d, m, y] = datePart.split("/");
         const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
-        return itemDate >= start && itemDate <= endOfWeek;
+        return itemDate >= startOfRange && itemDate <= endOfRange;
       });
     } else if (activeTab === "monthly") {
       const targetMonth = startDate.getMonth();
@@ -126,12 +155,12 @@ const General = () => {
       filtered = filtered.filter((item) =>
         String(item.quotes || "")
           .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+          .includes(searchTerm.toLowerCase()),
       );
     }
 
     return filtered;
-  }, [activeTab, startDate, searchTerm, tradeData]);
+  }, [activeTab, startDate, weeklyRange, searchTerm, tradeData]);
 
   const groupedData = useMemo(() => {
     const groups: {
@@ -189,37 +218,37 @@ const General = () => {
         />
       </div>
 
-      {/* <div className="px-5">
-        <SearchBar
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div> */}
-
       <div className="px-5">
         {activeTab === "date" && (
           <DateChanger
             text="Date:"
             date={formatDateStr(startDate)}
             onOpen={() => setShowCalendar(true)}
+            changeText="Change Date"
           />
         )}
         {activeTab === "weekly" && (
           <DateChanger
-            text="Start Date:"
-            date={formatDateStr(startDate)}
-            secondaryText="(Till Sunday)"
+            text="Week:"
+            // Week ${weeklyRange.index}:
+            date={`${formatDateStr(
+              weeklyRange.start,
+            )} - ${formatDateStr(weeklyRange.end)}`}
+            width="180px"
             onOpen={() => setShowCalendar(true)}
+            changeText="Change Week"
           />
         )}
         {activeTab === "monthly" && (
           <DateChanger
-            text="Select Month:"
+            text="Month:"
             date={startDate.toLocaleString("default", {
               month: "long",
               year: "numeric",
             })}
+            width="140px"
             onOpen={() => setShowCalendar(true)}
+            changeText="Change Month"
           />
         )}
       </div>
@@ -239,10 +268,6 @@ const General = () => {
                   style={{ boxShadow: "none" }}
                 >
                   <div className="flex items-center gap-3">
-                    {/* <div className="flex -space-x-2">
-                      <div className="w-6 h-6 rounded-full border border-[#181818] bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" />
-                      <div className="w-6 h-6 rounded-full border border-[#181818] bg-gradient-to-br from-[#4facfe] to-[#00f2fe]" />
-                    </div> */}
                     <span className="text-primary">{symbol}</span>
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -258,7 +283,6 @@ const General = () => {
                       alt="dropdownArrow"
                       animate={{ rotate: isExpanded ? 180 : 0 }}
                       transition={{ duration: 0.2 }}
-                      // className="w-4 h-4"
                     />
                   </div>
                 </button>
@@ -282,7 +306,6 @@ const General = () => {
                             className="h-[49px] flex items-center justify-between py-2.5 px-5 border-b border-primary last:border-0"
                           >
                             <div className="flex items-center gap-3">
-                              {/* <div className="w-6 h-6 rounded-full border border-white/10 bg-gradient-to-br from-[#FF6B6B] to-[#FFE66D]" /> */}
                               <span className="font-tertiary">{symbol}</span>
                             </div>
                             <span
@@ -312,8 +335,14 @@ const General = () => {
         isOpen={showCalendar}
         onClose={() => setShowCalendar(false)}
         activeTab={activeTab}
-        initialStartDate={startDate}
-        initialEndDate={null}
+        initialStartDate={
+          activeTab === "date"
+            ? startDate
+            : activeTab === "weekly"
+              ? weeklyRange.start
+              : startDate
+        }
+        initialEndDate={activeTab === "weekly" ? weeklyRange.end : null}
         onApply={handleApplyDate}
         showMonthYearPicker={activeTab === "monthly"}
       />
