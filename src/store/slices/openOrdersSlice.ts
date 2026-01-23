@@ -282,6 +282,11 @@ export const openOrdersSlice = createSlice({
         (order) => order.id !== action.payload
       );
     },
+    resetOpenOrders: (state) => {
+      state.orders = [];
+      state.status = "idle";
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -316,6 +321,7 @@ export const openOrdersSlice = createSlice({
   },
 });
 
+export const { removeOrder, resetOpenOrders } = openOrdersSlice.actions;
 export const selectOpenOrders = (state: RootState) => state.openOrders.orders;
 export const selectOpenOrdersStatus = (state: RootState) =>
   state.openOrders.status;

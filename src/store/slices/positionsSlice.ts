@@ -127,6 +127,11 @@ export const positionsSlice = createSlice({
                 }
             });
         },
+        resetPositions: (state) => {
+            state.positions = [];
+            state.status = 'idle';
+            state.error = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -148,6 +153,6 @@ export const positionsSlice = createSlice({
     },
 });
 
-export const { updatePositionQuote } = positionsSlice.actions;
+export const { updatePositionQuote, resetPositions } = positionsSlice.actions;
 export const selectPositions = (state: RootState) => state.positions.positions;
 export default positionsSlice.reducer;

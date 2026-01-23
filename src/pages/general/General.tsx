@@ -63,14 +63,13 @@ const General = () => {
     (state: RootState) => state.historyPositions,
   );
   const { apiStatus } = useSelector((state: RootState) => state.websockets);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (apiStatus === "connected") {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       dispatch(fetchHistoryPositions({ offset: 0, limit: 100 }));
     }
-  }, [apiStatus, dispatch]);
+  }, [apiStatus, dispatch, user?.username]);
 
   const tradeData = useMemo(() => {
     if (!historyPositions) return [];

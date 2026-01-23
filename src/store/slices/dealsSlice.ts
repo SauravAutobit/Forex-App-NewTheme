@@ -123,7 +123,7 @@ const dealsSlice = createSlice({
   name: "deals",
   initialState,
   reducers: {
-    clearDeals(state) {
+    resetDeals(state) {
       state.deals = [];
       state.status = "idle";
       state.error = null;
@@ -160,5 +160,5 @@ const dealsSlice = createSlice({
   },
 });
 
-export const { clearDeals } = dealsSlice.actions;
+export const { resetDeals } = dealsSlice.actions;
 export default dealsSlice.reducer;

@@ -19,6 +19,7 @@ import Logout from "../logout/Logout";
 import { logoutCurrentAccount } from "../../store/slices/authSlice";
 import { store } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
+import { resetAllDataSlices } from "../../utils/dataUtils";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -41,6 +42,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     onClose();
 
     if (result) {
+      // Clear old data first
+      resetAllDataSlices(dispatch);
       // A new user is active, re-initialize sockets
       reinitializeSockets(store);
       // Navigate to home to ensure fresh state, or stay depending on UX preference

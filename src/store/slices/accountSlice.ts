@@ -47,7 +47,13 @@ export const fetchAccountBalance = createAsyncThunk(
 export const accountSlice = createSlice({
   name: 'account',
   initialState,
-  reducers: {},
+  reducers: {
+    resetAccount: (state) => {
+      state.account = null;
+      state.status = 'idle';
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAccountBalance.pending, (state) => {
@@ -64,5 +70,6 @@ export const accountSlice = createSlice({
   },
 });
 
+export const { resetAccount } = accountSlice.actions;
 export const selectAccount = (state: RootState) => state.account.account;
 export default accountSlice.reducer;

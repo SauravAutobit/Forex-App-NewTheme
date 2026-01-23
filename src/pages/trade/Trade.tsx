@@ -69,6 +69,7 @@ const Trade = () => {
   const openOrders = useAppSelector((state) => state.openOrders.orders) || [];
   const historyPositions =
     useAppSelector((state) => state.historyPositions.data) || [];
+  const { user } = useAppSelector((state) => state.auth);
 
   // Fetch all trade data when connected
   useEffect(() => {
@@ -81,7 +82,7 @@ const Trade = () => {
 
       dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
     }
-  }, [apiStatus, dispatch]);
+  }, [apiStatus, dispatch, user?.username]);
 
   // ✅ P&L CALCULATION (OLD APP Logic)
   const totalPnl = openPositions.reduce((sum, position) => {

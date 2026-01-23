@@ -5,6 +5,7 @@ import { switchAccount } from "../../store/slices/authSlice";
 import MultiAccountModal from "../multiAccountModal/MultiAccountModal";
 import { store } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
+import { resetAllDataSlices } from "../../utils/dataUtils";
 
 const AccountList = () => {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
@@ -24,6 +25,8 @@ const AccountList = () => {
 
   const handleSwitchAccount = (username: string) => {
     dispatch(switchAccount(username));
+    // Clear old data first
+    resetAllDataSlices(dispatch);
     // Reinitialize sockets with the new account's token
     reinitializeSockets(store);
   };

@@ -56,16 +56,17 @@ const Home = () => {
 
   // --- Redux State Selectors ---
   const { data: categories, status: categoriesStatus } = useSelector(
-    (state: RootState) => state.categories
+    (state: RootState) => state.categories,
   );
   const { data: instrumentsData, status: instrumentsStatus } = useSelector(
-    (state: RootState) => state.instruments
+    (state: RootState) => state.instruments,
   );
+  const { user } = useSelector((state: RootState) => state.auth);
   const liveQuotes = useSelector((state: RootState) => state.quotes.liveQuotes);
 
   const theme = useSelector((s: RootState) => s.theme.mode);
   const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
+    (state: RootState) => state.websockets.apiStatus,
   );
 
   // Helper to get the actual lowercase category name from the capitalized active tab
@@ -111,7 +112,7 @@ const Home = () => {
           type: "undo",
           message: "Instrument removed",
           undoPayload: itemToRemove,
-        })
+        }),
       );
 
       setTimeout(() => {
@@ -148,7 +149,7 @@ const Home = () => {
         import("../../services/socketService").then(
           ({ unsubscribeFromInstruments }) => {
             unsubscribeFromInstruments(prevInstruments.map((i) => i.id));
-          }
+          },
         );
       }
     }
@@ -160,7 +161,7 @@ const Home = () => {
         import("../../services/socketService").then(
           ({ subscribeToInstruments }) => {
             subscribeToInstruments(currentInstruments.map((i) => i.id));
-          }
+          },
         );
       }
     }
@@ -180,7 +181,7 @@ const Home = () => {
     ) {
       dispatch(fetchCategories());
     }
-  }, [apiStatus, dispatch, pathname]);
+  }, [apiStatus, dispatch, pathname, user?.username]);
 
   useEffect(() => {
     if (categoriesStatus === "succeeded" && categories.length > 0) {
@@ -225,7 +226,7 @@ const Home = () => {
 
   // Filter regular instruments based on search query
   let filteredInstruments = currentCategoryInstruments.filter((inst) =>
-    inst.trading_name.toLowerCase().includes(searchQuery.toLowerCase())
+    inst.trading_name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   //   console.log("filteredInstruments HOME", filteredInstruments);
@@ -287,7 +288,7 @@ const Home = () => {
 
   // Filter favorite items based on search query
   const filteredFavorites = favoriteItems.filter((item) =>
-    item.code.toLowerCase().includes(searchQuery.toLowerCase())
+    item.code.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // --- Rendering ---
@@ -370,8 +371,8 @@ const Home = () => {
               {instrumentsStatus === "loading"
                 ? `Loading ${active} instruments...`
                 : searchQuery
-                ? `No results found for "${searchQuery}"`
-                : `No instruments found for ${active}.`}
+                  ? `No results found for "${searchQuery}"`
+                  : `No instruments found for ${active}.`}
             </p>
           )}
         </div>
@@ -440,7 +441,7 @@ const Home = () => {
                 <img
                   src={getSortIcon(
                     activeFilter.sort.alphabetically,
-                    "alphabetically"
+                    "alphabetically",
                   )}
                   alt="alphabets"
                 />
