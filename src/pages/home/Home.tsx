@@ -135,39 +135,59 @@ const Home = () => {
 
   // --- Effects ---
 
-  // Handle Dynamic Subscriptions based on Category
+  // --- Consolidated Subscription Management ---
   useEffect(() => {
     if (apiStatus !== "connected") return;
 
-    // Unsubscribe from previous category instruments
-    if (
-      prevCategoryRef.current &&
-      prevCategoryRef.current !== activeCategoryName
-    ) {
-      const prevInstruments = instrumentsData[prevCategoryRef.current] || [];
-      if (prevInstruments.length > 0) {
+    // 1. Determine which IDs we need to be subscribed to
+    let targetIds: string[] = [];
+
+    if (active === "Favorites") {
+      // Subscribe to all favorite instruments
+      targetIds = favoriteItems.map((item) => item.id);
+    } else if (activeCategoryName) {
+      // Subscribe to instruments in the current category
+      const currentInstruments = instrumentsData[activeCategoryName] || [];
+      targetIds = currentInstruments.map((i) => i.id);
+    }
+
+    // 2. Unsubscribe from IDs no longer needed
+    const prevIds = prevCategoryRef.current
+      ? prevCategoryRef.current.split(",") || []
+      : [];
+    const idsToUnsubscribe = prevIds.filter((id) => !targetIds.includes(id));
+
+    if (idsToUnsubscribe.length > 0) {
+      import("../../services/socketService").then(
+        ({ unsubscribeFromInstruments }) => {
+          unsubscribeFromInstruments(idsToUnsubscribe);
+        },
+      );
+    }
+
+    // 3. Subscribe to new target IDs
+    if (targetIds.length > 0) {
+      import("../../services/socketService").then(
+        ({ subscribeToInstruments }) => {
+          subscribeToInstruments(targetIds);
+        },
+      );
+    }
+
+    // 4. Update ref for next run (store as comma separated string for easy comparison)
+    prevCategoryRef.current = targetIds.join(",");
+
+    // Cleanup: Unsubscribe on unmount
+    return () => {
+      if (targetIds.length > 0) {
         import("../../services/socketService").then(
           ({ unsubscribeFromInstruments }) => {
-            unsubscribeFromInstruments(prevInstruments.map((i) => i.id));
+            unsubscribeFromInstruments(targetIds);
           },
         );
       }
-    }
-
-    // Subscribe to current category instruments
-    if (activeCategoryName) {
-      const currentInstruments = instrumentsData[activeCategoryName] || [];
-      if (currentInstruments.length > 0) {
-        import("../../services/socketService").then(
-          ({ subscribeToInstruments }) => {
-            subscribeToInstruments(currentInstruments.map((i) => i.id));
-          },
-        );
-      }
-    }
-
-    prevCategoryRef.current = activeCategoryName;
-  }, [activeCategoryName, apiStatus, instrumentsData]);
+    };
+  }, [active, activeCategoryName, apiStatus, instrumentsData, favoriteItems]);
 
   // Reset search query when switching tabs (Optional UX preference)
   useEffect(() => {
@@ -286,10 +306,27 @@ const Home = () => {
     });
   }
 
-  // Filter favorite items based on search query
-  const filteredFavorites = favoriteItems.filter((item) =>
-    item.code.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Filter favorite items based on search query AND merge with live data
+  const filteredFavorites = favoriteItems
+    .filter((item) =>
+      item.code.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+    .map((item) => {
+      const live = liveQuotes[item.id];
+      if (!live) return item;
+      return {
+        ...item,
+        bid: live.bid || item.bid,
+        ask: live.ask || item.ask,
+        high: live.high || item.high,
+        low: live.low || item.low,
+        ltp: live.ltp || item.ltp,
+        close: live.close || item.close,
+        timestamp: live.timestamp
+          ? new Date(live.timestamp).toLocaleTimeString()
+          : item.timestamp,
+      };
+    });
 
   // --- Rendering ---
 

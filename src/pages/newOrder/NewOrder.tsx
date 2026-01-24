@@ -45,20 +45,20 @@ const NewOrder = () => {
   const positionId = searchParams.get("positionId") || undefined;
 
   const selectedInstrumentId = useSelector(
-    (state: RootState) => state.instruments.selectedInstrumentId
+    (state: RootState) => state.instruments.selectedInstrumentId,
   );
   const instrumentsData = useSelector(
-    (state: RootState) => state.instruments.data
+    (state: RootState) => state.instruments.data,
   );
   const positions = useSelector(
-    (state: RootState) => state.positions.positions
+    (state: RootState) => state.positions.positions,
   );
   const quotes = useSelector((state: RootState) => state.quotes.quotes);
   const liveQuotes = useSelector((state: RootState) => state.quotes.liveQuotes);
 
   const selectedPosition = useMemo(
     () => positions.find((p) => p.id === positionId),
-    [positions, positionId]
+    [positions, positionId],
   );
 
   const instrumentId =
@@ -73,7 +73,7 @@ const NewOrder = () => {
 
     // 1. Check Watchlist
     const quote = quotes.find(
-      (q) => String(q.id).trim().toLowerCase() === instrumentIdStr
+      (q) => String(q.id).trim().toLowerCase() === instrumentIdStr,
     );
     if (quote) return quote;
 
@@ -83,7 +83,7 @@ const NewOrder = () => {
     // 3. Check LiveQuotes (Case-Insensitive Keys)
     const keys = Object.keys(liveQuotes);
     const matchKey = keys.find(
-      (k) => k.trim().toLowerCase() === instrumentIdStr
+      (k) => k.trim().toLowerCase() === instrumentIdStr,
     );
     if (matchKey) return liveQuotes[matchKey];
 
@@ -97,7 +97,7 @@ const NewOrder = () => {
 
     for (const category in instrumentsData) {
       const found = instrumentsData[category].find(
-        (inst) => String(inst.id).trim().toLowerCase() === instrumentIdStr
+        (inst) => String(inst.id).trim().toLowerCase() === instrumentIdStr,
       );
       if (found) return found;
     }
@@ -113,7 +113,7 @@ const NewOrder = () => {
   }, [instrumentId]);
 
   const [activeTabId, setActiveTabId] = useState<"market" | "limit" | "stop">(
-    "market"
+    "market",
   );
   const [selectedLot, setSelectedLot] = useState(1);
   const [price, setPrice] = useState<number | null>(null);
@@ -154,10 +154,10 @@ const NewOrder = () => {
       setSelectedLot(selectedPosition.qty / contractSize);
 
       const slOrder = selectedPosition.torders.find(
-        (o) => o.order_type === "limit"
+        (o) => o.order_type === "limit",
       );
       const tpOrder = selectedPosition.torders.find(
-        (o) => o.order_type === "stop"
+        (o) => o.order_type === "stop",
       );
 
       setStoploss(slOrder?.metadata?.legs?.stoploss || 0);
@@ -172,7 +172,8 @@ const NewOrder = () => {
   ];
 
   const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
-    () => editOptions.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {})
+    () =>
+      editOptions.reduce((acc, curr) => ({ ...acc, [curr.key]: false }), {}),
   );
 
   const getContractSize = () => {
