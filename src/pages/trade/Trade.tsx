@@ -254,32 +254,32 @@ const Trade = () => {
         </div>
       ),
     },
-    {
-      id: "closed",
-      label: "Closed",
-      content: (
-        <div>
-          {sortedHistoryPositions.map((pos, index) => {
-            return (
-              <PositionCard
-                key={pos.id || index}
-                position={{} as any}
-                historyPositionData={pos}
-                label="History"
-                onClick={() => {
-                  setIsFlag((prev) => ({
-                    ...prev,
-                    closedEdit: { status: true },
-                  }));
-                  navigate("/app/closedEdit", { state: { position: pos } });
-                }}
-                onLongPress={() => {}}
-              />
-            );
-          })}
-        </div>
-      ),
-    },
+    // {
+    //   id: "closed",
+    //   label: "Closed",
+    //   content: (
+    //     <div>
+    //       {sortedHistoryPositions.map((pos, index) => {
+    //         return (
+    //           <PositionCard
+    //             key={pos.id || index}
+    //             position={{} as any}
+    //             historyPositionData={pos}
+    //             label="History"
+    //             onClick={() => {
+    //               setIsFlag((prev) => ({
+    //                 ...prev,
+    //                 closedEdit: { status: true },
+    //               }));
+    //               navigate("/app/closedEdit", { state: { position: pos } });
+    //             }}
+    //             onLongPress={() => {}}
+    //           />
+    //         );
+    //       })}
+    //     </div>
+    //   ),
+    // },
   ];
 
   const profitBalanceProps: ProfitBalanceProps = {

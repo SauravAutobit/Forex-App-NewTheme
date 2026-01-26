@@ -72,18 +72,18 @@ const Charts = () => {
     Object.fromEntries(list.map((item) => [item.key, false]));
 
   const [activeOptions, setActiveOptions] = useState(
-    makeInitialState(tradingOptions)
+    makeInitialState(tradingOptions),
   );
 
   const [chartToolsOptions, setChartToolsOptions] = useState(
-    makeInitialState(chartOptions)
+    makeInitialState(chartOptions),
   );
 
   const allInstrumentsData = useAppSelector(
-    (state: RootState) => state.instruments.data
+    (state: RootState) => state.instruments.data,
   );
   const reduxSelectedId = useAppSelector(
-    (state: RootState) => state.instruments.selectedInstrumentId
+    (state: RootState) => state.instruments.selectedInstrumentId,
   );
 
   const instrumentsForDropdown = useMemo(() => {
@@ -120,7 +120,7 @@ const Charts = () => {
         side,
         stoploss: 0,
         target: 0,
-      })
+      }),
     );
   };
 
@@ -137,7 +137,7 @@ const Charts = () => {
     } else {
       // If currently selected instrument is not present in new list, pick first
       const exists = instrumentsForDropdown.find(
-        (i) => i.id === selectedInstrumentId
+        (i) => i.id === selectedInstrumentId,
       );
       if (!exists) {
         setSelectedInstrumentId(instrumentsForDropdown[0].id);
@@ -154,7 +154,7 @@ const Charts = () => {
           timeframe: selectedTimeframe,
           startIndex: 0,
           endIndex: 99,
-        })
+        }),
       );
     }
   }, [selectedInstrumentId, dispatch, selectedTimeframe]);
@@ -181,18 +181,18 @@ const Charts = () => {
   // 250 160
 
   // const heightWithButtons = "calc(100vh - 250px)";
-
-  const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
+  // "Info",
+  const tabs = ["Chart", "Overview", "Calendar", "Positions", "Orders"];
   const historyPositions = useAppSelector(
-    (state) => state.historyPositions.data
+    (state) => state.historyPositions.data,
   );
   const historyOrders = useAppSelector((state) => state.historyOrders.data);
 
   const filteredHistoryPositions = historyPositions.filter(
-    (p) => p.instrument_id === selectedInstrumentId
+    (p) => p.instrument_id === selectedInstrumentId,
   );
   const filteredHistoryOrders = historyOrders.filter(
-    (o) => o.instrument_id === selectedInstrumentId
+    (o) => o.instrument_id === selectedInstrumentId,
   );
 
   const theme = useAppSelector((s: RootState) => s.theme.mode);

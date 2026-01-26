@@ -40,31 +40,28 @@ const Overview = ({
               console.log("overview");
             }}
           />
-          <OverviewPerformance />
+          {/* <OverviewPerformance /> */}
 
-          <div className="px-5 mt-5">
+          {/* <div className="px-5 mt-5">
             <div className="mb-2.5 text-primary">Market sentiment</div>
-            {/* Scenario 1: Matches your screenshot (60% Buy, 40% Sell) */}
             <ProgressBar
               timeframe="5 minutes (M5)"
               buyPercentage={60}
               sellPercentage={40}
             />
 
-            {/* Scenario 2: Strong Sell Sentiment */}
             <ProgressBar
               timeframe="1 hour (H1)"
               buyPercentage={25}
               sellPercentage={75}
             />
 
-            {/* Scenario 3: Balanced Sentiment */}
             <ProgressBar
               timeframe="1 day (D1)"
               buyPercentage={50}
               sellPercentage={50}
             />
-          </div>
+          </div> */}
         </div>
 
         <div
