@@ -7,8 +7,6 @@ import useLocalStorage from "../utils/useLocalStorage";
 import OrderStatus from "../components/orderStatus/OrderStatus";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
-import Toasty from "../components/toasty/Toasty";
-import { AnimatePresence, motion } from "framer-motion";
 import { hideToasty } from "../store/slices/notificationSlice";
 
 export type DrawerState = {
@@ -123,14 +121,21 @@ const MainLayout = () => {
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
 
   const { data: categories } = useSelector(
-    (state: RootState) => state.categories
+    (state: RootState) => state.categories,
   );
 
-  // Handle initial tab selection on mount based on favorites
+  // Handle initial tab selection on mount based on favorites or previous history
   useEffect(() => {
-    // Only run once on initial mount when categories are loaded
     if (categories.length > 0) {
-      if (favoriteItems.length === 0) {
+      const prev = localStorage.getItem("previousCategory");
+      if (
+        prev &&
+        categories.some(
+          (c) => c.toLowerCase() === prev.toLowerCase() || prev === "Favorites",
+        )
+      ) {
+        setActive(prev);
+      } else if (favoriteItems.length === 0) {
         // No favorites - set first category as active
         const firstCategory =
           categories[0].charAt(0).toUpperCase() + categories[0].slice(1);
@@ -173,10 +178,14 @@ const MainLayout = () => {
     }
   }, [pathname, active]);
 
-  // ✅ NEW: Get Toasty state from Redux
-  const { isVisible, data } = useSelector(
-    (state: RootState) => state.notification
-  );
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleUndoEvent = (e: any) => {
+      handleUndo(e.detail);
+    };
+    window.addEventListener("undo-favourite", handleUndoEvent);
+    return () => window.removeEventListener("undo-favourite", handleUndoEvent);
+  }, [favoriteItems]); // Re-bind if needed, though handleUndo is stable-ish
 
   const dispatch = useDispatch();
 
@@ -209,21 +218,6 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative text-white bg-primaryBg">
-      <AnimatePresence>
-        {isVisible && data && (
-          <>
-            <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed bottom-[75px] left-0 right-0 z-50 flex justify-center" // Adjust bottom position to clear BottomNavbar
-            >
-              <Toasty onUndo={handleUndo} />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
       <Header
         isFlag={isFlag}
         setIsFlag={setIsFlag}

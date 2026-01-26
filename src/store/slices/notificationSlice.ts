@@ -4,7 +4,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 // Define the shape of the data needed for the Toasty component
 export interface ToastyData {
-  type?: 'trade' | 'undo' | 'success' | 'error'; // Extended types
+  type?: 'trade' | 'undo' | 'success' | 'error' | 'warning'; // Extended types
   title?: string; // Add title support
   // Trade specific
   instrumentName?: string; 

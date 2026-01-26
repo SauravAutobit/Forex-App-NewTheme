@@ -333,8 +333,15 @@ const Home = () => {
   return (
     <div className="mt-[95px] mb-10">
       <div
-        className="w-full px-5 bg-primaryBg"
-        style={{ position: "fixed", top: "56px", left: "0", zIndex: 10 }} // Added zIndex for safety
+        className="w-full px-5 bg-primaryBg" // w-full
+        style={{
+          position: "fixed",
+          top: "56px",
+          // left: "0",
+          zIndex: 10,
+          maxWidth: "390px",
+          // margin: "auto",
+        }} // Added zIndex for safety
       >
         <SearchBar value={searchQuery} onChange={handleSearchChange} />
         <MarketsNavbar

@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hook";
 import { loginUser, clearError } from "../../store/slices/authSlice";
 import eye from "../../assets/icons/eye.svg";
 import Checkbox from "../checbox/Checbox";
+import { showToasty } from "../../store/slices/notificationSlice";
 
 interface MultiAccountModalProps {
   onClose: () => void;
@@ -31,6 +32,12 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
 
       if (loginUser.fulfilled.match(result)) {
         // Success
+        dispatch(
+          showToasty({
+            type: "success",
+            message: "Login Successfully!",
+          }),
+        );
         onClose();
       } else {
         // Error

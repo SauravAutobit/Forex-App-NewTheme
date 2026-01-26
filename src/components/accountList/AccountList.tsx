@@ -5,6 +5,7 @@ import { switchAccount } from "../../store/slices/authSlice";
 import MultiAccountModal from "../multiAccountModal/MultiAccountModal";
 import { store } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
+import { showToasty } from "../../store/slices/notificationSlice";
 import { resetAllDataSlices } from "../../utils/dataUtils";
 
 const AccountList = () => {
@@ -29,6 +30,12 @@ const AccountList = () => {
     resetAllDataSlices(dispatch);
     // Reinitialize sockets with the new account's token
     reinitializeSockets(store);
+    dispatch(
+      showToasty({
+        type: "success",
+        message: "Login Successfully!",
+      }),
+    );
   };
 
   // If no user is logged in, or accounts list is empty, handle gracefully (though Sidebar usually requires login)

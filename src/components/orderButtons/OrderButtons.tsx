@@ -140,9 +140,9 @@ const OrderButtons = ({
     }
 
     let basePrice: number | null = null;
-    console.log("[OrderButtons] handlePlaceOrder side:", side);
-    console.log("[OrderButtons] Instrument ID:", instrumentId);
-    console.log("[OrderButtons] Selected Quote:", selectedQuote);
+    // console.log("[OrderButtons] handlePlaceOrder side:", side);
+    // console.log("[OrderButtons] Instrument ID:", instrumentId);
+    // console.log("[OrderButtons] Selected Quote:", selectedQuote);
 
     if (selectedOrderType === "market") {
       basePrice =

@@ -13,6 +13,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { DrawerState, IsFlagType } from "../../layout/MainLayout";
 // import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 // import type { DrawerState, IsFlagType } from "../../layout/MainLayout";
+import { useLocation } from "react-router-dom";
 // import { useAppSelector } from "../../store/hook";
 
 const navLinks = [
@@ -59,6 +60,34 @@ export default function BottomNavbar({
     }
   }, [isDrawerOpen]);
 
+  const { pathname } = useLocation();
+
+  const isItemSelected = (to: string) => {
+    if (to === "home") {
+      return (
+        pathname === "/app/home" ||
+        pathname === "/app" ||
+        pathname === "/app/charts" ||
+        pathname === "/app/newOrder"
+      );
+    }
+    if (to === "trade") {
+      return (
+        pathname === "/app/trade" ||
+        pathname === "/app/marketEdit" ||
+        pathname === "/app/pendingEdit" ||
+        pathname === "/app/closedEdit"
+      );
+    }
+    if (to === "history") {
+      return pathname === "/app/history" || pathname === "/app/editHistory";
+    }
+    if (to === "console") {
+      return pathname === "/app/console";
+    }
+    return pathname.includes(to);
+  };
+
   return (
     <>
       {/* Backdrop when drawer is open */}
@@ -75,12 +104,14 @@ export default function BottomNavbar({
               <NavLink
                 key={to}
                 to={to}
-                className={({ isActive }) =>
-                  `flex flex-col items-center text-xs py-1 px-2 gap-1 ${
-                    isActive ? "text-quaternary" : "text-disabledBottom"
-                  }`
-                }
-                onClick={() =>
+                className={() => {
+                  const active = isItemSelected(to);
+                  return `flex flex-col items-center text-xs py-1 px-2 gap-1 ${
+                    active ? "text-quaternary" : "text-disabledBottom"
+                  }`;
+                }}
+                onClick={() => {
+                  localStorage.removeItem("previousCategory");
                   setIsFlag((prev: IsFlagType) => ({
                     ...prev,
                     favourites: { status: false },
@@ -90,20 +121,23 @@ export default function BottomNavbar({
                     marketEdit: { status: false },
                     newOrder: { status: false },
                     pendingEdit: { status: false },
-                  }))
-                }
+                  }));
+                }}
               >
-                {({ isActive }) => (
-                  <>
-                    <img
-                      src={isActive && selectedIcon ? selectedIcon : icon}
-                      alt={label}
-                      width={20}
-                      height={20}
-                    />
-                    <span>{label}</span>
-                  </>
-                )}
+                {() => {
+                  const active = isItemSelected(to);
+                  return (
+                    <>
+                      <img
+                        src={active && selectedIcon ? selectedIcon : icon}
+                        alt={label}
+                        width={20}
+                        height={20}
+                      />
+                      <span>{label}</span>
+                    </>
+                  );
+                }}
               </NavLink>
             ))}
           </div>

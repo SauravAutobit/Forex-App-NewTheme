@@ -14,6 +14,7 @@ import { store, type RootState } from "../../store/store";
 import { reinitializeSockets } from "../../services/socketService";
 import appleLight from "../../assets/icons/appleLight.svg";
 import { useSelector } from "react-redux";
+import { showToasty } from "../../store/slices/notificationSlice";
 
 const Login = () => {
   const [username, setUsername] = useState(""); // Default for testing
@@ -33,9 +34,17 @@ const Login = () => {
 
       // Navigate to home - MainLayout will handle setting the correct initial tab
       // based on whether favorites exist or not
+      // based on whether favorites exist or not
       navigate("/app/home");
+
+      dispatch(
+        showToasty({
+          type: "success",
+          message: "Login Successfully!",
+        }),
+      );
     }
-  }, [user, status, navigate]);
+  }, [user, status, navigate, dispatch]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

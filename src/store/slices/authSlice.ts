@@ -208,6 +208,11 @@ export const authSlice = createSlice({
         // Persist
         localStorage.setItem("accounts", JSON.stringify(state.accounts));
         localStorage.setItem("activeAccount", JSON.stringify(newUser));
+
+        // SHOW SUCCESS TOASTY
+        // We can't dispatch here easily without a middleware, but extraReducers 
+        // are meant to be pure state updates. 
+        // However, we can handle this in the Login component after dispatch(loginUser).
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";

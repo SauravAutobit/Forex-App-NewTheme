@@ -15,7 +15,7 @@ const HistoryScreenContainer = () => {
   const ARROW_TOP_POSITION = "190px";
   const ARROW_RIGHT_POSITION = "20px"; // Adjust to point exactly to the P&L
 
-  console.log("showTutorial", showTutorial);
+  // console.log("showTutorial", showTutorial)
   return (
     <div className="relative h-screen bg-darkBg">
       {/* --- Global Fixed Overlay for the Tutorial Arrow --- */}
