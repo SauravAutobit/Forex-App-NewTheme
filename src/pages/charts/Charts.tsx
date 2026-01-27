@@ -32,7 +32,7 @@ import {
   refreshAllHistoryData,
 } from "../../services/socketService";
 
-import HistoryCard from "../../components/historyCard/HistoryCard";
+import PositionCard from "../../components/positionCard/PositionCard";
 import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
 
 const Charts = () => {
@@ -183,17 +183,20 @@ const Charts = () => {
   // const heightWithButtons = "calc(100vh - 250px)";
   // "Info",
   const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
-  const historyPositions = useAppSelector(
-    (state) => state.historyPositions.data,
-  );
-  const historyOrders = useAppSelector((state) => state.historyOrders.data);
 
-  const filteredHistoryPositions = historyPositions.filter(
+  // NEW: Select Open Positions and Open (Pending) Orders
+  const openPositions = useAppSelector((state) => state.positions.positions);
+  const openOrders = useAppSelector((state) => state.openOrders.orders);
+
+  const filteredOpenPositions = openPositions.filter(
     (p) => p.instrument_id === selectedInstrumentId,
   );
-  const filteredHistoryOrders = historyOrders.filter(
+  const filteredOpenOrders = openOrders.filter(
     (o) => o.instrument_id === selectedInstrumentId,
   );
+
+  // Sort them if needed (optional, e.g. by time)
+  // const sortedPositions = [...filteredOpenPositions].sort((a,b) => b.created_at - a.created_at);
 
   const theme = useAppSelector((s: RootState) => s.theme.mode);
 
@@ -257,18 +260,24 @@ const Charts = () => {
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {filteredHistoryPositions.map((pos) => {
+              {/* Show Open Positions using PositionCard */}
+              {filteredOpenPositions.map((pos) => {
                 return (
-                  <HistoryCard
+                  <PositionCard
                     key={pos.id}
                     label="Position"
-                    historyPositionData={pos}
+                    position={pos}
+                    onClick={() => {
+                      // Optional: Navigate to edit page if needed, similar to Trade page
+                      // For now just empty or keep basic selection
+                    }}
+                    hideBorder={true} // Cleaner look in list
                   />
                 );
               })}
-              {filteredHistoryPositions.length === 0 && (
+              {filteredOpenPositions.length === 0 && (
                 <div className="text-center mt-10 text-secondary">
-                  No history positions for this instrument
+                  No open positions for this instrument
                 </div>
               )}
             </div>
@@ -316,18 +325,22 @@ const Charts = () => {
         <div className="h-[calc(100vh-250px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
-              {filteredHistoryOrders.map((order) => {
+              {/* Show Pending Orders using PositionCard */}
+              {filteredOpenOrders.map((order) => {
                 return (
-                  <HistoryCard
+                  <PositionCard
                     key={order.id}
                     label="Orders"
-                    historyOrderData={order}
+                    position={{} as any} // Dummy prop if needed by types, but we pass openOrderData
+                    openOrderData={order}
+                    onClick={() => {}}
+                    hideBorder={true}
                   />
                 );
               })}
-              {filteredHistoryOrders.length === 0 && (
+              {filteredOpenOrders.length === 0 && (
                 <div className="text-center mt-10 text-secondary">
-                  No history orders for this instrument
+                  No pending orders for this instrument
                 </div>
               )}
             </div>

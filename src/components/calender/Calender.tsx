@@ -17,7 +17,7 @@ const Calender = ({ handlePlaceOrder, volume, setVolume }: CalenderProps) => {
     <div className="h-[calc(100vh-260px)] px-5 mt-2.5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="">
-          {Array.from({ length: 4 }).map((_, index) => {
+          {Array.from({ length: 3 }).map((_, index) => {
             return (
               <div key={index}>
                 <div
@@ -25,7 +25,11 @@ const Calender = ({ handlePlaceOrder, volume, setVolume }: CalenderProps) => {
                     theme === "dark" ? "bg-tertiary" : "bg-[#E5E5E5]"
                   }`}
                 >
-                  Today, 05 November
+                  {index === 0
+                    ? "27 January 2026"
+                    : index === 1
+                      ? "26 January 2026"
+                      : "25 January 2026"}
                 </div>
                 <div className="flex items-center justify-between mt-2.5 text-primary">
                   <div className="flex items-center gap-2.5">
