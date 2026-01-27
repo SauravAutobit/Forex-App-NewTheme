@@ -1,6 +1,6 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
+// import { useSelector } from "react-redux";
+// import type { RootState } from "../../store/store";
 
 interface AccountHealthCardProps {
   balance: number;
@@ -17,7 +17,7 @@ const AccountHealthCard: React.FC<AccountHealthCardProps> = ({
   leverage = "1:100",
   healthLevel = 60,
 }) => {
-  const theme = useSelector((state: RootState) => state.theme.mode);
+  //   const theme = useSelector((state: RootState) => state.theme.mode);
 
   return (
     <div className="bg-cardBg rounded-xl p-4 mb-4 border border-[#2D2D2D]">
