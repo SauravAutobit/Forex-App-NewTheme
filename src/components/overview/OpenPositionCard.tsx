@@ -14,13 +14,15 @@ const OpenPositionCard: React.FC<OpenPositionCardProps> = ({
   dailyLossLimit = 86,
 }) => {
   return (
-    <div className="bg-cardBg rounded-xl p-4 mb-4 border border-[#2D2D2D]">
-      <h2 className="text-white font-secondary text-sm mb-4">Open Position</h2>
+    <div className="bg-cardBg rounded-xl p-4 mb-4 border border-primary">
+      <h2 className="text-primary font-secondary text-sm mb-4">
+        Open Position
+      </h2>
 
       <div className="grid grid-cols-2 gap-4">
         {/* Balance Column */}
         <div>
-          <div className="text-white text-sm mb-1">
+          <div className="text-primary text-sm mb-1">
             Balance - {balanceCount}
           </div>
           <div className="flex items-center bg-[#2ed12e33] rounded h-5 overflow-hidden">
@@ -29,7 +31,7 @@ const OpenPositionCard: React.FC<OpenPositionCardProps> = ({
               60%
             </span>
           </div>
-          <div className="text-white text-xs mt-2">
+          <div className="text-primary text-xs mt-2">
             Best{" "}
             <span className={bestPnL >= 0 ? "text-profit" : "text-loss"}>
               {bestPnL.toFixed(2)}
@@ -39,7 +41,7 @@ const OpenPositionCard: React.FC<OpenPositionCardProps> = ({
 
         {/* Equity Column */}
         <div>
-          <div className="text-white text-sm mb-1">
+          <div className="text-primary text-sm mb-1">
             Equity {equityCount.toFixed(2)}
           </div>
           <div className="flex items-center bg-[#2ed12e33] rounded h-5 overflow-hidden">
@@ -48,7 +50,7 @@ const OpenPositionCard: React.FC<OpenPositionCardProps> = ({
               60%
             </span>
           </div>
-          <div className="text-white text-xs mt-2">
+          <div className="text-primary text-xs mt-2">
             Daily Loss Limit{" "}
             {/* Daily Loss Limit displays the WORST trade (min PnL), usually negative */}
             <span className={dailyLossLimit >= 0 ? "text-profit" : "text-loss"}>

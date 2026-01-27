@@ -81,6 +81,8 @@ const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
   const avgLoss =
     losingPositionsCount > 0 ? totalLossPnL / losingPositionsCount : 0;
 
+  const marginLevel = (equity / usedMargin) * 100;
+  
   return (
     //     <div className="h-[calc(100vh-250px)] mt-[10px] overflow-auto">
     //   <div className="flex flex-col justify-between h-full">
@@ -167,7 +169,7 @@ const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
           equity={equity}
           freeMargin={freeMargin}
           leverage="1:100"
-          healthLevel={60}
+          healthLevel={marginLevel.toFixed(2)}
         />
         <OpenPositionCard
           balanceCount={positions.length}
