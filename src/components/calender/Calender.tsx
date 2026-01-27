@@ -8,9 +8,25 @@ interface CalenderProps {
   handlePlaceOrder: (side: "buy" | "sell") => void;
   volume: number;
   setVolume: (v: number) => void;
+  step?: number;
+  min?: number;
 }
 
-const Calender = ({ handlePlaceOrder, volume, setVolume }: CalenderProps) => {
+const Calender = ({
+  handlePlaceOrder,
+  volume,
+  setVolume,
+  step = 0.01,
+  min = 0,
+}: CalenderProps) => {
+  // // ...
+  // <Counter
+  //   label="0"
+  //   initialValue={volume}
+  //   onValueChange={setVolume}
+  //   step={step}
+  //   min={min}
+  // />;
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
@@ -145,7 +161,8 @@ const Calender = ({ handlePlaceOrder, volume, setVolume }: CalenderProps) => {
             label="0"
             initialValue={volume}
             onValueChange={setVolume}
-            step={0.01}
+            step={step}
+            min={min}
           />
 
           <Button

@@ -12,9 +12,24 @@ interface OverviewProps {
   handlePlaceOrder?: (side: "buy" | "sell") => void;
   volume?: number;
   setVolume?: (v: number) => void;
+  step?: number;
+  min?: number;
 }
 
-const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
+const Overview = ({
+  handlePlaceOrder,
+  volume,
+  setVolume,
+  step = 0.01,
+  min = 0,
+}: OverviewProps) => {
+  // <Counter
+  //   label="0"
+  //   initialValue={volume}
+  //   onValueChange={setVolume}
+  //   step={step}
+  //   min={min}
+  // />;
   const theme = useSelector((s: RootState) => s.theme.mode);
   // Connect to Redux store for real data
   const { account } = useSelector((state: RootState) => state.account);
@@ -82,7 +97,7 @@ const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
     losingPositionsCount > 0 ? totalLossPnL / losingPositionsCount : 0;
 
   const marginLevel = (equity / usedMargin) * 100;
-  
+
   return (
     //     <div className="h-[calc(100vh-250px)] mt-[10px] overflow-auto">
     //   <div className="flex flex-col justify-between h-full">
@@ -202,7 +217,8 @@ const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
             label="0"
             initialValue={volume}
             onValueChange={setVolume}
-            step={0.01}
+            step={step}
+            min={min}
           />
 
           <Button

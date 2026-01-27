@@ -11,6 +11,8 @@ interface InfoProps {
   handlePlaceOrder: (side: "buy" | "sell") => void;
   volume: number;
   setVolume: (v: number) => void;
+  step?: number;
+  min?: number;
 }
 
 const Info = ({
@@ -18,7 +20,17 @@ const Info = ({
   handlePlaceOrder,
   volume,
   setVolume,
+  step = 0.01,
+  min = 0,
 }: InfoProps) => {
+  // // ...
+  // <Counter
+  //   label="0"
+  //   initialValue={volume}
+  //   onValueChange={setVolume}
+  //   step={step}
+  //   min={min}
+  // />;
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
       { label: "Digits", value: "2" },
@@ -70,7 +82,8 @@ const Info = ({
             label="0"
             initialValue={volume}
             onValueChange={setVolume}
-            step={0.01}
+            step={step}
+            min={min}
           />
 
           <Button

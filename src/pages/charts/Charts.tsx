@@ -106,15 +106,39 @@ const Charts = () => {
       setSelectedInstrumentId(reduxSelectedId);
     }
   }, [reduxSelectedId]);
+  // Helper to find the full instrument object to get contract size
+  const foundInstrument = useMemo(() => {
+    if (!selectedInstrumentId) return null;
+    const instrumentIdStr = String(selectedInstrumentId).trim().toLowerCase();
 
-  const [volume, setVolume] = useState(0.01);
+    for (const category in allInstrumentsData) {
+      const found = allInstrumentsData[category].find(
+        (inst) => String(inst.id).trim().toLowerCase() === instrumentIdStr,
+      );
+      if (found) return found;
+    }
+    return null;
+  }, [allInstrumentsData, selectedInstrumentId]);
+
+  const getContractSize = () => {
+    return (
+      Number(foundInstrument?.static_data?.contractsize) ||
+      Number(foundInstrument?.static_data?.contract_size) ||
+      1
+    );
+  };
+
+  const contractSize = getContractSize();
+
+  // Initialize selectedLot instead of raw volume. Default to 1 (like NewOrder)
+  const [selectedLot, setSelectedLot] = useState(1);
 
   const handlePlaceOrder = (side: "buy" | "sell") => {
     if (!selectedInstrumentId) return;
     dispatch(
       placeNewOrder({
         instrument_id: selectedInstrumentId,
-        qty: volume,
+        qty: selectedLot * contractSize, // Send Units
         price: 0,
         order_type: "market",
         side,
@@ -234,16 +258,20 @@ const Charts = () => {
         <Overview
           selectedInstrumentId={selectedInstrumentId}
           handlePlaceOrder={handlePlaceOrder}
-          volume={volume}
-          setVolume={setVolume}
+          volume={selectedLot * contractSize}
+          setVolume={(val) => setSelectedLot(val / contractSize)}
+          step={contractSize}
+          min={contractSize}
         />
       )}
 
       {active === "Calendar" && (
         <Calender
           handlePlaceOrder={handlePlaceOrder}
-          volume={volume}
-          setVolume={setVolume}
+          volume={selectedLot * contractSize}
+          setVolume={(val) => setSelectedLot(val / contractSize)}
+          step={contractSize}
+          min={contractSize}
         />
       )}
 
@@ -251,8 +279,10 @@ const Charts = () => {
         <Info
           selectedInstrumentId={selectedInstrumentId}
           handlePlaceOrder={handlePlaceOrder}
-          volume={volume}
-          setVolume={setVolume}
+          volume={selectedLot * contractSize}
+          setVolume={(val) => setSelectedLot(val / contractSize)}
+          step={contractSize}
+          min={contractSize}
         />
       )}
 
@@ -301,9 +331,10 @@ const Charts = () => {
               />
               <Counter
                 label="0"
-                initialValue={volume}
-                onValueChange={setVolume}
-                step={0.01}
+                initialValue={selectedLot * contractSize}
+                onValueChange={(val) => setSelectedLot(val / contractSize)}
+                step={contractSize}
+                min={contractSize}
               />
 
               <Button
@@ -364,9 +395,10 @@ const Charts = () => {
               />
               <Counter
                 label="0"
-                initialValue={volume}
-                onValueChange={setVolume}
-                step={0.01}
+                initialValue={selectedLot * contractSize}
+                onValueChange={(val) => setSelectedLot(val / contractSize)}
+                step={contractSize}
+                min={contractSize}
               />
 
               <Button
