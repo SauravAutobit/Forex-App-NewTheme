@@ -1,6 +1,18 @@
 // import React from "react";
 
-const TradeQualityCard = () => {
+interface TradeQualityCardProps {
+  winRate?: number;
+  avgWin?: number;
+  avgLoss?: number;
+  totalTrades?: number;
+}
+
+const TradeQualityCard: React.FC<TradeQualityCardProps> = ({
+  winRate = 58,
+  avgWin = 92,
+  avgLoss = -54,
+  totalTrades = 1107,
+}) => {
   return (
     <div className="bg-cardBg rounded-xl p-4 mb-4 border border-[#2D2D2D]">
       <h2 className="text-white font-secondary text-lg mb-4">Trade Quality</h2>
@@ -8,21 +20,21 @@ const TradeQualityCard = () => {
         {/* Row 1 */}
         <div className="flex justify-between">
           <span className="text-white font-secondary">Win Rate</span>
-          <span className="text-profit font-tertiary">58%</span>
+          <span className="text-profit font-tertiary">{winRate}%</span>
         </div>
         <div className="flex justify-between">
           <span className="text-white font-secondary">Avg Win</span>
-          <span className="text-profit font-tertiary">92</span>
+          <span className="text-profit font-tertiary">{avgWin.toFixed(2)}</span>
         </div>
 
         {/* Row 2 */}
         <div className="flex justify-between">
           <span className="text-white font-secondary">Avg Loss</span>
-          <span className="text-loss font-tertiary">-54</span>
+          <span className="text-loss font-tertiary">{avgLoss.toFixed(2)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-white font-secondary">Overall</span>
-          <span className="text-white font-tertiary">1,107</span>
+          <span className="text-white font-tertiary">{totalTrades}</span>
         </div>
       </div>
     </div>

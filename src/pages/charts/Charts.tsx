@@ -182,7 +182,7 @@ const Charts = () => {
 
   // const heightWithButtons = "calc(100vh - 250px)";
   // "Info",
-  const tabs = ["Chart", "Overview", "Calendar", "Positions", "Orders"];
+  const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
   const historyPositions = useAppSelector(
     (state) => state.historyPositions.data,
   );

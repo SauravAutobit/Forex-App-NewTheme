@@ -16,15 +16,70 @@ interface OverviewProps {
 
 const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
   const theme = useSelector((s: RootState) => s.theme.mode);
-  // Connect to Redux store for real balance if available
+  // Connect to Redux store for real data
   const { account } = useSelector((state: RootState) => state.account);
+  const { positions } = useSelector((state: RootState) => state.positions);
 
-  // Use real balance if available, otherwise mock to match Figma for dev
-  const balance = account?.balance ?? 15048.12;
+  // Use real balance if available, otherwise 0
+  const balance = account?.balance ?? 0;
 
-  // Mocked data for other fields to match Figma visual
-  const equity = 5.2;
-  const freeMargin = 6180;
+  // Calculate metrics based on OPEN positions
+  let totalFloatingProfit = 0;
+  let winningPositionsCount = 0;
+  let losingPositionsCount = 0;
+  let totalWinPnL = 0;
+  let totalLossPnL = 0;
+  let maxProfit = -Infinity;
+  let maxLoss = Infinity;
+
+  positions.forEach((pos) => {
+    let pnl = 0;
+    // Calculate PnL if live prices are available
+    if (pos.live_bid !== undefined && pos.live_ask !== undefined) {
+      if (pos.side === "buy") {
+        pnl = (pos.live_bid - pos.price) * pos.qty;
+      } else {
+        pnl = (pos.price - pos.live_ask) * pos.qty;
+      }
+    }
+
+    totalFloatingProfit += pnl;
+
+    if (pnl > 0) {
+      winningPositionsCount++;
+      totalWinPnL += pnl;
+    } else if (pnl < 0) {
+      losingPositionsCount++;
+      totalLossPnL += pnl;
+    }
+
+    if (pnl > maxProfit) maxProfit = pnl;
+    if (pnl < maxLoss) maxLoss = pnl;
+  });
+
+  // Handle case with no positions
+  if (positions.length === 0) {
+    maxProfit = 0;
+    maxLoss = 0;
+  }
+
+  const equity = balance + totalFloatingProfit;
+
+  // Calculate specific metrics
+  const usedMargin = positions.reduce(
+    (sum, p) => sum + (p.used_balance || 0),
+    0,
+  );
+  const freeMargin = equity - usedMargin;
+
+  const winRate =
+    positions.length > 0 ? (winningPositionsCount / positions.length) * 100 : 0;
+
+  const avgWin =
+    winningPositionsCount > 0 ? totalWinPnL / winningPositionsCount : 0;
+
+  const avgLoss =
+    losingPositionsCount > 0 ? totalLossPnL / losingPositionsCount : 0;
 
   return (
     //     <div className="h-[calc(100vh-250px)] mt-[10px] overflow-auto">
@@ -115,13 +170,18 @@ const Overview = ({ handlePlaceOrder, volume, setVolume }: OverviewProps) => {
           healthLevel={60}
         />
         <OpenPositionCard
-          balanceCount={3}
-          equityCount={3}
-          bestPnL={86}
-          dailyLossLimit={86}
+          balanceCount={positions.length}
+          equityCount={equity}
+          bestPnL={maxProfit}
+          dailyLossLimit={maxLoss}
         />
         <PerformanceCard />
-        <TradeQualityCard />{" "}
+        <TradeQualityCard
+          winRate={parseFloat(winRate.toFixed(1))}
+          avgWin={avgWin}
+          avgLoss={avgLoss}
+          totalTrades={positions.length}
+        />{" "}
         <div
           className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
           style={{ position: "fixed", bottom: "65px", left: 0 }}
