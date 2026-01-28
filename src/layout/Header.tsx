@@ -2,7 +2,7 @@ import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import type { DrawerState, IsFlagType } from "./MainLayout";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState, useMemo, type Dispatch, type SetStateAction } from "react";
 import type { RootState } from "../store/store";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
@@ -67,9 +67,66 @@ export default function Header({
 }: HeaderProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [star, setStar] = useState(false);
 
-  const theme = useAppSelector((state) => state.theme.mode);
+  const selectedInstrumentId = useAppSelector(
+    (state: RootState) => state.instruments.selectedInstrumentId,
+  );
+  const liveQuotes = useAppSelector(
+    (state: RootState) => state.quotes.liveQuotes,
+  );
+
+  const star = useMemo(() => {
+    return (
+      favoriteItems?.some((item) => item.id === selectedInstrumentId) ?? false
+    );
+  }, [favoriteItems, selectedInstrumentId]);
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedInstrumentId) return;
+
+    if (star) {
+      // Remove from favorites
+      setFavoriteItems((prev) =>
+        prev.filter((item) => item.id !== selectedInstrumentId),
+      );
+      setFavouriteInstrument((prev) => {
+        // We need to find the trading name to remove from favoriteInstrument string array
+        const allInstruments = Object.values(instrumentsData).flat();
+        const inst = allInstruments.find((i) => i.id === selectedInstrumentId);
+        if (inst) {
+          return prev.filter((name) => name !== inst.trading_name);
+        }
+        return prev;
+      });
+    } else {
+      // Add to favorites
+      const allInstruments = Object.values(instrumentsData).flat();
+      const inst = allInstruments.find((i) => i.id === selectedInstrumentId);
+      if (inst) {
+        const quotes =
+          inst.dinamic_data?.quotes || liveQuotes[selectedInstrumentId];
+        const newItem = {
+          id: inst.id,
+          code: inst.trading_name,
+          bid: quotes?.bid?.[0] ?? quotes?.bid ?? 0,
+          ask: quotes?.ask?.[0] ?? quotes?.ask ?? 0,
+          high: quotes?.high?.[0] ?? quotes?.high ?? 0,
+          low: quotes?.low?.[0] ?? quotes?.low ?? 0,
+          ltp: quotes?.ltp?.[0] ?? quotes?.ltp ?? 0,
+          close: quotes?.close?.[0] ?? quotes?.close ?? 0,
+          pip: "N/A",
+          timestamp: quotes?.ltpt?.[0]
+            ? new Date(quotes.ltpt[0]).toLocaleTimeString()
+            : new Date().toLocaleTimeString(),
+        };
+        setFavoriteItems((prev) => [...prev, newItem]);
+        setFavouriteInstrument((prev) =>
+          Array.from(new Set([...prev, inst.trading_name])),
+        );
+      }
+    }
+  };
 
   // Function to handle the "Confirm" click and exit selection mode
   const instrumentsData = useAppSelector(
@@ -148,12 +205,8 @@ export default function Header({
     }));
   };
 
-  const selectedInstrumentId = useAppSelector(
-    (state: RootState) => state.instruments.selectedInstrumentId,
-  );
-  const liveQuotes = useAppSelector(
-    (state: RootState) => state.quotes.liveQuotes,
-  );
+  const theme = useAppSelector((state) => state.theme.mode);
+
   // console.log("selectedInstrumentId", selectedInstrumentId, liveQuotes);
   const iconSrc =
     theme === "light"
@@ -161,8 +214,8 @@ export default function Header({
         ? favouriteTickLight
         : notFavouriteTickLight
       : star
-        ? favouriteTick
-        : notFavouriteTick;
+      ? favouriteTick
+      : notFavouriteTick;
 
   const conditionalRender = () => {
     let title = "";
@@ -239,14 +292,7 @@ export default function Header({
         if (active === "Chart") {
           actions = (
             <div className="flex items-center gap-5">
-              <img
-                src={iconSrc}
-                alt="notFavouriteTick"
-                onClick={(e) => {
-                  e.stopPropagation(); // ⭐️ Stop click event from triggering the parent card's onClick/swipe
-                  setStar(!star);
-                }}
-              />
+              <img src={iconSrc} alt="favouriteTick" onClick={toggleFavorite} />
               <div className="flex items-center gap-[7px]">
                 <button
                   className={`w-[23px] h-[23px] bg-loss rounded-20 flex justify-center items-center ${
@@ -275,14 +321,7 @@ export default function Header({
           actions = null;
         } else if (active !== "Chart") {
           actions = (
-            <img
-              src={iconSrc}
-              alt="notFavouriteTick"
-              onClick={(e) => {
-                e.stopPropagation();
-                setStar(!star);
-              }}
-            />
+            <img src={iconSrc} alt="favouriteTick" onClick={toggleFavorite} />
           );
         }
         break;

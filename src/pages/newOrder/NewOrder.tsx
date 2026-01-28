@@ -184,6 +184,43 @@ const NewOrder = () => {
     );
   };
 
+  const { account } = useSelector((state: RootState) => state.account);
+
+  // Use real balance if available, otherwise 0
+  const balance = account?.balance ?? 0;
+
+  // Calculate metrics based on OPEN positions
+  const metrics = useMemo(() => {
+    let totalFloatingProfit = 0;
+    let totalUsedMargin = 0;
+
+    positions.forEach((pos) => {
+      let pnl = 0;
+      // Use live quotes if available
+      const quotes = liveQuotes[pos.instrument_id];
+      if (quotes) {
+        const currentPrice = pos.side === "buy" ? quotes.bid : quotes.ask;
+        if (currentPrice !== undefined) {
+          if (pos.side === "buy") {
+            pnl = (currentPrice - pos.price) * pos.qty;
+          } else {
+            pnl = (pos.price - currentPrice) * pos.qty;
+          }
+        }
+      }
+      totalFloatingProfit += pnl;
+      totalUsedMargin += pos.used_balance || 0;
+    });
+
+    const equity = balance + totalFloatingProfit;
+    const freeMargin = equity - totalUsedMargin;
+
+    return {
+      usedMargin: totalUsedMargin,
+      freeMargin: freeMargin,
+    };
+  }, [positions, liveQuotes, balance]);
+
   const renderContent = (type: "market" | "limit" | "stop") => {
     const contractSize = getContractSize();
 
@@ -242,7 +279,14 @@ const NewOrder = () => {
             <div className="flex items-center justify-between text-secondary text-sm">
               Required margin/Free margin
               <span>
-                1216.36 /<span className="text-loss">0.00</span>
+                {metrics.usedMargin.toFixed(2)} /
+                <span
+                  className={
+                    metrics.freeMargin < 0 ? "text-loss" : "text-profit"
+                  }
+                >
+                  {metrics.freeMargin.toFixed(2)}
+                </span>
               </span>
             </div>
             <OrderButtons
