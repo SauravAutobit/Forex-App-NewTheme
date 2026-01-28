@@ -20,7 +20,7 @@ const formatDateStr = (date: Date | null | undefined): string => {
   if (!date) return "";
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear(); //toString().slice(2);
+  const year = date.getFullYear().toString().slice(2); //toString().slice(2);
   return `${day}/${month}/${year}`;
 };
 
@@ -230,10 +230,10 @@ const General = () => {
           <DateChanger
             text="Week:"
             // Week ${weeklyRange.index}:
-            date={`${formatDateStr(
-              weeklyRange.start,
-            )} - ${formatDateStr(weeklyRange.end)}`}
-            width="180px"
+            date={`${formatDateStr(weeklyRange.start)} - ${formatDateStr(
+              weeklyRange.end,
+            )}`}
+            width="138px"
             onOpen={() => setShowCalendar(true)}
             changeText="Change Week"
           />
@@ -338,8 +338,8 @@ const General = () => {
           activeTab === "date"
             ? startDate
             : activeTab === "weekly"
-              ? weeklyRange.start
-              : startDate
+            ? weeklyRange.start
+            : startDate
         }
         initialEndDate={activeTab === "weekly" ? weeklyRange.end : null}
         onApply={handleApplyDate}

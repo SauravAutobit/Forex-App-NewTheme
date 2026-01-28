@@ -28,7 +28,7 @@ const DateChanger = ({
   return (
     <div
       className={
-        "bg-cardBg py-2.5 px-5 rounded-10 flex flex-col items-center justify-between cursor-pointer"
+        "bg-cardBg py-2.5 px-3 rounded-10 flex flex-col items-center justify-between cursor-pointer"
       }
       style={{ height }}
       onClick={onOpen}
@@ -46,9 +46,7 @@ const DateChanger = ({
         >
           {date}
         </p>
-        {!dualDate && (
-          <p className="text-sm text-[#AEED09]">{changeText}</p>
-        )}
+        {!dualDate && <p className="text-sm text-[#AEED09]">{changeText}</p>}
       </div>
       {dualDate && (
         <div className="w-full flex items-center justify-between mt-1">

@@ -23,3 +23,22 @@ backup.tsx
 *.njsproj
 *.sln
 *.sw?
+
+# Android
+android/.gradle
+android/app/build
+android/local.properties
+android/.idea
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+node_modules/
+dist/
+.env
+# Capacitor generated files
+# android/ (Only ignore if you want to recreate the android folder every time, but usually, it's better to keep it committed)
