@@ -15,11 +15,16 @@ import { reinitializeSockets } from "../../services/socketService";
 import appleLight from "../../assets/icons/appleLight.svg";
 import { useSelector } from "react-redux";
 import { showToasty } from "../../store/slices/notificationSlice";
+import DomainSelector from "../../components/domainSelector/DomainSelector";
+import { getDomainKey } from "../../utils/constants/domainConfig";
 
 const Login = () => {
   const [username, setUsername] = useState(""); // Default for testing
   const [password, setPassword] = useState(""); // Default for testing
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(
+    getDomainKey(),
+  );
 
   const { status, error, user } = useAppSelector((state) => state.auth);
 
@@ -51,6 +56,13 @@ const Login = () => {
     if (username && password) {
       dispatch(loginUser({ username, password }));
     }
+  };
+
+  const handleDomainSelect = (key: string) => {
+    localStorage.setItem("selectedDomainKey", key);
+    setSelectedDomain(key);
+    // Reload to ensure all constant-based services are re-initialized with new URLs
+    window.location.reload();
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +105,16 @@ const Login = () => {
               </p>
             </div>
 
+            <DomainSelector
+              onSelect={handleDomainSelect}
+              initialValue={selectedDomain}
+              theme={theme}
+            />
+
             <div className="space-y-2">
-              <label className="font-tertiary text-primary">Username</label>
+              <label className="font-tertiary text-primary text-sm">
+                Username
+              </label>
               <input
                 type="text"
                 placeholder="Enter Username"

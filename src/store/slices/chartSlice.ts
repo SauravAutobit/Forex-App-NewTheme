@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 // import { apiClient } from "../../services/socketService";
 import { generateMockChartData } from "../../mockData";
+import { apiClient } from "../../services/socketService";
 
 // Define the shape of a single OHLCV data point
 export interface OHLVCData {
@@ -54,7 +55,7 @@ const initialState: ChartState = {
 export const fetchChartData = createAsyncThunk(
   "chart/fetchData",
   async (
-    _: {
+    {instrumentId, startIndex, endIndex, timeframe}: {
       instrumentId: string;
       startIndex: number;
       endIndex: number;
@@ -63,54 +64,54 @@ export const fetchChartData = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-// mock data
-      // console.log(instrumentId, startIndex, endIndex, timeframe)
-      const mockData = generateMockChartData();
-      // console.log(
-      //   "fetchChartData: Returning 100 mock data points for development.", mockData
-      // );
-      return mockData;
+// // mock data
+//       // console.log(instrumentId, startIndex, endIndex, timeframe)
+//       const mockData = generateMockChartData();
+//       // console.log(
+//       //   "fetchChartData: Returning 100 mock data points for development.", mockData
+//       // );
+//       return mockData;
 
-      // const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
+      const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
 
-      //       const response = await apiClient.send<ChartApiResponseData>("query", {
-      //         query,
-      //       });
+            const response = await apiClient.send<ChartApiResponseData>("query", {
+              query,
+            });
 
-      //       console.log("sliceThuk", response)
+            console.log("sliceThuk", response)
 
-      //       if (response.status === "success" && response.data) {
-      //         // Map the raw API response to the desired OHLVCData format.
-      //         // The `_desc(time)` query means data comes in descending order,
-      //         // so we reverse it to get a chronological order for the chart.
-      //         const chartData: OHLVCData[] = response.data
+            if (response.status === "success" && response.data) {
+              // Map the raw API response to the desired OHLVCData format.
+              // The `_desc(time)` query means data comes in descending order,
+              // so we reverse it to get a chronological order for the chart.
+              const chartData: OHLVCData[] = response.data
 
-      //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //             // @ts-expect-error
-      //           .map((item) => ({
-      //             time: item.time, // Unix timestamp is ideal for charting libraries
-      //             open: item.data.open,
-      //             high: item.data.high,
-      //             low: item.data.low,
-      //             close: item.data.close,
-      //             volume: item.data.volume,
-      //           }))
-      //         //   .reverse(); // Reverse to get chronological order
-      //         console.log("chartData slice", chartData);
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-expect-error
+                .map((item) => ({
+                  time: item.time, // Unix timestamp is ideal for charting libraries
+                  open: item.data.open,
+                  high: item.data.high,
+                  low: item.data.low,
+                  close: item.data.close,
+                  volume: item.data.volume,
+                }))
+              //   .reverse(); // Reverse to get chronological order
+              console.log("chartData slice", chartData);
 
-      //         // Filter out any data points with the same time as the previous one
-      //         const uniqueData = chartData.filter(
-      //           (item, index, self) =>
-      //             index === 0 || item.time !== self[index - 1].time
-      //         );
-      // console.log('fetchChartData -> returned points:', chartData.length, chartData[0]?.time, chartData[chartData.length-1]?.time);
+              // Filter out any data points with the same time as the previous one
+              const uniqueData = chartData.filter(
+                (item, index, self) =>
+                  index === 0 || item.time !== self[index - 1].time
+              );
+      console.log('fetchChartData -> returned points:', chartData.length, chartData[0]?.time, chartData[chartData.length-1]?.time);
 
-      //         return uniqueData;
-      //       }
+              return uniqueData;
+            }
 
-      //       return rejectWithValue(
-      //         response?.payload?.message || "Failed to fetch chart data."
-      //       );
+            return rejectWithValue(
+              response?.payload?.message || "Failed to fetch chart data."
+            );
            } catch (error) {
       const errorMessage =
         (error as { message?: string }).message || "An unknown error occurred";
