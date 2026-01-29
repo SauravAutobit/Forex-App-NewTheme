@@ -243,6 +243,7 @@ const Charts = () => {
               selectedTimeframe={selectedTimeframe} //  Passing state
               onTimeframeChange={setSelectedTimeframe} //  Passing setter
               timeframeGroups={mockTimeframes} //  Passing the mock data
+              onInstrumentChange={(id) => setSelectedInstrumentId(id)}
               stopLossPrice={null}
               targetPrice={null}
             />

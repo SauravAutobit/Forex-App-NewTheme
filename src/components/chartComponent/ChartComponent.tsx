@@ -192,7 +192,7 @@ export default function ChartComponent({
   const TV_DOWN = dark ? "#FE0000" : "#DD3C48";
   // main chart-type state: only one of these at a time
   const [chartType, setChartType] = useState<"candles" | "line" | "area">(
-    "candles"
+    "candles",
   );
 
   // indicator toggles
@@ -205,12 +205,12 @@ export default function ChartComponent({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const chartData = useSelector(
-    (state: RootState) => state.chart.data
+    (state: RootState) => state.chart.data,
   ) as Candle[];
   const chartStatus = useSelector((state: RootState) => state.chart.status);
 
   const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
+    (state: RootState) => state.websockets.apiStatus,
   );
 
   const mainRef = useRef<HTMLDivElement | null>(null);
@@ -307,7 +307,7 @@ export default function ChartComponent({
             instrumentId: selectedInstrumentId,
             startIndex: currentFirstIndex,
             endIndex: currentFirstIndex + 500,
-          })
+          }),
         ).finally(() => {
           loadingMoreDataRef.current = false;
         });
@@ -395,12 +395,12 @@ export default function ChartComponent({
     if (chartData.length > 0) {
       // same preprocessing as the update effect
       const sorted = [...chartData].sort(
-        (a, b) => normalizeTime(a.time) - normalizeTime(b.time)
+        (a, b) => normalizeTime(a.time) - normalizeTime(b.time),
       );
       const unique = sorted.filter(
         (it, idx, arr) =>
           idx === 0 ||
-          normalizeTime(it.time) !== normalizeTime(arr[idx - 1].time)
+          normalizeTime(it.time) !== normalizeTime(arr[idx - 1].time),
       );
       const barData = unique.map((c) => ({
         time: normalizeTime(c.time),
@@ -417,11 +417,11 @@ export default function ChartComponent({
           candleSeries.current.setData(barData as any);
         } else if (chartType === "line" && lineSeries.current) {
           lineSeries.current.setData(
-            barData.map((d) => ({ time: d.time, value: d.close })) as any
+            barData.map((d) => ({ time: d.time, value: d.close })) as any,
           );
         } else if (chartType === "area" && areaSeries.current) {
           areaSeries.current.setData(
-            barData.map((d) => ({ time: d.time, value: d.close })) as any
+            barData.map((d) => ({ time: d.time, value: d.close })) as any,
           );
         }
       } catch (e) {
@@ -523,11 +523,12 @@ export default function ChartComponent({
 
     // Prepare deduped sorted bar data
     const sorted = [...chartData].sort(
-      (a, b) => normalizeTime(a.time) - normalizeTime(b.time)
+      (a, b) => normalizeTime(a.time) - normalizeTime(b.time),
     );
     const unique = sorted.filter(
       (it, idx, arr) =>
-        idx === 0 || normalizeTime(it.time) !== normalizeTime(arr[idx - 1].time)
+        idx === 0 ||
+        normalizeTime(it.time) !== normalizeTime(arr[idx - 1].time),
     );
     const barData = unique.map((c) => ({
       time: normalizeTime(c.time),
@@ -626,7 +627,7 @@ export default function ChartComponent({
       }
       try {
         lineSeries.current?.setData(
-          barData.map((d) => ({ time: d.time, value: d.close })) as any
+          barData.map((d) => ({ time: d.time, value: d.close })) as any,
         );
       } catch (e) {
         void e;
@@ -659,7 +660,7 @@ export default function ChartComponent({
       }
       try {
         areaSeries.current?.setData(
-          barData.map((d) => ({ time: d.time, value: d.close })) as any
+          barData.map((d) => ({ time: d.time, value: d.close })) as any,
         );
       } catch (e) {
         void e;
@@ -695,7 +696,7 @@ export default function ChartComponent({
             time: normalizeTime(c.time),
             value: c.volume ?? 0,
             color: c.close >= c.open ? TV_UP : TV_DOWN,
-          })) as any
+          })) as any,
         );
         chart.current.priceScale("volume").applyOptions({
           scaleMargins: { top: 0.8, bottom: 0 },

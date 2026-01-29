@@ -21,7 +21,7 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedInstrument = instruments?.find(
-    (inst) => inst?.id === selectedInstrumentId
+    (inst) => inst?.id === selectedInstrumentId,
   );
 
   const handleSelect = (instrumentId: string) => {
@@ -75,23 +75,25 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
         <AnimatePresence>
           {isOpen && (
             <motion.ul
-              className="dropdown-content z-[1] mt-8 menu p-2.5 shadow bg-primaryBg border border-primary rounded-box w-full overflow-y-auto text-primary"
+              className="dropdown-content z-[1] mt-8 menu p-2.5 shadow bg-primaryBg border border-primary rounded-box min-w-[140px] overflow-y-auto text-primary flex flex-col flex-nowrap"
               variants={listVariants}
               initial="closed"
               animate="open"
               exit="closed"
-              style={{ position: "relative", scrollbarWidth: "none" }}
+              style={{
+                position: "absolute",
+                scrollbarWidth: "none",
+                maxHeight: "300px",
+              }}
             >
-              {instruments.map((instrument, index) => {
+              {instruments.map((instrument) => {
                 return (
                   <motion.li key={instrument.id} variants={itemVariants}>
                     <button
                       type="button"
-                      className={`w-[88px] text-left px-2 py-1 ${
-                        index === instruments.length - 1 ? "pb-0" : "pb-7"
-                      }  ${
+                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
                         instrument.id === selectedInstrumentId
-                          ? "font-semibold"
+                          ? "font-semibold bg-white/10"
                           : ""
                       }`}
                       onClick={() => handleSelect(instrument.id)}
