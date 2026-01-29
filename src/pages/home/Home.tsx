@@ -336,7 +336,7 @@ const Home = () => {
         className="w-full px-5 bg-primaryBg" // w-full
         style={{
           position: "fixed",
-          top: "56px",
+          top: "calc(56px + env(safe-area-inset-top))",
           // left: "0",
           zIndex: 10,
           maxWidth: "390px",
@@ -415,8 +415,8 @@ const Home = () => {
               {instrumentsStatus === "loading"
                 ? `Loading ${active} instruments...`
                 : searchQuery
-                  ? `No results found for "${searchQuery}"`
-                  : `No instruments found for ${active}.`}
+                ? `No results found for "${searchQuery}"`
+                : `No instruments found for ${active}.`}
             </p>
           )}
         </div>

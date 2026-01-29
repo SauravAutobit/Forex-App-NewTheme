@@ -2,7 +2,7 @@ import menu from "../assets/icons/menu.svg";
 import back from "../assets/icons/back.svg";
 import "react-datepicker/dist/react-datepicker.css";
 import type { DrawerState, IsFlagType } from "./MainLayout";
-import { useState, useMemo, type Dispatch, type SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 import type { RootState } from "../store/store";
 import plus from "../assets/icons/plus.svg";
 import notFavouriteTick from "../assets/icons/notFavrouiteTick.svg";
@@ -425,7 +425,14 @@ export default function Header({
   };
 
   return (
-    <header className="h-[56px] px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto">
+    <header
+      className="px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto overflow-hidden"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        minHeight: "56px",
+        height: "calc(56px + env(safe-area-inset-top))",
+      }}
+    >
       {/* Back button logic: Only show the back button (to exit selection mode)
 when isFlag.favourites.status is true. Otherwise, show the menu. */}
       {isFlag.favourites?.status === true ||

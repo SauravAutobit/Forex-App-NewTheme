@@ -10,8 +10,13 @@ const config: CapacitorConfig = {
       launchShowDuration: 5000,
       backgroundColor: "#0B0F1A",
       showSpinner: false,
-      androidScaleType: "CENTER_INSIDE",
+      // androidScaleType: "CENTER_INSIDE",
+      androidScaleType: "CENTER_CROP",
       iosScaleType: "CENTER_INSIDE"
+    },
+    StatusBar: {
+      overlaysWebView: true,
+      backgroundColor: "#000000"
     }
   }
 };

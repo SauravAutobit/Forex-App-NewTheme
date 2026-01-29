@@ -239,9 +239,7 @@ body,
   /* scroll-behavior: smooth; */
   max-width: 390px;
   margin: auto;
-  transition:
-    background-color 200ms linear,
-    color 160ms linear;
+  transition: background-color 200ms linear, color 160ms linear;
 }
 
 /* Apply to body */
@@ -266,4 +264,14 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Body safe area padding handled via individual layouts to prevent double-scroll */
+
+.app-header {
+  padding-top: env(safe-area-inset-top);
+}
+
+.app-footer {
+  padding-bottom: env(safe-area-inset-bottom);
 }

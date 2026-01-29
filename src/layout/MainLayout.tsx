@@ -231,7 +231,11 @@ const MainLayout = () => {
       />
       <main
         id="#main-content"
-        className="flex-1 py-14 overflow-y-auto bg-primaryBg scroll-smooth"
+        className="flex-1 overflow-y-auto bg-primaryBg scroll-smooth"
+        style={{
+          paddingTop: "calc(56px + env(safe-area-inset-top))",
+          paddingBottom: "calc(66px + env(safe-area-inset-bottom))",
+        }}
       >
         <Outlet
           context={{
