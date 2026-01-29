@@ -3,6 +3,7 @@ import { apiClient, disconnectSockets } from "../../services/socketService";
 import { getSessionIdFromToken } from "../../utils/tokenUtils";
 import { showToasty } from "./notificationSlice";
 import { parseErrorMessage } from "../../utils/errorUtils";
+import { clearDomainKey } from "../../utils/constants/domainConfig";
 
 // Define the shape of the user/account object
 export interface User {
@@ -34,9 +35,21 @@ const initialState: AuthState = {
 // Async thunk for login
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async (credentials: { username: string; password: string }, { rejectWithValue }) => {
+  async (
+    credentials: { username: string; password: string; domainKey?: string | null },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await fetch("https://api-test.swtik.com/api/account/login", { 
+      const { domainKey } = credentials;
+      if (!domainKey) {
+        return rejectWithValue("Please select a server/domain.");
+      }
+
+      // Construct baseUrl based on domainKey following the user's pattern
+      // Pattern: api-{domainKey}.swtik.com
+      const baseUrl = `https://api-${domainKey}.swtik.com`;
+
+      const response = await fetch(`${baseUrl}/api/account/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -140,6 +153,7 @@ export const authSlice = createSlice({
     logout: (state) => {
       // Remove current user from accounts list
       if (state.user) {
+        clearDomainKey(state.user.username);
         state.accounts = state.accounts.filter(a => a.username !== state.user?.username);
       }
       
@@ -155,7 +169,7 @@ export const authSlice = createSlice({
       if (state.user) {
         localStorage.setItem("activeAccount", JSON.stringify(state.user));
         // Important: If we switch user, we might need to reload or re-init sockets. 
-        // The UI/App.tsx should handle the re-init based on user change.
+        // THE UI handles the reload if needed or Sidebar handles redirect.
       } else {
         localStorage.removeItem("activeAccount");
       }
@@ -166,6 +180,8 @@ export const authSlice = createSlice({
       if (account) {
         state.user = account;
         localStorage.setItem("activeAccount", JSON.stringify(account));
+        // Trigger reload to pick up new user's domain config from app.constants
+        window.location.reload();
       }
     },
     // Action to handle successful login from the modal for an additional account

@@ -4,6 +4,8 @@ import { loginUser, clearError } from "../../store/slices/authSlice";
 import eye from "../../assets/icons/eye.svg";
 import Checkbox from "../checbox/Checbox";
 import { showToasty } from "../../store/slices/notificationSlice";
+import DomainSelector from "../domainSelector/DomainSelector";
+import { setDomainKey, getDomainKey } from "../../utils/constants/domainConfig";
 
 interface MultiAccountModalProps {
   onClose: () => void;
@@ -13,12 +15,21 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(
+    getDomainKey(),
+  );
   const [error, setError] = useState<string | null>(null);
   const [, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
   const authError = useAppSelector((state) => state.auth.error);
   const status = useAppSelector((state) => state.auth.status);
+
+  const handleDomainSelect = (key: string) => {
+    setDomainKey(key);
+    setSelectedDomain(key);
+    // Reload removed: domain is now passed to login thunk
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +39,16 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
     setError(null);
 
     try {
-      const result = await dispatch(loginUser({ username, password }));
+      const result = await dispatch(
+        loginUser({ username, password, domainKey: selectedDomain }),
+      );
 
       if (loginUser.fulfilled.match(result)) {
+        // Associate domain with user on success
+        if (selectedDomain) {
+          setDomainKey(selectedDomain, username);
+        }
+
         // Success
         dispatch(
           showToasty({
@@ -38,6 +56,8 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
             message: "Login Successfully!",
           }),
         );
+        // CRITICAL: Reload to pick up new user's domain config.
+        window.location.reload();
         onClose();
       } else {
         // Error
@@ -69,6 +89,7 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
   };
 
   const [activeOptions, setActiveOptions] = useState(false);
+  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <div
@@ -87,8 +108,16 @@ const MultiAccountModal: React.FC<MultiAccountModalProps> = ({ onClose }) => {
             </div>
           </div>
 
+          <DomainSelector
+            onSelect={handleDomainSelect}
+            initialValue={selectedDomain}
+            theme={theme}
+          />
+
           <div className="space-y-2">
-            <label className="font-tertiary text-primary">Username</label>
+            <label className="font-tertiary text-primary text-sm">
+              Username
+            </label>
             <input
               type="text"
               placeholder="Enter Username"

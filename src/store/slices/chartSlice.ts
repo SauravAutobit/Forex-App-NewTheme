@@ -4,7 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 // import { apiClient } from "../../services/socketService";
-import { generateMockChartData } from "../../mockData";
+// import { generateMockChartData } from "../../mockData";
 import { apiClient } from "../../services/socketService";
 
 // Define the shape of a single OHLCV data point
@@ -71,7 +71,7 @@ export const fetchChartData = createAsyncThunk(
 //       //   "fetchChartData: Returning 100 mock data points for development.", mockData
 //       // );
 //       return mockData;
-
+console.log(timeframe);
       const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
 
             const response = await apiClient.send<ChartApiResponseData>("query", {

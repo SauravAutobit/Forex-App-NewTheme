@@ -58,7 +58,7 @@ const DomainSelector: React.FC<DomainSelectorProps> = ({
 
   return (
     <div className="space-y-2 relative" ref={suggestionRef}>
-      <label className="font-tertiary text-primary text-sm">Server</label>
+      <label className="font-tertiary text-primary text-sm">Server Name</label>
       <input
         type="text"
         placeholder="Enter domain (e.g. test, demo)"
@@ -70,20 +70,16 @@ const DomainSelector: React.FC<DomainSelectorProps> = ({
       />
       {showSuggestions && suggestions.length > 0 && (
         <ul
-          className={`absolute z-[100] w-full mt-1 border border-[#3D3D3D] rounded-lg shadow-xl overflow-hidden ${
-            theme === "dark" ? "bg-[#1A1D27]" : "bg-white"
-          }`}
+          className={`absolute z-[100] bg-primaryBg w-full mt-1 border border-[#3D3D3D] rounded-lg shadow-xl overflow-hidden`}
         >
           {suggestions.slice(0, 3).map((key) => (
             <li
               key={key}
-              className={`p-3 cursor-pointer hover:bg-quaternary hover:text-black transition-colors ${
-                theme === "dark" ? "text-white" : "text-black"
-              }`}
+              className={`p-3 cursor-pointer hover:bg-quaternary hover:text-black transition-colors text-primary`}
               onClick={() => handleSelectSuggestion(key)}
             >
               <div className="font-secondary">{key}</div>
-              <div className="text-xs opacity-60">{DOMAIN_CONFIG[key].api}</div>
+              {/* <div className="text-xs opacity-60">{DOMAIN_CONFIG[key].api}</div> */}
             </li>
           ))}
         </ul>

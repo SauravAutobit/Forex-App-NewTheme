@@ -16,7 +16,7 @@ import appleLight from "../../assets/icons/appleLight.svg";
 import { useSelector } from "react-redux";
 import { showToasty } from "../../store/slices/notificationSlice";
 import DomainSelector from "../../components/domainSelector/DomainSelector";
-import { getDomainKey } from "../../utils/constants/domainConfig";
+import { getDomainKey, setDomainKey } from "../../utils/constants/domainConfig";
 
 const Login = () => {
   const [username, setUsername] = useState(""); // Default for testing
@@ -34,6 +34,12 @@ const Login = () => {
   useEffect(() => {
     // If already logged in, redirect to app
     if (user && status === "succeeded") {
+      // Associate selected domain with this user if not already set
+      const currentDomain = getDomainKey();
+      if (currentDomain) {
+        setDomainKey(currentDomain, user.username);
+      }
+
       // Reinitialize sockets with new token
       reinitializeSockets(store);
 
@@ -48,21 +54,24 @@ const Login = () => {
           message: "Login Successfully!",
         }),
       );
+
+      // CRITICAL: Reload to ensure app.constants and all services
+      // pick up the correct domain and user state from LocalStorage.
+      window.location.reload();
     }
   }, [user, status, navigate, dispatch]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username && password) {
-      dispatch(loginUser({ username, password }));
+      dispatch(loginUser({ username, password, domainKey: selectedDomain }));
     }
   };
 
   const handleDomainSelect = (key: string) => {
-    localStorage.setItem("selectedDomainKey", key);
+    setDomainKey(key);
     setSelectedDomain(key);
-    // Reload to ensure all constant-based services are re-initialized with new URLs
-    window.location.reload();
+    // Reload removed: domain is now passed to login thunk
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

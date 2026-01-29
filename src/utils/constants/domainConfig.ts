@@ -18,12 +18,46 @@ export const DOMAIN_CONFIG: Record<string, DomainInfo> = {
     stream: "stream-demo.swtik.com",
     feed: "feed-demo.swtik.com",
   },
+  
 };
 
-export const getDomainKey = () => localStorage.getItem("selectedDomainKey");
+export const getDomainKey = (username?: string | null) => {
+  if (username) {
+    return localStorage.getItem(`${username}_selectedDomainKey`) || localStorage.getItem("selectedDomainKey");
+  }
+  return localStorage.getItem("selectedDomainKey");
+};
 
-export const getDomainConfig = () => {
-  const key = getDomainKey();
+export const setDomainKey = (key: string, username?: string | null) => {
+  localStorage.setItem("selectedDomainKey", key); // Set global as fallback/last used
+  if (username) {
+    localStorage.setItem(`${username}_selectedDomainKey`, key);
+  }
+};
+
+export const clearDomainKey = (username?: string | null) => {
+  localStorage.removeItem("selectedDomainKey");
+  if (username) {
+    localStorage.removeItem(`${username}_selectedDomainKey`);
+  }
+};
+
+export const getDomainConfig = (username?: string | null): DomainInfo | null => {
+  const key = getDomainKey(username);
   if (!key) return null;
-  return DOMAIN_CONFIG[key] || null;
+
+  // If key is in hardcoded config, use that
+  if (DOMAIN_CONFIG[key]) {
+    return DOMAIN_CONFIG[key];
+  }
+
+  // Otherwise, construct it dynamically based on the pattern
+  // Pattern: api-{key}.swtik.com, event-{key}.swtik.com, etc.
+  return {
+    api: `api-${key}.swtik.com`,
+    event: `event-${key}.swtik.com`,
+    stream: `stream-${key}.swtik.com`,
+    feed: `feed-${key}.swtik.com`,
+  };
 };
+
