@@ -48,7 +48,7 @@ export default function MarketsNavbar({
   return (
     <>
       <div
-        className="w-full h-[40px] flex items-center gap-2"
+        className="w-full h-[40px] flex items-center gap-2 justify-between"
         style={{
           marginTop,
           marginBottom,

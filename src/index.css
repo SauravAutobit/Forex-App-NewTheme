@@ -237,7 +237,8 @@ body,
 #root {
   height: 100%;
   /* scroll-behavior: smooth; */
-  max-width: 390px;
+  /* max-width: 390px; */
+  max-width: 440px;
   margin: auto;
   transition: background-color 200ms linear, color 160ms linear;
 }

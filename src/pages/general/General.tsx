@@ -305,7 +305,9 @@ const General = () => {
                             className="h-[49px] flex items-center justify-between py-2.5 px-5 border-b border-primary last:border-0"
                           >
                             <div className="flex items-center gap-3">
-                              <span className="font-tertiary">{symbol}</span>
+                              <span className="font-tertiary text-primary">
+                                {symbol}
+                              </span>
                             </div>
                             <span
                               className={`font-secondary ${

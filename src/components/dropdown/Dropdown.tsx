@@ -78,7 +78,7 @@ const Dropddown = ({
       <AnimatePresence>
         {isOpen && (
           <motion.ul
-            className="dropdown menu w-full shadow-sm p-0 max-w-[390px] overflow-hidden border border-t-0 border-tertiary"
+            className="dropdown menu w-full shadow-sm p-0 max-w-[440px] overflow-hidden border border-t-0 border-tertiary"
             variants={listVariants}
             initial="closed"
             animate="open"

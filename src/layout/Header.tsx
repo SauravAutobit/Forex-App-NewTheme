@@ -426,7 +426,7 @@ export default function Header({
 
   return (
     <header
-      className="px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[390px] mx-auto overflow-hidden"
+      className="px-5 flex items-center fixed top-0 left-0 right-0 z-40 bg-primaryBg justify-between max-w-[440px] mx-auto overflow-hidden"
       style={{
         paddingTop: "env(safe-area-inset-top)",
         minHeight: "56px",

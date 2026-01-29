@@ -339,7 +339,7 @@ const Home = () => {
           top: "calc(56px + env(safe-area-inset-top))",
           // left: "0",
           zIndex: 10,
-          maxWidth: "390px",
+          maxWidth: "440px",
           // margin: "auto",
         }} // Added zIndex for safety
       >
