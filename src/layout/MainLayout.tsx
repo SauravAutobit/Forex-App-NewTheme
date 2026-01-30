@@ -54,6 +54,7 @@ export type OutletContextType = {
     close: number;
     pip: string;
     timestamp: string;
+    icon: string;
   }>;
   setFavoriteItems: React.Dispatch<
     React.SetStateAction<
@@ -68,6 +69,7 @@ export type OutletContextType = {
         close: number;
         pip: string;
         timestamp: string;
+        icon: string;
       }>
     >
   >;
@@ -115,6 +117,7 @@ const MainLayout = () => {
       close: number;
       pip: string;
       timestamp: string;
+      icon: string;
     }>
   >("favoriteItems", []);
 

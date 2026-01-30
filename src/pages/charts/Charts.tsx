@@ -164,37 +164,13 @@ const Charts = () => {
     }
   }, [instrumentsForDropdown, selectedInstrumentId]);
 
-  // 5. Effect to fetch data whenever the selected instrument ID changes
-  useEffect(() => {
-    if (selectedInstrumentId && selectedTimeframe) {
-      dispatch(
-        fetchChartData({
-          instrumentId: selectedInstrumentId,
-          timeframe: selectedTimeframe,
-          startIndex: 0,
-          endIndex: 99,
-        }),
-      );
-    }
-  }, [selectedInstrumentId, dispatch, selectedTimeframe]);
-
-  // 6. Effect to subscribe to quotes for the selected instrument
-  useEffect(() => {
-    if (selectedInstrumentId) {
-      subscribeToInstruments([selectedInstrumentId]);
-    }
-  }, [selectedInstrumentId]);
-
-  // Initial fetches removed: now handled centrally in socketService.ts/fetchAllAppData
-
-  // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
-  const height = `calc(100vh - 160px)`;
-  // 250 160
+  // 192:
+  const apiStatus = useAppSelector(
+    (state: RootState) => state.websockets.apiStatus,
+  );
 
   // const heightWithButtons = "calc(100vh - 250px)";
   // "Info",
-  const tabs = ["Chart", "Overview", "Calendar", "Info", "Positions", "Orders"];
-
   // NEW: Select Open Positions and Open (Pending) Orders
   const openPositions = useAppSelector((state) => state.positions.positions);
   const openOrders = useAppSelector((state) => state.openOrders.orders);
@@ -206,10 +182,51 @@ const Charts = () => {
     (o) => o.instrument_id === selectedInstrumentId,
   );
 
+  const tabs = useMemo(() => {
+    const baseTabs = ["Chart", "Overview", "Calendar", "Info"];
+    if (filteredOpenPositions.length > 0) baseTabs.push("Positions");
+    if (filteredOpenOrders.length > 0) baseTabs.push("Orders");
+    return baseTabs;
+  }, [filteredOpenPositions.length, filteredOpenOrders.length]);
+
+  // Ensure active tab is valid if it was Positions/Orders and they disappear
+  useEffect(() => {
+    if (!tabs.includes(active)) {
+      setActive("Chart");
+    }
+  }, [tabs, active, setActive]);
+
+  // 5. Effect to fetch data whenever the selected instrument ID changes
+  useEffect(() => {
+    if (
+      selectedInstrumentId &&
+      selectedTimeframe &&
+      apiStatus === "connected"
+    ) {
+      dispatch(
+        fetchChartData({
+          instrumentId: selectedInstrumentId,
+          timeframe: selectedTimeframe,
+          startIndex: 0,
+          endIndex: 99,
+        }),
+      );
+    }
+  }, [selectedInstrumentId, dispatch, selectedTimeframe, apiStatus]);
+
+  // 6. Effect to subscribe to quotes for the selected instrument
+  useEffect(() => {
+    if (selectedInstrumentId && apiStatus === "connected") {
+      subscribeToInstruments([selectedInstrumentId]);
+    }
+  }, [selectedInstrumentId, apiStatus]);
+
   // Sort them if needed (optional, e.g. by time)
   // const sortedPositions = [...filteredOpenPositions].sort((a,b) => b.created_at - a.created_at);
 
   const theme = useAppSelector((s: RootState) => s.theme.mode);
+
+  const height = `calc(100vh - 160px)`;
 
   return (
     <div className="relative">

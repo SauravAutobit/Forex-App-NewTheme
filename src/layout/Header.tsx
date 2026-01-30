@@ -30,6 +30,7 @@ type HeaderProps = {
     close: number;
     pip: string;
     timestamp: string;
+    icon: string;
   }>;
   setFavoriteItems: Dispatch<
     SetStateAction<
@@ -44,6 +45,7 @@ type HeaderProps = {
         close: number;
         pip: string;
         timestamp: string;
+        icon: string;
       }>
     >
   >;
@@ -119,6 +121,7 @@ export default function Header({
           timestamp: quotes?.ltpt?.[0]
             ? new Date(quotes.ltpt[0]).toLocaleTimeString()
             : new Date().toLocaleTimeString(),
+          icon: inst.icon || "",
         };
         setFavoriteItems((prev) => [...prev, newItem]);
         setFavouriteInstrument((prev) =>
@@ -171,6 +174,7 @@ export default function Header({
         timestamp: quotes?.ltpt?.[0]
           ? new Date(quotes.ltpt[0]).toLocaleTimeString()
           : "N/A",
+        icon: inst.icon || "",
       };
     });
 

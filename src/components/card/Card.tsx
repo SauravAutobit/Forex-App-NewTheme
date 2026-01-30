@@ -22,6 +22,7 @@ export interface CardProps {
   onClick: () => void;
   active?: string;
   favourites?: boolean;
+  icon?: string;
 }
 
 const Card = ({
@@ -37,11 +38,12 @@ const Card = ({
   onClick,
   active,
   favourites,
+  icon,
 }: CardProps) => {
   const askPrice = formatPrice(ask, pip);
   const bidPrice = formatPrice(bid, pip);
   // console.log(lowValue, hightValue, close);
-
+  // console.log("icon", icon);
   // ✅ State to hold the dynamic color classes
   const [askColor, setAskColor] = useState("text-primary"); // Start neutral
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
@@ -89,7 +91,7 @@ const Card = ({
   const changeSign = change >= 0 ? "+" : "";
   // console.log("change", change, percentageChange, changeColor, changeSign);
 
-  const iconSrc =
+  const favIconSrc =
     theme === "light"
       ? star
         ? favouriteTickLight
@@ -105,7 +107,12 @@ const Card = ({
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2.5">
-          <img src={cardIcon} alt="cardIcon" />
+          <img
+            // src={!icon || icon === "default.png" ? cardIcon : icon}
+            src={icon?.toLowerCase().includes("base64") ? icon : cardIcon}
+            alt="cardIcon"
+            className="w-[33px] h-[29px]"
+          />
           {/* Left Side: Title and Change */}
 
           <div>
@@ -186,7 +193,7 @@ const Card = ({
         </div>
         {active !== "Favorites" && favourites === true ? (
           <img
-            src={iconSrc}
+            src={favIconSrc}
             alt="favouriteStar"
             onClick={(e) => {
               e.stopPropagation(); // Stop click event from triggering the parent card's onClick/swipe

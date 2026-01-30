@@ -16,6 +16,7 @@ import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 interface FavoriteItemType
   extends Omit<CardProps, "onClick" | "active" | "favourites"> {
   id: string;
+  icon: string;
 }
 
 interface FavouritesProps {
@@ -109,6 +110,7 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
                     onClick={() => handleCardClick(item.id)}
                     active={active}
                     favourites={isFlag.favourites?.status}
+                    icon={item.icon}
                   />
                 </SwipeableListItem>
               </motion.div>

@@ -322,6 +322,7 @@ const Home = () => {
         low: live.low || item.low,
         ltp: live.ltp || item.ltp,
         close: live.close || item.close,
+        icon: item.icon,
         timestamp: live.timestamp
           ? new Date(live.timestamp).toLocaleTimeString()
           : item.timestamp,
@@ -406,6 +407,7 @@ const Home = () => {
                   onClick={() => handleCardClick(instrument.id)}
                   active={active}
                   favourites={isFlag.favourites?.status}
+                  icon={instrument.icon}
                 />
               );
             })
