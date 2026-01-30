@@ -5,7 +5,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../services/socketService";
-import { hideLoader, showLoader } from "./loadingSlice";
+// import { hideLoader, showLoader } from "./loadingSlice";
 
 export interface Deal {
   account_id: string;
@@ -59,7 +59,7 @@ export const fetchDeals = createAsyncThunk<
   { data: Deal[]; isLoadMore: boolean },
   { offset: number; limit: number },
   { rejectValue: string }
->("deals/fetchDeals", async ({ offset, limit }, { dispatch, rejectWithValue }) => {
+>("deals/fetchDeals", async ({ offset, limit }, { rejectWithValue }) => {
   if (!apiClient) {
     return rejectWithValue("API Client not initialized.");
   }
@@ -69,7 +69,7 @@ export const fetchDeals = createAsyncThunk<
   };
 
   try {
-    if (offset === 0) dispatch(showLoader());
+    // if (offset === 0) dispatch(showLoader());
     // apiClient.send may be typed in your codebase; using `any` here for safety then validating
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = await apiClient.send<any>("query", dealsQuery);
@@ -115,7 +115,7 @@ export const fetchDeals = createAsyncThunk<
 
     return rejectWithValue(msg);
   } finally {
-      if (offset === 0) dispatch(hideLoader());
+      // if (offset === 0) dispatch(hideLoader());
   }
 });
 

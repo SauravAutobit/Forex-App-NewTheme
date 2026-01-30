@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { apiClient } from '../../services/socketService';
-import { hideLoader, showLoader } from './loadingSlice';
+// import { hideLoader, showLoader } from './loadingSlice';
 
 export type Category = string; 
 
@@ -18,9 +18,9 @@ const initialState: CategoriesState = {
 
 export const fetchCategories = createAsyncThunk(
   'categories/fetchCategories',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      dispatch(showLoader())
+      // dispatch(showLoader())
       const response = await apiClient.send<Category[]>("query", {
         // query: "fintrabit.instruments.category.name._unique",
       query: "fintrabit.instrument_categories[type=\"static\"].name"
@@ -35,7 +35,7 @@ export const fetchCategories = createAsyncThunk(
       const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
       return rejectWithValue(errorMessage);
     } finally {
-      dispatch(hideLoader())
+      // dispatch(hideLoader())
     }
   }
 );

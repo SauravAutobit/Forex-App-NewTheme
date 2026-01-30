@@ -25,12 +25,7 @@ import CheckList, {
 } from "../../components/checkList/CheckList";
 import { useAppSelector } from "../../store/hook";
 import { placeNewOrder } from "../../store/slices/ordersSlice";
-import { fetchPositions } from "../../store/slices/positionsSlice";
-import { fetchOpenOrders } from "../../store/slices/openOrdersSlice";
-import {
-  subscribeToInstruments,
-  refreshAllHistoryData,
-} from "../../services/socketService";
+import { subscribeToInstruments } from "../../services/socketService";
 
 import PositionCard from "../../components/positionCard/PositionCard";
 import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
@@ -190,15 +185,7 @@ const Charts = () => {
     }
   }, [selectedInstrumentId]);
 
-  const apiStatus = useAppSelector((state) => state.websockets.apiStatus);
-
-  useEffect(() => {
-    if (apiStatus === "connected") {
-      dispatch(fetchPositions());
-      dispatch(fetchOpenOrders());
-      refreshAllHistoryData(dispatch);
-    }
-  }, [dispatch, apiStatus]);
+  // Initial fetches removed: now handled centrally in socketService.ts/fetchAllAppData
 
   // const { isFlag, active, setActive } = useOutletContext<OutletContextType>();
   const height = `calc(100vh - 160px)`;

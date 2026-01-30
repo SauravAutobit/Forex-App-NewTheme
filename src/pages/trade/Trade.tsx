@@ -12,14 +12,7 @@ import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../store/store";
-import {
-  selectAccount,
-  fetchAccountBalance,
-} from "../../store/slices/accountSlice";
-import { fetchPositions } from "../../store/slices/positionsSlice";
-import { fetchOpenOrders } from "../../store/slices/openOrdersSlice";
 import { bulkClosePositions } from "../../store/slices/ordersSlice";
-import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
 import PositionCard from "../../components/positionCard/PositionCard";
 import price from "../../assets/icons/price.svg";
 import alphabets from "../../assets/icons/alphabets.svg";
@@ -61,28 +54,13 @@ const Trade = () => {
   const { setIsFlag, isDrawerOpen, setIsDrawerOpen } =
     useOutletContext<OutletContextType>();
 
-  const apiStatus = useAppSelector((state) => state.websockets.apiStatus);
-  const account = useAppSelector(selectAccount);
-  const accountStatus = useAppSelector((state) => state.account.status);
-
+  const { account } = useAppSelector((state) => state.account);
   const openPositions = useAppSelector((state) => state.positions.positions);
   const openOrders = useAppSelector((state) => state.openOrders.orders) || [];
   const historyPositions =
     useAppSelector((state) => state.historyPositions.data) || [];
-  const { user } = useAppSelector((state) => state.auth);
 
-  // Fetch all trade data when connected
-  useEffect(() => {
-    if (apiStatus === "connected") {
-      if (accountStatus === "idle") dispatch(fetchAccountBalance());
-      dispatch(fetchPositions());
-      dispatch(fetchOpenOrders());
-
-      // Fetch history (last 24h as default)
-
-      dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
-    }
-  }, [apiStatus, dispatch, user?.username]);
+  // Initial fetches removed: now handled centrally in socketService.ts/fetchAllAppData
 
   // ✅ P&L CALCULATION (OLD APP Logic)
   const totalPnl = openPositions.reduce((sum, position) => {

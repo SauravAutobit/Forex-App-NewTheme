@@ -6,22 +6,18 @@ import InstrumentInfoCard, {
   type ProfitBalanceProps,
 } from "../../components/instrumentInfoCard/InstrumentInfoCard";
 import { useAppSelector } from "../../store/hook";
-// import { refreshAllHistoryData } from "../../services/socketService";
-import type { RootState } from "../../store/store";
-import type { Deal } from "../../store/slices/dealsSlice";
-import type { HistoryPosition } from "../../store/slices/historyPositionsSlice";
-import noData from "../../assets/icons/noData.svg";
+import type { RootState, AppDispatch } from "../../store/store";
+import { type Deal, fetchDeals } from "../../store/slices/dealsSlice";
 import {
-  fetchInstrumentsByCategory,
-  type Instrument,
-} from "../../store/slices/instrumentsSlice";
-import { fetchCategories } from "../../store/slices/categoriesSlice";
-import { fetchHistoryPositions } from "../../store/slices/historyPositionsSlice";
+  type HistoryPosition,
+  fetchHistoryPositions,
+} from "../../store/slices/historyPositionsSlice";
 import { fetchHistoryOrders } from "../../store/slices/historyOrdersSlice";
-import { fetchDeals } from "../../store/slices/dealsSlice";
+import noData from "../../assets/icons/noData.svg";
 import HistoryCard from "../../components/historyCard/HistoryCard";
-import type { AppDispatch } from "../../store/store";
 import DirectionArrow from "../../components/directionArrow/DirectionArrow";
+import { setHasSeenHistoryTutorial } from "../../store/slices/authSlice";
+import type { Instrument } from "../../store/slices/instrumentsSlice";
 
 // --- Custom Interfaces for Type Safety ---
 
@@ -80,49 +76,7 @@ const History = ({}: HistoryProps) => {
     data: historyPositions,
   } = useAppSelector((state) => state.historyPositions);
 
-  const apiStatus = useSelector(
-    (state: RootState) => state.websockets.apiStatus
-  );
-
-  const { data: categories, status: categoriesStatus } = useSelector(
-    (state: RootState) => state.categories
-  );
-
-  useEffect(() => {
-    if (apiStatus === "connected") {
-      dispatch(fetchCategories());
-    }
-  }, [apiStatus, dispatch]);
-
-  useEffect(() => {
-    if (
-      apiStatus === "connected" &&
-      categoriesStatus === "succeeded" &&
-      categories.length > 0
-    ) {
-      categories.forEach((category) => {
-        dispatch(fetchInstrumentsByCategory(category));
-      });
-    }
-  }, [apiStatus, categories, categoriesStatus, dispatch]);
-
-  // Initial Fetch Effect - replacing refreshAllHistoryData
-  useEffect(() => {
-    if (apiStatus === "connected") {
-      if (historyPositionsStatus === "idle")
-        dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
-      if (historyOrdersStatus === "idle")
-        dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
-      if (dealsStatus === "idle")
-        dispatch(fetchDeals({ offset: 0, limit: 30 }));
-    }
-  }, [
-    apiStatus,
-    dispatch,
-    historyPositionsStatus,
-    historyOrdersStatus,
-    dealsStatus,
-  ]);
+  // Initial fetches removed: now handled centrally in socketService.ts/fetchAllAppData
 
   // Scroll Handler
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -174,7 +128,7 @@ const History = ({}: HistoryProps) => {
         sum +
         tradeChargesArray.reduce(
           (chargeSum: number, charge) => chargeSum + (charge?.charge ?? 0),
-          0
+          0,
         )
       );
     }, 0);
@@ -187,7 +141,7 @@ const History = ({}: HistoryProps) => {
 
     return dealChargesArray.reduce(
       (chargeSum: number, charge) => chargeSum + (charge?.charge ?? 0),
-      0
+      0,
     );
   };
 
@@ -214,7 +168,7 @@ const History = ({}: HistoryProps) => {
 
     const totalClosedPnl = historyPositions.reduce(
       (sum, pos) => sum + pos.closed_pnl,
-      0
+      0,
     );
 
     const totalCharges = historyPositions.reduce((sum, pos) => {
@@ -262,7 +216,7 @@ const History = ({}: HistoryProps) => {
     }
     const totalClosedPnl = deals.reduce(
       (sum, deal) => sum + deal.closed_pnl,
-      0
+      0,
     );
 
     const totalCharges = deals.reduce((sum, deal) => {
@@ -290,10 +244,10 @@ const History = ({}: HistoryProps) => {
 
   const orderDataCalculated: ProfitBalanceProps = useMemo(() => {
     const filledCount = historyOrders?.filter(
-      (o) => o.status === "filled"
+      (o) => o.status === "filled",
     ).length;
     const canceledCount = historyOrders?.filter(
-      (o) => o.status === "canceled"
+      (o) => o.status === "canceled",
     ).length;
     const totalCount = historyOrders?.length;
     return {
@@ -311,30 +265,32 @@ const History = ({}: HistoryProps) => {
     };
   }, [historyOrders]);
 
+  const hasSeenHistoryTutorial = useSelector(
+    (state: RootState) => state.auth.hasSeenHistoryTutorial,
+  );
   const [showTutorial, setShowTutorial] = useState(false);
-  const [hasDismissed, setHasDismissed] = useState(false);
 
   useEffect(() => {
-    if (activeTabId !== "position") {
-      setHasDismissed(true);
+    if (activeTabId !== "position" && !hasSeenHistoryTutorial) {
+      dispatch(setHasSeenHistoryTutorial(true));
     }
-  }, [activeTabId]);
+  }, [activeTabId, hasSeenHistoryTutorial, dispatch]);
 
   useEffect(() => {
     if (
       activeTabId === "position" &&
       historyPositions.length > 0 &&
-      !hasDismissed
+      !hasSeenHistoryTutorial
     ) {
       setShowTutorial(true);
     } else {
       setShowTutorial(false);
     }
-  }, [activeTabId, historyPositions.length, hasDismissed]);
+  }, [activeTabId, historyPositions.length, hasSeenHistoryTutorial]);
 
   const handleDismissTutorial = () => {
     setShowTutorial(false);
-    setHasDismissed(true);
+    dispatch(setHasSeenHistoryTutorial(true));
   };
 
   const positionsContent = (

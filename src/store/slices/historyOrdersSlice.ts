@@ -5,7 +5,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../services/socketService";
-import { hideLoader, showLoader } from "./loadingSlice";
+// import { hideLoader, showLoader } from "./loadingSlice";
 
 export interface HistoryOrder {
   account_id: string;
@@ -57,9 +57,9 @@ export const fetchHistoryOrders = createAsyncThunk<
   { rejectValue: string }
 >(
   "historyOrders/fetchHistoryOrders",
-  async ({ offset, limit }, { dispatch, rejectWithValue }) => {
+  async ({ offset, limit }, { rejectWithValue }) => {
     try {
-      if (offset === 0) dispatch(showLoader());
+      // if (offset === 0) dispatch(showLoader());
       type ApiResp =
         | { status: "success"; data: HistoryOrder[] }
         | { status: "error"; message: string };
@@ -99,7 +99,7 @@ export const fetchHistoryOrders = createAsyncThunk<
         (error as { message?: string }).message || "An unknown error occurred";
       return rejectWithValue(errorMessage);
     } finally {
-      if (offset === 0) dispatch(hideLoader());
+      // if (offset === 0) dispatch(hideLoader());
     }
   }
 );

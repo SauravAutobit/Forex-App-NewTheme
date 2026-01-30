@@ -7,7 +7,7 @@ import {
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../services/socketService";
 import type { RootState } from "../store";
-import { hideLoader, showLoader } from "./loadingSlice";
+// import { hideLoader, showLoader } from "./loadingSlice";
 
 // --- NEW TYPES FOR RAW API RESPONSE ---
 
@@ -124,9 +124,9 @@ const initialState: OpenOrdersState = {
 // --- Thunk for fetching pending orders data ---
 export const fetchOpenOrders = createAsyncThunk(
   "openOrders/fetchOpenOrders",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      dispatch(showLoader());
+      // dispatch(showLoader());
       // The exact API query provided by the user
       const query =
         'fintrabit.orders[status="pending" or status="partial_filled"]. _desc(placed_time){instruments.trading_name,account_id,end_execution_time,filled_qty,id,instrument_id,metadata,order_type,placed_qty,placed_time,position_id,price,side,start_execution_time,status,tid,instruments.static_data}';
@@ -168,7 +168,7 @@ export const fetchOpenOrders = createAsyncThunk(
       return rejectWithValue(errorMessage);
     } finally {
       // 💡 2. HIDE LOADER on success, fail, or crash
-      dispatch(hideLoader());
+      // dispatch(hideLoader());
     }
   }
 );
@@ -234,9 +234,9 @@ export const updateOrder = createAsyncThunk<
   OpenOrder, // Return type is the updated OpenOrder
   UpdateOrderPayload, // Argument type is the payload
   { state: RootState }
->("openOrders/updateOrder", async (payload, { rejectWithValue, dispatch }) => {
+>("openOrders/updateOrder", async (payload, { rejectWithValue }) => {
   try {
-    dispatch(showLoader());
+    // dispatch(showLoader());
     const response = await apiClient.send<UpdateOrderApiResponse>(
       "account/order/update",
       payload
@@ -267,7 +267,7 @@ export const updateOrder = createAsyncThunk<
       (error as { message?: string }).message || "An unknown error occurred";
     return rejectWithValue(errorMessage);
   } finally {
-    dispatch(hideLoader());
+    // dispatch(hideLoader());
   }
 });
 

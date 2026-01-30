@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { apiClient, subscribeToInstruments } from '../../services/socketService';
 import type { RootState } from '../store';
-import { hideLoader, showLoader } from './loadingSlice';
+// import { hideLoader, showLoader } from './loadingSlice';
 
 // --- Types for TOrder (Stop Loss/Take Profit) Data ---
 export interface TOrder {
@@ -79,9 +79,9 @@ type QuoteStreamDataPayload = {
 // --- Thunk for fetching initial positions data ---
 export const fetchPositions = createAsyncThunk(
     'positions/fetchPositions',
-    async (_, { dispatch, rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-             dispatch(showLoader()); 
+             // dispatch(showLoader()); 
             // 
             // Note: The query is fine as it is.
             const query = "fintrabit.positions[status=\"open\" or status=\"partial\"]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,\"trading_name\":instruments.trading_name[0],torders[status=\"pending\"],instruments.static_data}";
@@ -103,7 +103,7 @@ export const fetchPositions = createAsyncThunk(
             return rejectWithValue(errorMessage);
         } finally {
             // 💡 2. HIDE LOADER on success, fail, or crash
-            dispatch(hideLoader());
+            // dispatch(hideLoader());
         }
     }
 );

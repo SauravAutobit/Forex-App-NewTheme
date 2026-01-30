@@ -14,7 +14,10 @@ import {
   fetchPositions,
   updatePositionQuote,
 } from "../store/slices/positionsSlice";
+import { fetchCategories } from "../store/slices/categoriesSlice";
 import { fetchDeals } from "../store/slices/dealsSlice";
+import { fetchInstrumentsByCategory } from "../store/slices/instrumentsSlice";
+import { fetchInstrumentRelations } from "../store/slices/instrumentRelationsSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import { updateQuoteData } from "../store/slices/quotesSlice";
 import { fetchHistoryOrders } from "../store/slices/historyOrdersSlice";
@@ -68,7 +71,7 @@ function isStreamQuoteMessage(msg: unknown): msg is {
 }
 
 
-export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number) => {
+export const fetchAllAppData = (dispatch: AppDispatch, timestamp?: number) => {
   // If timestamp not provided compute start-of-today
   const ts =
     typeof timestamp === "number"
@@ -95,7 +98,17 @@ export const refreshAllHistoryData = (dispatch: AppDispatch, timestamp?: number)
   // Other non-history thunks
   dispatch(fetchAccountBalance());
   dispatch(fetchPositions());
-  dispatch(fetchOpenOrders())
+  dispatch(fetchOpenOrders());
+  dispatch(fetchInstrumentRelations());
+  
+  // Fetch categories and then instruments
+  dispatch(fetchCategories()).unwrap().then((categories: any) => {
+    if (Array.isArray(categories)) {
+      categories.forEach((category) => {
+        dispatch(fetchInstrumentsByCategory(category));
+      });
+    }
+  }).catch(err => console.error("Failed to fetch categories during initial load:", err));
 };
 
 const API_BASE_URL = WEBSOCKET_API_URL; 
@@ -141,6 +154,11 @@ export const initializeSockets = (store: Store) => {
     const apiUrlWithToken = `${API_BASE_URL}?t=${token}`;
     apiClient = new WebSocketClient(apiUrlWithToken, store, setApiStatus);
     console.log("API WebSocket Client Initialized.");
+
+    // Fetch all data once connected
+    apiClient.onConnected(() => {
+        fetchAllAppData(store.dispatch as AppDispatch);
+    });
   }
 
   // --- Stream Client Initialization ---
@@ -263,7 +281,7 @@ export const initializeSockets = (store: Store) => {
         }, 3000);
       }
 
-      refreshAllHistoryData(appDispatch);
+      fetchAllAppData(appDispatch);
     });
 
     eventClient.onConnected(() => {

@@ -5,7 +5,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../services/socketService";
-import { hideLoader, showLoader } from "./loadingSlice";
+// import { hideLoader, showLoader } from "./loadingSlice";
 
 export interface InstrumentStaticData {
   contract_size?: number;
@@ -100,9 +100,9 @@ export const fetchHistoryPositions = createAsyncThunk<
   { rejectValue: string }
 >(
   "historyPositions/fetchHistoryPositions",
-  async ({ offset, limit }, { dispatch, rejectWithValue }) => {
+  async ({ offset, limit }, { rejectWithValue }) => {
     // Only show global loader on initial fetch
-    if (offset === 0) dispatch(showLoader());
+    // if (offset === 0) dispatch(showLoader());
     
     // Dynamic query with offset and limit
     const query = `fintrabit.positions[status="closed" and created_at>${1}][${offset}:${offset + limit}]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,"trading_name":instruments.trading_name[0],instruments.static_data,trades,torders[status="filled"],instruments.static_data}`;
@@ -141,7 +141,7 @@ export const fetchHistoryPositions = createAsyncThunk<
         (error as { message?: string }).message || "An unknown error occurred";
       return rejectWithValue(errorMessage);
     } finally {
-      if (offset === 0) dispatch(hideLoader());
+      // if (offset === 0) dispatch(hideLoader());
     }
   }
 );

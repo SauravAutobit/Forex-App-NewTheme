@@ -19,17 +19,20 @@ export interface AuthState {
   accounts: User[];  // List of all logged-in accounts
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  hasSeenHistoryTutorial: boolean;
 }
 
 // Load initial state from localStorage
 const storedAccounts = localStorage.getItem("accounts");
 const storedActiveAccount = localStorage.getItem("activeAccount");
+const storedHasSeenTutorial = localStorage.getItem("hasSeenHistoryTutorial") === "true";
 
 const initialState: AuthState = {
   user: storedActiveAccount ? JSON.parse(storedActiveAccount) : null,
   accounts: storedAccounts ? JSON.parse(storedAccounts) : [],
   status: "idle",
   error: null,
+  hasSeenHistoryTutorial: storedHasSeenTutorial,
 };
 
 // Async thunk for login
@@ -172,7 +175,13 @@ export const authSlice = createSlice({
         // THE UI handles the reload if needed or Sidebar handles redirect.
       } else {
         localStorage.removeItem("activeAccount");
+        localStorage.removeItem("hasSeenHistoryTutorial");
+        state.hasSeenHistoryTutorial = false;
       }
+    },
+    setHasSeenHistoryTutorial: (state, action: PayloadAction<boolean>) => {
+      state.hasSeenHistoryTutorial = action.payload;
+      localStorage.setItem("hasSeenHistoryTutorial", String(action.payload));
     },
     switchAccount: (state, action: PayloadAction<string>) => {
       // Switch to account with username
@@ -237,5 +246,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logout, switchAccount, clearError } = authSlice.actions;
+export const { logout, switchAccount, clearError, setHasSeenHistoryTutorial } = authSlice.actions;
 export default authSlice.reducer;

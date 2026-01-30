@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiClient } from "../../services/socketService";
-import { hideLoader, showLoader } from "./loadingSlice";
+// import { hideLoader, showLoader } from "./loadingSlice";
 
 export interface InstrumentRelation {
   id: string;
@@ -23,9 +23,9 @@ const initialState: RelationsState = {
 
 export const fetchInstrumentRelations = createAsyncThunk(
   "instrumentRelations/fetchAll",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-           dispatch(showLoader());
+           // dispatch(showLoader());
       const response = await apiClient.send("fetch", {
         query: "fintrabit.instrument_dinamic_categories_relation",
       });
@@ -40,7 +40,7 @@ export const fetchInstrumentRelations = createAsyncThunk(
       return rejectWithValue("An unknown error occurred");
     }
       finally {
-      dispatch(hideLoader());
+      // dispatch(hideLoader());
     }
   }
 );
