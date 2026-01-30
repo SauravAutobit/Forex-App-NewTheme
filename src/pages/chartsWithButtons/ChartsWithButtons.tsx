@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
-import { fetchChartData } from "../../store/slices/chartSlice";
 import ChartComponent from "../../components/chartComponent/ChartComponent";
 import type { AppDispatch, RootState } from "../../store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -104,24 +103,8 @@ const ChartsWithButtons = () => {
     }
   }, [instrumentsForDropdown, selectedInstrumentId]);
 
-  // 5. Effect to fetch data whenever the selected instrument ID changes
-  useEffect(() => {
-    if (selectedInstrumentId && selectedTimeframe) {
-      // Dispatch the thunk to fetch/mock data for the new instrument.
-      // Since your thunk currently returns 100 mock points,
-      // we can use a fixed range (e.g., [0:99]) for initial load.
-      dispatch(
-        fetchChartData({
-          instrumentId: selectedInstrumentId,
-          timeframe: selectedTimeframe,
-          startIndex: 0,
-          endIndex: 99,
-        }),
-      );
-    }
-  }, [selectedInstrumentId, dispatch, selectedTimeframe]); // Re-run whenever the ID changes
-
-  const height = `calc(100vh - 250px)`;
+  //250px
+  const height = `calc(100vh - 280px)`;
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (

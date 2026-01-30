@@ -276,7 +276,8 @@ const PendingEdit = () => {
   const isQtyDisabled = !!order.position_id;
 
   const InfoTabContent = (
-    <div className="px-5 h-[calc(100vh-250px)]">
+    //250px
+    <div className="px-5 h-[calc(100vh-280px)]">
       <div className="flex flex-col justify-between h-full">
         <div>
           <EditOrderList
@@ -311,9 +312,10 @@ const PendingEdit = () => {
   );
 
   const EditTabContent = (
-    <div className="px-5 h-[calc(100vh-250px)] overflow-y-auto">
+    // 250px
+    <div className="px-5 h-[calc(100vh-280px)] overflow-y-auto">
       <div className="flex flex-col justify-between h-full">
-        <div className="flex flex-col gap-2.5 mt-5">
+        <div className="flex flex-col gap-2.5 mt-4">
           <div
             // gap-1
             className={`flex items-center gap-2.5 ${

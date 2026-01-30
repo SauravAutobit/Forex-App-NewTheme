@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import AccountHealthCard from "../../components/overview/AccountHealthCard";
 import OpenPositionCard from "../../components/overview/OpenPositionCard";
-import PerformanceCard from "../../components/overview/PerformanceCard";
+// import PerformanceCard from "../../components/overview/PerformanceCard";
 import TradeQualityCard from "../../components/overview/TradeQualityCard";
 import Button from "../../components/button/Button";
 import Counter from "../../components/counter/Counter";
@@ -99,7 +99,8 @@ const Overview = ({
   const marginLevel = (equity / usedMargin) * 100;
 
   return (
-    <div className="h-[calc(100vh-250px)] mt-[10px] overflow-auto px-5">
+    // 250px
+    <div className="h-[calc(100vh-280px)] mt-[10px] overflow-auto px-5">
       {" "}
       {/* pb-20 */}
       <div className="flex flex-col gap-1">
@@ -116,7 +117,7 @@ const Overview = ({
           bestPnL={maxProfit}
           dailyLossLimit={maxLoss}
         />
-        <PerformanceCard />
+        {/* <PerformanceCard /> */}
         <TradeQualityCard
           winRate={parseFloat(winRate.toFixed(1))}
           avgWin={avgWin}

@@ -225,8 +225,9 @@ const NewOrder = () => {
     const contractSize = getContractSize();
 
     return (
-      <div className="px-5 h-[calc(100vh-179px)] overflow-y-auto">
-        <div className="mt-5 flex flex-col gap-2.5 justify-between h-full">
+      //179
+      <div className="px-5 h-[calc(100vh-210px)] overflow-y-auto">
+        <div className="mt-4 flex flex-col gap-2.5 justify-between h-full">
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-1">
               <Counter

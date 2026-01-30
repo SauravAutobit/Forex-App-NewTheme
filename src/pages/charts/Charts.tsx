@@ -10,7 +10,6 @@ import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 // import TradeButtonsDrawer from "../../components/tradeButtonsDrawer/TradeButtonsDrawer";
 // import type { OutletContextType } from "../../layout/MainLayout";
 
-import { fetchChartData } from "../../store/slices/chartSlice";
 import { mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
 import Info from "../info/Info";
@@ -183,7 +182,8 @@ const Charts = () => {
   );
 
   const tabs = useMemo(() => {
-    const baseTabs = ["Chart", "Overview", "Calendar", "Info"];
+    // "Calendar",
+    const baseTabs = ["Chart", "Overview", "Info"];
     if (filteredOpenPositions.length > 0) baseTabs.push("Positions");
     if (filteredOpenOrders.length > 0) baseTabs.push("Orders");
     return baseTabs;
@@ -195,24 +195,6 @@ const Charts = () => {
       setActive("Chart");
     }
   }, [tabs, active, setActive]);
-
-  // 5. Effect to fetch data whenever the selected instrument ID changes
-  useEffect(() => {
-    if (
-      selectedInstrumentId &&
-      selectedTimeframe &&
-      apiStatus === "connected"
-    ) {
-      dispatch(
-        fetchChartData({
-          instrumentId: selectedInstrumentId,
-          timeframe: selectedTimeframe,
-          startIndex: 0,
-          endIndex: 99,
-        }),
-      );
-    }
-  }, [selectedInstrumentId, dispatch, selectedTimeframe, apiStatus]);
 
   // 6. Effect to subscribe to quotes for the selected instrument
   useEffect(() => {
@@ -282,7 +264,7 @@ const Charts = () => {
 
       {active === "Info" && (
         <Info
-          selectedInstrumentId={selectedInstrumentId}
+          instrument={foundInstrument}
           handlePlaceOrder={handlePlaceOrder}
           volume={selectedLot * contractSize}
           setVolume={(val) => setSelectedLot(val / contractSize)}
@@ -292,7 +274,8 @@ const Charts = () => {
       )}
 
       {active === "Positions" && (
-        <div className="h-[calc(100vh-250px)] overflow-auto">
+        //250px
+        <div className="h-[calc(100vh-280px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {/* Show Open Positions using PositionCard */}
@@ -358,7 +341,8 @@ const Charts = () => {
       )}
 
       {active === "Orders" && (
-        <div className="h-[calc(100vh-250px)] overflow-auto">
+        // 250px
+        <div className="h-[calc(100vh-270px)] overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {/* Show Pending Orders using PositionCard */}

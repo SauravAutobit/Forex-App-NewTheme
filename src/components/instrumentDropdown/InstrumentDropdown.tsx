@@ -75,7 +75,8 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
         <AnimatePresence>
           {isOpen && (
             <motion.ul
-              className="dropdown-content z-[1] mt-8 menu p-2.5 shadow bg-primaryBg border border-primary rounded-box min-w-[140px] overflow-y-auto text-primary flex flex-col flex-nowrap"
+              // min-w-[140px]
+              className="w-[116px] dropdown-content z-[1] mt-8 menu p-2.5 shadow bg-primaryBg border border-primary rounded-box overflow-y-auto text-primary flex flex-col flex-nowrap"
               variants={listVariants}
               initial="closed"
               animate="open"
@@ -83,7 +84,7 @@ const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
               style={{
                 position: "absolute",
                 scrollbarWidth: "none",
-                maxHeight: "300px",
+                maxHeight: "600px",
               }}
             >
               {instruments.map((instrument) => {

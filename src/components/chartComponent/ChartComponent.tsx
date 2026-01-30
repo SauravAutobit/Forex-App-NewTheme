@@ -278,14 +278,15 @@ export default function ChartComponent({
     // clear old data immediately to avoid showing previous instrument's candles
     dispatch(clearChartData());
     // fetch fresh data (only if websocket connected)
-    if (apiStatus === "connected") {
-      // dispatch(
-      //   fetchChartData({
-      //     instrumentId: selectedInstrumentId,
-      //     startIndex: 0,
-      //     endIndex: 500,
-      //   })
-      // );
+    if (apiStatus === "connected" && selectedInstrumentId) {
+      dispatch(
+        fetchChartData({
+          instrumentId: selectedInstrumentId,
+          timeframe: selectedTimeframe,
+          startIndex: 0,
+          endIndex: 500,
+        }),
+      );
     }
   }, [selectedInstrumentId, dispatch, apiStatus]);
 
@@ -305,6 +306,7 @@ export default function ChartComponent({
           fetchChartData({
             // @ts-expect-error instrumentId might be null at compile-time
             instrumentId: selectedInstrumentId,
+            timeframe: selectedTimeframe,
             startIndex: currentFirstIndex,
             endIndex: currentFirstIndex + 500,
           }),
@@ -1050,6 +1052,7 @@ export default function ChartComponent({
                 selectedTimeframe={selectedTimeframe} // Passed state
                 onSelect={onTimeframeChange} // Passed handler
               />
+
               <InstrumentDropdown
                 instruments={instruments ?? []}
                 selectedInstrumentId={selectedInstrumentId!}
@@ -1071,6 +1074,13 @@ export default function ChartComponent({
           </>
         )}
 
+        {/* Commented out skeleton loading to show chart container immediately as requested by user */}
+        {/* {(chartStatus === "loading" || chartStatus === "idle") &&
+        chartData.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center pt-20">
+            <ChartSkeleton />
+          </div>
+        ) : ( */}
         <main className="flex-1 flex flex-col gap-2 overflow-auto">
           <div
             ref={mainRef}
@@ -1078,6 +1088,7 @@ export default function ChartComponent({
             style={{ border: "none", outline: "none" }}
           />
         </main>
+        {/* )} */}
 
         <IndicatorsModal
           isOpen={isModalOpen}

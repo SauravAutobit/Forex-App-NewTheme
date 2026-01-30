@@ -10,7 +10,7 @@ interface DomainSelectorProps {
 const DomainSelector: React.FC<DomainSelectorProps> = ({
   onSelect,
   initialValue = null,
-  theme,
+  // theme,
 }) => {
   const [inputValue, setInputValue] = useState(initialValue || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);

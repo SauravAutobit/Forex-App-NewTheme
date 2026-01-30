@@ -190,6 +190,7 @@ export const initializeSockets = (store: Store) => {
       // } else {
       //   console.log("[Stream] Received unknown message format:", msg);
       // }
+      console.log("Received stream message:", msg);
 
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it

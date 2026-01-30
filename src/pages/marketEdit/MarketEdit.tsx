@@ -39,7 +39,7 @@ const MarketEdit = () => {
   }, [allPositions, positionSnapshot]);
 
   const instrumentsData = useSelector(
-    (state: RootState) => state.instruments.data
+    (state: RootState) => state.instruments.data,
   );
   const theme = useSelector((s: RootState) => s.theme.mode);
 
@@ -73,14 +73,14 @@ const MarketEdit = () => {
   // Resolve initial TP/SL from position torders
   const initialTp = useMemo(() => {
     const tpOrder = position?.torders?.find(
-      (o: any) => o.order_type === "stop"
+      (o: any) => o.order_type === "stop",
     );
     return tpOrder?.price ?? tpOrder?.metadata?.legs?.target ?? 0;
   }, [position]);
 
   const initialSl = useMemo(() => {
     const slOrder = position?.torders?.find(
-      (o: any) => o.order_type === "limit"
+      (o: any) => o.order_type === "limit",
     );
     return slOrder?.price ?? slOrder?.metadata?.legs?.stoploss ?? 0;
   }, [position]);
@@ -102,7 +102,7 @@ const MarketEdit = () => {
           stoploss: 0,
           target: 0,
           position_id: position.id,
-        })
+        }),
       );
       navigate(-1);
     }
@@ -112,14 +112,14 @@ const MarketEdit = () => {
     if (!position) return;
 
     dispatch(
-      setOrderStatus({ status: "loading", message: "Updating orders..." })
+      setOrderStatus({ status: "loading", message: "Updating orders..." }),
     );
 
     const originalTpOrder = position.torders?.find(
-      (o: any) => o.order_type === "stop"
+      (o: any) => o.order_type === "stop",
     );
     const originalSlOrder = position.torders?.find(
-      (o: any) => o.order_type === "limit"
+      (o: any) => o.order_type === "limit",
     );
 
     const promises = [];
@@ -143,8 +143,8 @@ const MarketEdit = () => {
               side: position.side === "buy" ? "sell" : "buy",
               stoploss: 0,
               target: 0,
-            })
-          ).unwrap()
+            }),
+          ).unwrap(),
         );
       }
     } else if (tp && tp > 0) {
@@ -160,8 +160,8 @@ const MarketEdit = () => {
             stoploss: 0,
             target: 0,
             position_id: position.id,
-          })
-        ).unwrap()
+          }),
+        ).unwrap(),
       );
     }
 
@@ -182,8 +182,8 @@ const MarketEdit = () => {
               side: position.side === "buy" ? "sell" : "buy",
               stoploss: 0,
               target: 0,
-            })
-          ).unwrap()
+            }),
+          ).unwrap(),
         );
       }
     } else if (sl && sl > 0) {
@@ -199,8 +199,8 @@ const MarketEdit = () => {
             stoploss: 0,
             target: 0,
             position_id: position.id,
-          })
-        ).unwrap()
+          }),
+        ).unwrap(),
       );
     }
 
@@ -219,7 +219,7 @@ const MarketEdit = () => {
         setOrderStatus({
           status: "succeeded",
           message,
-        })
+        }),
       );
       // Wait for user to see the success message
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -227,7 +227,10 @@ const MarketEdit = () => {
     } catch (error) {
       console.error("Failed to update orders", error);
       dispatch(
-        setOrderStatus({ status: "failed", message: "Failed to update orders" })
+        setOrderStatus({
+          status: "failed",
+          message: "Failed to update orders",
+        }),
       );
     }
   };
@@ -267,7 +270,8 @@ const MarketEdit = () => {
   };
 
   const InfoTabContent = (
-    <div className="px-5 h-[calc(100vh-250px)]">
+    // 250px
+    <div className="px-5 h-[calc(100vh-280px)]">
       <div className="flex flex-col justify-between h-full">
         <div>
           <EditOrderList
@@ -314,9 +318,10 @@ const MarketEdit = () => {
   ];
 
   const EditTabContent = (
-    <div className="px-5 h-[calc(100vh-250px)] overflow-y-auto">
+    // 250px
+    <div className="px-5 h-[calc(100vh-280px)] overflow-y-auto">
       <div className="flex flex-col justify-between h-full">
-        <div className="flex flex-col gap-2.5 mt-5">
+        <div className="flex flex-col gap-2.5 mt-4">
           <Counter
             label="Take Profit"
             initialValue={tp}

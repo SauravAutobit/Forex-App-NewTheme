@@ -96,17 +96,26 @@ console.log(timeframe);
                   close: item.data.close,
                   volume: item.data.volume,
                 }))
-              //   .reverse(); // Reverse to get chronological order
+                .reverse(); // Reverse to get chronological order
               console.log("chartData slice", chartData);
 
-              // Filter out any data points with the same time as the previous one
-              const uniqueData = chartData.filter(
-                (item, index, self) =>
-                  index === 0 || item.time !== self[index - 1].time
-              );
-      console.log('fetchChartData -> returned points:', chartData.length, chartData[0]?.time, chartData[chartData.length-1]?.time);
+              // Ensure unique timestamps (sometimes API might send duplicates at boundaries)
+              const uniqueChartData: OHLVCData[] = [];
+              const seenTimes = new Set<number>();
 
-              return uniqueData;
+              chartData.forEach((d) => {
+                if (!seenTimes.has(d.time)) {
+                  seenTimes.add(d.time);
+                  uniqueChartData.push(d);
+                }
+              });
+
+              console.log(
+                "fetchChartData -> returned points:",
+                uniqueChartData.length,
+              );
+
+              return uniqueChartData;
             }
 
             return rejectWithValue(

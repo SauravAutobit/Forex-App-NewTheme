@@ -31,7 +31,7 @@ const storedHasSeenTutorial = localStorage.getItem("hasSeenHistoryTutorial") ===
 const initialState: AuthState = {
   user: storedActiveAccount ? JSON.parse(storedActiveAccount) : null,
   accounts: storedAccounts ? JSON.parse(storedAccounts) : [],
-  status: "idle",
+  status: storedActiveAccount ? "succeeded" : "idle",
   error: null,
   hasSeenHistoryTutorial: storedHasSeenTutorial,
   loginCount: null,

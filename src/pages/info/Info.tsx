@@ -6,8 +6,10 @@ import EditOrderList, {
 } from "../../components/editOrderList/EditOrderList";
 import type { RootState } from "../../store/store";
 
+import type { Instrument } from "../../store/slices/instrumentsSlice";
+
 interface InfoProps {
-  selectedInstrumentId: string | null;
+  instrument: Instrument | null;
   handlePlaceOrder: (side: "buy" | "sell") => void;
   volume: number;
   setVolume: (v: number) => void;
@@ -16,7 +18,7 @@ interface InfoProps {
 }
 
 const Info = ({
-  selectedInstrumentId,
+  instrument,
   handlePlaceOrder,
   volume,
   setVolume,
@@ -31,33 +33,54 @@ const Info = ({
   //   step={step}
   //   min={min}
   // />;
+  const staticData = instrument?.static_data || {};
+
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
-      { label: "Digits", value: "2" },
-      { label: "Lot size", value: "100" },
-      { label: "Pip price", value: "$10.00" },
-      { label: "Minimum volume", value: "0.01" },
-      { label: "Maximum volume", value: "50.00" },
-      { label: "Margin percentage", value: "250.0%" },
-      { label: "Order execution mode", value: "Market" },
+      { label: "Digits", value: String(staticData["digits"] || "0") },
+      { label: "Lot size", value: String(staticData["lot size"] || "0") },
+      {
+        label: "Pip price",
+        value: String(
+          staticData["pip price"]
+            ? `$${Number(staticData["pip price"]).toFixed(2)}`
+            : "0",
+        ),
+      },
+      {
+        label: "Minimum volume",
+        value: String(staticData["minimum volume"] || "0"),
+      },
+      {
+        label: "Maximum volume",
+        value: String(staticData["maximum volume"] || "0"),
+      },
+      {
+        label: "Margin percentage",
+        value: String(staticData["margin percentage"] || "0%"),
+      },
+      {
+        label: "Order execution mode",
+        value: String(staticData["order execution mode"] || "Market"),
+      },
     ],
   };
 
   const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
-    <div className="h-[calc(100vh-250px)] mt-5 overflow-auto">
+    //250px
+    <div className="h-[calc(100vh-280px)] mt-5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
           <div className="text-[26px] font-secondary text-primary">
-            {selectedInstrumentId || "Gold on Spot"}
+            {instrument?.name || "Unknown Instrument"}
           </div>
           <p className="text-secondary">
-            Figma ipsum component variant main layer. Frame comment editor text
-            opacity fill library italic star. Star flatten flatten reesizing
-            comment flows align. Subtract.Figma ipsum component variant main
-            layer. Frame comment editor text opacity fill library italic star.
-            Star flatten flatten reesizing comment flows align. Subtract.
+            {String(
+              staticData["info"] ||
+                "No description available for this instrument.",
+            )}
           </p>
           <div className="mb-2.5">
             <EditOrderList {...profitBalanceProps} fontWeight={600} />

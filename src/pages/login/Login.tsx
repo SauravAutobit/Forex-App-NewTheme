@@ -33,31 +33,42 @@ const Login = () => {
 
   useEffect(() => {
     // If already logged in, redirect to app
-    if (user && status === "succeeded") {
+    // We check if user exists AND (status is succeeded OR status is idle)
+    // Idle status is possible on first mount if persisted from localStorage
+    if (user && (status === "succeeded" || status === "idle")) {
+      console.log("🚀 Auto-login redirect for user:", user.username);
+
       // Associate selected domain with this user if not already set
       const currentDomain = getDomainKey();
       if (currentDomain) {
         setDomainKey(currentDomain, user.username);
       }
 
-      // Reinitialize sockets with new token
+      // Reinitialize sockets with current token
       reinitializeSockets(store);
 
-      // Navigate to home - MainLayout will handle setting the correct initial tab
-      // based on whether favorites exist or not
-      // based on whether favorites exist or not
+      // Navigate to home
       navigate("/app/home");
 
-      dispatch(
-        showToasty({
-          type: "success",
-          message: "Login Successfully!",
-        }),
-      );
+      // Optional: Only show toasty if it was a fresh login, not an auto-redirect
+      // But for simplicity, we can keep it or remove it for auto-redirect.
+      // Let's remove it for auto-redirect to avoid annoyance on every app open.
+      if (status === "succeeded") {
+        dispatch(
+          showToasty({
+            type: "success",
+            message: "Login Successfully!",
+          }),
+        );
+      }
 
-      // CRITICAL: Reload to ensure app.constants and all services
-      // pick up the correct domain and user state from LocalStorage.
-      window.location.reload();
+      // If it was an auto-login (status idle but user exists),
+      // we might want to reload once to ensure everything is in sync,
+      // but only if necessary. Since reinitializeSockets is called, it might be fine.
+      // However, the user's pattern was to reload.
+      if (status === "succeeded") {
+        window.location.reload();
+      }
     }
   }, [user, status, navigate, dispatch]);
 
