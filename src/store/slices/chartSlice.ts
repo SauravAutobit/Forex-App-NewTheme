@@ -31,7 +31,7 @@ export interface ChartApiResponseData {
 }
 
 // Define the state for the chart slice
-interface ChartState {
+export interface ChartState {
   data: OHLVCData[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -145,6 +145,59 @@ const chartSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+
+    updateLiveCandle: (
+      state,
+      action: PayloadAction<{
+        instrumentId: string;
+        data: any;
+      }>
+    ) => {
+      const { data } = action.payload;
+      console.log("🔥 updateLiveCandle reducer called:", data);
+      if (!data || !data.ltp || !data.ltpt) return;
+
+      const ltp = Array.isArray(data.ltp) ? data.ltp[0] : data.ltp;
+      const ltpt = Array.isArray(data.ltpt) ? data.ltpt[0] : data.ltpt;
+      
+      // Convert to seconds for Ticktime calculation as per 60/300 etc rule
+      const ltptSec = Math.floor(ltpt / 1000);
+      const currentTickTime = ltptSec - (ltptSec % 60);
+
+      if (state.data.length === 0) {
+        // If empty, create initial candle
+        const newCandle: OHLVCData = {
+          time: currentTickTime,
+          open: ltp,
+          high: ltp,
+          low: ltp,
+          close: ltp,
+          volume: 0,
+        };
+        state.data = [newCandle];
+        return;
+      }
+
+      const lastCandle = state.data[state.data.length - 1];
+      
+      if (lastCandle.time === currentTickTime) {
+        // Update existing candle
+        if (ltp > lastCandle.high) lastCandle.high = ltp;
+        if (ltp < lastCandle.low) lastCandle.low = ltp;
+        lastCandle.close = ltp;
+      } else if (currentTickTime > lastCandle.time) {
+        // New candle interval
+        const newCandle: OHLVCData = {
+          time: currentTickTime,
+          open: ltp,
+          high: ltp,
+          low: ltp,
+          close: ltp,
+          volume: 0,
+        };
+        state.data.push(newCandle);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -183,6 +236,7 @@ const chartSlice = createSlice({
   },
 });
 
-export const { prependChartData, clearChartData } = chartSlice.actions;
+export const { prependChartData, clearChartData, updateLiveCandle } =
+  chartSlice.actions;
 
 export default chartSlice.reducer;

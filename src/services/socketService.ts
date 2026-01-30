@@ -30,6 +30,7 @@ import {
 } from "../store/slices/notificationSlice";
 import { fetchAccountBalance } from "../store/slices/accountSlice";
 import { fetchOpenOrders } from "../store/slices/openOrdersSlice";
+import { updateLiveCandle } from "../store/slices/chartSlice";
 
 type StreamDataPayload = {
   bid?: number[];
@@ -190,7 +191,7 @@ export const initializeSockets = (store: Store) => {
       // } else {
       //   console.log("[Stream] Received unknown message format:", msg);
       // }
-      console.log("Received stream message:", msg);
+      // console.log("Received stream message:", msg);
 
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it
@@ -206,6 +207,17 @@ export const initializeSockets = (store: Store) => {
             data: msg.data,
           })
         );
+        
+        // Dispatch live candle update if it's the currently selected instrument on charts
+        const currentChartInstrumentId = rootState.instruments.selectedInstrumentId;
+        if (msg.instrument.id === currentChartInstrumentId) {
+          store.dispatch(
+            updateLiveCandle({
+              instrumentId: msg.instrument.id,
+              data: msg.data,
+            })
+          );
+        }
         
         // Check if it's a position instrument and update accordingly
         if (isPositionInstrument) {

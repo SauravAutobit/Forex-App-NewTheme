@@ -7,9 +7,14 @@ import {
   type IChartApi,
   type ISeriesApi,
 } from "fintrabit-charts";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../store/store";
-import { clearChartData, fetchChartData } from "../../store/slices/chartSlice";
+import { useDispatch } from "react-redux";
+import type { AppDispatch, RootState } from "../../store/store";
+import { useAppSelector } from "../../store/hook";
+import {
+  clearChartData,
+  fetchChartData,
+  type ChartState,
+} from "../../store/slices/chartSlice";
 import IndicatorsModal from "../indicatorsModal/IndicatorsModal";
 import InstrumentDropdown from "../instrumentDropdown/InstrumentDropdown";
 import { useLocation, useOutletContext } from "react-router-dom";
@@ -19,6 +24,7 @@ import TimeframeDropdown, {
 import settings from "../../assets/icons/settings.svg";
 import type { OutletContextType } from "../../layout/MainLayout";
 import settingsLight from "../../assets/icons/settingsLight.svg";
+import ChartSkeleton from "../chartSkeleton/ChartSkeleton";
 
 type Candle = {
   time: string | number;
@@ -43,7 +49,16 @@ const TARGET_COLOR = "#00FF00";
 
 /* helpers */
 function normalizeTime(t: number | string) {
-  const n = typeof t === "string" ? Number(t) : t;
+  if (typeof t === "string") {
+    const n = Number(t);
+    if (!isNaN(n)) {
+      if (n > 1_000_000_000_000) return Math.floor(n / 1000);
+      return Math.floor(n);
+    }
+    const d = new Date(t);
+    if (!isNaN(d.getTime())) return Math.floor(d.getTime() / 1000);
+  }
+  const n = t as number;
   if (n > 1_000_000_000_000) return Math.floor(n / 1000);
   return Math.floor(n);
 }
@@ -185,7 +200,7 @@ export default function ChartComponent({
   const { setIsDrawerOpen } = useOutletContext<OutletContextType>();
   // commented coz using mock data
   // Theme from Redux — chart picks this automatically
-  const themeMode = useSelector((s: RootState) => s.theme.mode);
+  const themeMode = useAppSelector((s: RootState) => s.theme.mode);
   const dark = themeMode === "dark";
 
   const TV_UP = dark ? "#02F511" : "#00B22D";
@@ -203,13 +218,16 @@ export default function ChartComponent({
   const [showHollow, setShowHollow] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDataApplied, setIsDataApplied] = useState(false);
 
-  const chartData = useSelector(
+  const chartData = useAppSelector(
     (state: RootState) => state.chart.data,
   ) as Candle[];
-  const chartStatus = useSelector((state: RootState) => state.chart.status);
+  const chartStatus = useAppSelector(
+    (state: RootState) => state.chart.status,
+  ) as ChartState["status"];
 
-  const apiStatus = useSelector(
+  const apiStatus = useAppSelector(
     (state: RootState) => state.websockets.apiStatus,
   );
 
@@ -275,6 +293,8 @@ export default function ChartComponent({
 
     // reset zoom guard so each instrument gets its initial zoom
     initialZoomAppliedRef.current = false;
+    setIsDataApplied(false);
+
     // clear old data immediately to avoid showing previous instrument's candles
     dispatch(clearChartData());
     // fetch fresh data (only if websocket connected)
@@ -288,7 +308,7 @@ export default function ChartComponent({
         }),
       );
     }
-  }, [selectedInstrumentId, dispatch, apiStatus]);
+  }, [selectedInstrumentId, selectedTimeframe, dispatch, apiStatus]);
 
   /* ---------- lazy load more ---------- */
   useEffect(() => {
@@ -296,10 +316,18 @@ export default function ChartComponent({
 
     const handleVisibleLogicalRangeChange = () => {
       const logicalRange = chart.current?.timeScale().getVisibleLogicalRange();
-      if (!logicalRange || loadingMoreDataRef.current) return;
+      if (
+        !logicalRange ||
+        loadingMoreDataRef.current ||
+        chartData.length === 0 ||
+        chartStatus === "loading" ||
+        !isDataApplied
+      )
+        return;
       const barsInfo = candleSeries.current?.barsInLogicalRange(logicalRange);
       if (!barsInfo || !barsInfo.barsBefore) return;
-      if (barsInfo.barsBefore < 15 && chartStatus !== "loading") {
+      // console.log("Lazy check:", barsInfo.barsBefore, isDataApplied);
+      if (barsInfo.barsBefore < 15 && !loadingMoreDataRef.current) {
         loadingMoreDataRef.current = true;
         const currentFirstIndex = chartData.length;
         dispatch(
@@ -324,7 +352,15 @@ export default function ChartComponent({
         ?.timeScale()
         .unsubscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange);
     };
-  }, [chart, chartStatus, chartData.length, dispatch, selectedInstrumentId]);
+  }, [
+    chart,
+    chartStatus,
+    chartData.length,
+    dispatch,
+    selectedInstrumentId,
+    selectedTimeframe,
+    isDataApplied, // Added isDataApplied to dependencies
+  ]);
 
   /* ---------- Initialize chart ---------- */
   useEffect(() => {
@@ -348,9 +384,11 @@ export default function ChartComponent({
           mode: CrosshairMode.Normal,
         },
         timeScale: {
-          borderColor: dark ? "#0c0c0c" : "#E6E6E6",
+          borderColor: dark ? "#292929" : "#E6E6E6",
           timeVisible: true,
           secondsVisible: false,
+          rightOffset: 12,
+          shiftVisibleRangeOnNewBar: true,
         },
       });
     } catch (e) {
@@ -430,6 +468,8 @@ export default function ChartComponent({
         void e;
       }
 
+      setIsDataApplied(true);
+
       // reliable initial zoom (next paint + fallback)
       const total = barData.length;
       const barsToShow = Math.min(INITIAL_VISIBLE_BARS, Math.max(1, total));
@@ -482,7 +522,7 @@ export default function ChartComponent({
       targetLine.current = null;
     };
     // theme/dark controls chart palette - when theme changes recreate/apply options
-  }, [dark]); // recreate chart when theme toggles
+  }, [dark, selectedInstrumentId, selectedTimeframe]); // recreate chart when theme toggles or instrument/timeframe changes
 
   /* ---------- resize handling ---------- */
   useEffect(() => {
@@ -556,6 +596,8 @@ export default function ChartComponent({
             void e;
           } finally {
             initialZoomAppliedRef.current = true;
+            setIsDataApplied(true);
+            console.log("Initial zoom applied, isDataApplied=true");
           }
         };
 
@@ -820,6 +862,7 @@ export default function ChartComponent({
     }
 
     // no unconditional fitContent here (we either applied initial zoom or already fit)
+    setIsDataApplied(true);
   }, [
     chartData,
     chartType,
@@ -1037,7 +1080,20 @@ export default function ChartComponent({
 
   return (
     <>
-      <div className="flex flex-col relative" style={{ height }}>
+      <div
+        className="flex flex-col relative overflow-hidden"
+        style={{ height }}
+      >
+        {/* Skeleton loading overlay to cover the whole component area while data is loading */}
+        {(chartStatus === "loading" ||
+          chartStatus === "idle" ||
+          chartData.length === 0 ||
+          !isDataApplied) && (
+          <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-primaryBg">
+            <ChartSkeleton />
+          </div>
+        )}
+
         {pathname === "/app/charts" && (
           <>
             <div className="absolute top-0 left-0 right-0 z-30 px-5 flex justify-between mt-2.5">
@@ -1074,21 +1130,13 @@ export default function ChartComponent({
           </>
         )}
 
-        {/* Commented out skeleton loading to show chart container immediately as requested by user */}
-        {/* {(chartStatus === "loading" || chartStatus === "idle") &&
-        chartData.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center pt-20">
-            <ChartSkeleton />
-          </div>
-        ) : ( */}
-        <main className="flex-1 flex flex-col gap-2 overflow-auto">
+        <main className="flex-1 flex flex-col gap-2 overflow-auto relative">
           <div
             ref={mainRef}
             className="flex-1 w-full min-h-[300px] rounded-lg"
             style={{ border: "none", outline: "none" }}
           />
         </main>
-        {/* )} */}
 
         <IndicatorsModal
           isOpen={isModalOpen}

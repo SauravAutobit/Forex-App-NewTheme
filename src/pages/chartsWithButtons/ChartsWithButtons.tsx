@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { mockTimeframes } from "../../mockData";
 import { useAppSelector } from "../../store/hook";
 import { placeNewOrder } from "../../store/slices/ordersSlice";
+import { subscribeToInstruments } from "../../services/socketService";
 
 const ChartsWithButtons = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -102,6 +103,17 @@ const ChartsWithButtons = () => {
       }
     }
   }, [instrumentsForDropdown, selectedInstrumentId]);
+
+  const apiStatus = useAppSelector(
+    (state: RootState) => state.websockets.apiStatus,
+  );
+
+  // Subscribe to quotes for the selected instrument in ChartsWithButtons
+  useEffect(() => {
+    if (selectedInstrumentId && apiStatus === "connected") {
+      subscribeToInstruments([selectedInstrumentId]);
+    }
+  }, [selectedInstrumentId, apiStatus]);
 
   //250px
   const height = `calc(100vh - 280px)`;

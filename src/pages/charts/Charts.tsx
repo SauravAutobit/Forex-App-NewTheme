@@ -25,6 +25,7 @@ import CheckList, {
 import { useAppSelector } from "../../store/hook";
 import { placeNewOrder } from "../../store/slices/ordersSlice";
 import { subscribeToInstruments } from "../../services/socketService";
+import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 
 import PositionCard from "../../components/positionCard/PositionCard";
 import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
@@ -72,6 +73,13 @@ const Charts = () => {
   const [chartToolsOptions, setChartToolsOptions] = useState(
     makeInitialState(chartOptions),
   );
+
+  // Close drawer when One Touch Trading is enabled
+  useEffect(() => {
+    if (activeOptions.oneTouchTrading) {
+      setIsDrawerOpen((prev) => ({ ...prev, chartDrawer: false }));
+    }
+  }, [activeOptions.oneTouchTrading, setIsDrawerOpen]);
 
   const allInstrumentsData = useAppSelector(
     (state: RootState) => state.instruments.data,
@@ -229,7 +237,10 @@ const Charts = () => {
               selectedTimeframe={selectedTimeframe} //  Passing state
               onTimeframeChange={setSelectedTimeframe} //  Passing setter
               timeframeGroups={mockTimeframes} //  Passing the mock data
-              onInstrumentChange={(id) => setSelectedInstrumentId(id)}
+              onInstrumentChange={(id) => {
+                setSelectedInstrumentId(id);
+                dispatch(setSelectedInstrument(id));
+              }}
               stopLossPrice={null}
               targetPrice={null}
             />
@@ -438,6 +449,7 @@ const Charts = () => {
                 activeOptions={chartToolsOptions}
                 setActiveOptions={setChartToolsOptions}
                 options={chartOptions}
+                readOnly
               />
             </div>
           </div>
