@@ -265,28 +265,38 @@ const History = ({}: HistoryProps) => {
     };
   }, [historyOrders]);
 
-  const hasSeenHistoryTutorial = useSelector(
-    (state: RootState) => state.auth.hasSeenHistoryTutorial,
+  const { hasSeenHistoryTutorial, loginCount } = useSelector(
+    (state: RootState) => state.auth,
   );
   const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
-    if (activeTabId !== "position" && !hasSeenHistoryTutorial) {
+    // If not on positions tab OR if it's not the user's first login, suppress the tutorial.
+    if (
+      (activeTabId !== "position" || (loginCount !== null && loginCount > 1)) &&
+      !hasSeenHistoryTutorial
+    ) {
       dispatch(setHasSeenHistoryTutorial(true));
     }
-  }, [activeTabId, hasSeenHistoryTutorial, dispatch]);
+  }, [activeTabId, hasSeenHistoryTutorial, dispatch, loginCount]);
 
   useEffect(() => {
     if (
       activeTabId === "position" &&
       historyPositions.length > 0 &&
-      !hasSeenHistoryTutorial
+      !hasSeenHistoryTutorial &&
+      loginCount === 1
     ) {
       setShowTutorial(true);
     } else {
       setShowTutorial(false);
     }
-  }, [activeTabId, historyPositions.length, hasSeenHistoryTutorial]);
+  }, [
+    activeTabId,
+    historyPositions.length,
+    hasSeenHistoryTutorial,
+    loginCount,
+  ]);
 
   const handleDismissTutorial = () => {
     setShowTutorial(false);

@@ -20,6 +20,7 @@ export interface AuthState {
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   hasSeenHistoryTutorial: boolean;
+  loginCount: number | null;
 }
 
 // Load initial state from localStorage
@@ -33,6 +34,7 @@ const initialState: AuthState = {
   status: "idle",
   error: null,
   hasSeenHistoryTutorial: storedHasSeenTutorial,
+  loginCount: null,
 };
 
 // Async thunk for login
@@ -73,6 +75,25 @@ export const loginUser = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue("Network error. Please check your connection.");
+    }
+  }
+);
+
+// Async thunk to fetch login count (session count)
+export const fetchLoginCount = createAsyncThunk(
+  "auth/fetchLoginCount",
+  async (accountId: string, { rejectWithValue }) => {
+    try {
+      const query = `fintrabit.accounts.sessions[account_id="${accountId}"]._count`;
+      const response = await apiClient.send<number>("query", { query });
+
+      if (response.status === "success") {
+        return response.data;
+      } else {
+        return rejectWithValue(response.message || "Failed to fetch login count");
+      }
+    } catch (error) {
+      return rejectWithValue("Error fetching session count");
     }
   }
 );
@@ -242,6 +263,9 @@ export const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+      .addCase(fetchLoginCount.fulfilled, (state, action) => {
+        state.loginCount = action.payload ?? null;
       });
   },
 });

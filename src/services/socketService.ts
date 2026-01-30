@@ -17,6 +17,7 @@ import {
 import { fetchCategories } from "../store/slices/categoriesSlice";
 import { fetchDeals } from "../store/slices/dealsSlice";
 import { fetchInstrumentsByCategory } from "../store/slices/instrumentsSlice";
+import { fetchLoginCount } from "../store/slices/authSlice";
 import { fetchInstrumentRelations } from "../store/slices/instrumentRelationsSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import { updateQuoteData } from "../store/slices/quotesSlice";
@@ -96,7 +97,13 @@ export const fetchAllAppData = (dispatch: AppDispatch, timestamp?: number) => {
   dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
 
   // Other non-history thunks
-  dispatch(fetchAccountBalance());
+  dispatch(fetchAccountBalance())
+    .unwrap()
+    .then((account: any) => {
+      if (account && account.account_id) {
+        dispatch(fetchLoginCount(account.account_id));
+      }
+    });
   dispatch(fetchPositions());
   dispatch(fetchOpenOrders());
   dispatch(fetchInstrumentRelations());
@@ -167,7 +174,8 @@ export const initializeSockets = (store: Store) => {
       "❌ VITE_STREAM_URL is not defined. Stream WebSocket connection will fail."
     );
   } else if (!streamClient) {
-    const streamUrlWithToken = `${STREAM_BASE_URL}`;
+    // const streamUrlWithToken = `${STREAM_BASE_URL}`;
+    const streamUrlWithToken = `${STREAM_BASE_URL}?t=${token}`;
     streamClient = new WebSocketClient(
       streamUrlWithToken,
       store,
