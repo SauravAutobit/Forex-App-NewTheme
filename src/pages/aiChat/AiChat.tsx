@@ -273,8 +273,8 @@ const AIChat = () => {
                 msg.type === "user"
                   ? "bg-[#AEED09] text-[#181818] rounded-[20px] rounded-br-none"
                   : theme === "dark"
-                    ? "bg-[#181818] rounded-[20px] rounded-bl-none"
-                    : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
+                  ? "bg-[#181818] rounded-[20px] rounded-bl-none"
+                  : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
               } break-words`}
             >
               {/* Always use Markdown for committed messages */}
@@ -334,7 +334,12 @@ const AIChat = () => {
         ))}
       </div>
 
-      <div className="px-3 py-4 space-y-3">
+      <div
+        className="px-3 py-4 space-y-3"
+        style={{
+          paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
+        }}
+      >
         {/* Input Bar */}
         <div className="flex items-center gap-2">
           <div
