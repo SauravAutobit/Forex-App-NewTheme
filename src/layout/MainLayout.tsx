@@ -83,12 +83,26 @@ export type TradeButtonsData = {
   rightButton?: TradeButtonConfig;
 };
 
+export type FavoriteItem = {
+  id: string;
+  code: string;
+  bid: number;
+  ask: number;
+  high: number;
+  low: number;
+  ltp: number;
+  close: number;
+  pip: string;
+  timestamp: string;
+  icon: string;
+};
+
 export type OutletContextType = {
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isFlag: IsFlagType;
   setIsFlag: React.Dispatch<React.SetStateAction<IsFlagType>>;
-  favoriteItems: string[];
-  setFavoriteItems: React.Dispatch<React.SetStateAction<string[]>>;
+  favoriteItems: FavoriteItem[];
+  setFavoriteItems: React.Dispatch<React.SetStateAction<FavoriteItem[]>>;
   active: string;
   setActive: React.Dispatch<React.SetStateAction<string>>;
   isDrawerOpen: DrawerState;

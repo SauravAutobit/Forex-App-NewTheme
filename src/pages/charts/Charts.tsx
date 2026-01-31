@@ -152,9 +152,10 @@ const Charts = () => {
   const { setChartButtonsData } = useOutletContext<OutletContextType>();
 
   useEffect(() => {
-    // Only set context data if One Touch Trading is NOT active
-    // If it IS active, ChartsWithButtons component will handle the context
-    if (!activeOptions.oneTouchTrading) {
+    const shouldShowButtons =
+      active !== "Chart" || activeOptions.oneTouchTrading;
+
+    if (shouldShowButtons) {
       setChartButtonsData({
         handlePlaceOrder,
         volume: selectedLot * contractSize,
@@ -163,20 +164,11 @@ const Charts = () => {
         min: contractSize,
       });
     } else {
-      // If we switch to one touch trading, we might want to clear this component's data
-      // or let the child override it. But to be safe:
-      // setChartButtonsData(null);
-      // Actually, the child will mount and set it, so we might not need to explicit clear if timing is right.
-      // But preventing this effect from overwriting the child is key.
+      setChartButtonsData(null);
     }
 
-    // Cleanup handled by the new effect in child or essentially just by this effect re-running
-    // If we return clear here, it might clear the child's data if dependencies change.
-    // So we should be careful.
-
     return () => {
-      // Only clear if we were the ones setting it?
-      // Simpler: Just rely on the active component setting valid data.
+      setChartButtonsData(null);
     };
   }, [
     selectedLot,
@@ -184,6 +176,7 @@ const Charts = () => {
     selectedInstrumentId,
     setChartButtonsData,
     activeOptions.oneTouchTrading,
+    active,
   ]);
 
   // 4. Effect to manage selectedInstrumentId synchronization

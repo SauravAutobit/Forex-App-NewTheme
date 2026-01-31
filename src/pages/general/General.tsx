@@ -234,7 +234,8 @@ const General = () => {
               weeklyRange.end,
             )}`}
             // width="138px"
-            width="140px"
+            // width="140px"
+            width="210px"
             onOpen={() => setShowCalendar(true)}
             changeText="Change Week"
           />

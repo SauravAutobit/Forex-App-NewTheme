@@ -197,7 +197,7 @@ const Card = ({
             alt="favouriteStar"
             onClick={(e) => {
               e.stopPropagation(); // Stop click event from triggering the parent card's onClick/swipe
-              setFavouriteInstrument((prev) => {
+              setFavouriteInstrument((prev: string[]) => {
                 if (prev.includes(code)) {
                   return prev.filter((item) => item !== code);
                 } else {

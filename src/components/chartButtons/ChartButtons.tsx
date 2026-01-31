@@ -22,8 +22,8 @@ const ChartButtons = ({
 
   return (
     <div
-      className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 border-t border-primary"
-      style={{ position: "fixed", bottom: "65px", left: 0, width: "100%" }}
+      className="bg-primaryBg pt-2.5 flex items-center justify-between gap-3.5 px-5 border-t border-primary"
+      // style={{ position: "fixed", bottom: "65px", left: 0, width: "100%" }}
     >
       <Button
         label={"Sell"}

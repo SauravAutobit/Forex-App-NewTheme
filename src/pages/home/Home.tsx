@@ -104,7 +104,9 @@ const Home = () => {
     const itemToRemove = favoriteItems.find((item) => item.id === id);
 
     setFavoriteItems((prevItems) => prevItems.filter((item) => item.id !== id));
-    setFavouriteInstrument((prevCodes) => prevCodes.filter((c) => c !== code));
+    setFavouriteInstrument((prevCodes: string[]) =>
+      prevCodes.filter((c: string) => c !== code),
+    );
 
     if (itemToRemove) {
       dispatch(
