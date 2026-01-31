@@ -252,7 +252,7 @@ const Charts = () => {
 
   // const theme = useAppSelector((s: RootState) => s.theme.mode);
 
-  const height = `calc(100vh - 160px)`;
+  const height = `calc(100vh - 180px)`;
 
   return (
     <div className="relative">

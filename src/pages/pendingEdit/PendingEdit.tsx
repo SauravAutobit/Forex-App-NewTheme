@@ -3,11 +3,13 @@ import EditOrderList, {
   type ProfitBalanceProps,
 } from "../../components/editOrderList/EditOrderList";
 import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
-import Button from "../../components/button/Button";
+// import Button from "../../components/button/Button";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
+import { useOutletContext } from "react-router-dom";
+import type { OutletContextType } from "../../layout/MainLayout";
 import {
   type OpenOrder,
   cancelOrder,
@@ -46,7 +48,9 @@ const PendingEdit = () => {
   const [price, setPrice] = useState<number>(0);
   const [sl, setSl] = useState<number>(0);
   const [tp, setTp] = useState<number>(0);
+
   const [priceStep, setPriceStep] = useState(0.0001);
+  const [activeTabId, setActiveTabId] = useState("info");
 
   // Initialize Price Step based on Instrument
   useEffect(() => {
@@ -141,7 +145,7 @@ const PendingEdit = () => {
     marginTop: "16px",
   };
 
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
     if (order?.id) {
       dispatch(
         setOrderStatus({ status: "loading", message: "Canceling order..." }),
@@ -167,9 +171,9 @@ const PendingEdit = () => {
         );
       }
     }
-  };
+  }, [order, dispatch, navigate]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!order) return;
 
     const cs = order.contract_size || 1;
@@ -264,7 +268,7 @@ const PendingEdit = () => {
         }),
       );
     }
-  };
+  }, [order, dispatch, navigate, price, lot, tp, sl, initialTp, initialSl]);
 
   if (!order) {
     return (
@@ -276,8 +280,8 @@ const PendingEdit = () => {
   const isQtyDisabled = !!order.position_id;
 
   const InfoTabContent = (
-    //250px
-    <div className="px-5 h-[calc(100vh-280px)]">
+    //250px h-[calc(100vh-280px)]
+    <div className="px-5">
       <div className="flex flex-col justify-between h-full">
         <div>
           <EditOrderList
@@ -288,32 +292,13 @@ const PendingEdit = () => {
             lastListColor={true}
           />
         </div>
-        <div className="flex items-center justify-between mt-3 mb-2.5">
-          <Button
-            label="Show Chart"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
-            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-            border="1px solid #505050"
-          />
-          <Button
-            label="Cancel Order"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-            textColor="#FAFAFA"
-            fontWeight={500}
-            onClick={handleCancel}
-          />
-        </div>
       </div>
     </div>
   );
 
   const EditTabContent = (
-    // 250px
-    <div className="px-5 h-[calc(100vh-280px)] overflow-y-auto">
+    // 250px h-[calc(100vh-280px)]
+    <div className="px-5 overflow-y-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="flex flex-col gap-2.5 mt-4">
           <div
@@ -371,32 +356,62 @@ const PendingEdit = () => {
             readOnly={true}
           />
         </div>
-        <div className="flex items-center justify-between mt-3 mb-2.5">
-          <Button
-            label="Discard"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#505050" : "#E5E5E5"}
-            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-            border={
-              theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
-            }
-            onClick={() => navigate(-1)}
-          />
-          <Button
-            label="Update"
-            textShadow="1px 1px 3.5px 0px #02900B"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-            textColor="#FAFAFA"
-            fontWeight={500}
-            onClick={handleConfirm}
-          />
-        </div>
       </div>
     </div>
   );
+
+  // Context for Trade Buttons
+  const { setTradeButtonsData } = useOutletContext<OutletContextType>();
+
+  useEffect(() => {
+    // Only set context data if active tab needs it
+    if (activeTabId === "info") {
+      setTradeButtonsData({
+        leftButton: {
+          label: "Show Chart",
+          onClick: () => {
+            /* Navigate to chart logic if needed */
+          },
+          bgColor: theme === "dark" ? "#2D2D2D" : "#FAFAFA",
+          textColor: theme === "dark" ? "#FAFAFA" : "#2D2D2D",
+          border: "1px solid #505050",
+        },
+        rightButton: {
+          label: "Cancel Order",
+          onClick: handleCancel,
+          bgColor: theme === "dark" ? "#FE0000" : "#DD3C48",
+          textColor: "#FAFAFA",
+          fontWeight: 500,
+        },
+      });
+    } else if (activeTabId === "edit") {
+      setTradeButtonsData({
+        leftButton: {
+          label: "Discard",
+          onClick: () => navigate(-1),
+          bgColor: theme === "dark" ? "#505050" : "#E5E5E5",
+          textColor: theme === "dark" ? "#FAFAFA" : "#2D2D2D",
+          border: theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6",
+        },
+        rightButton: {
+          label: "Update",
+          onClick: handleConfirm,
+          bgColor: theme === "dark" ? "#02F511" : "#00B22D",
+          textColor: "#FAFAFA",
+          fontWeight: 500,
+          textShadow: "1px 1px 3.5px 0px #02900B",
+        },
+      });
+    }
+    return () => setTradeButtonsData(null);
+  }, [
+    activeTabId,
+    theme,
+    handleCancel,
+    handleConfirm,
+    navigate,
+    setTradeButtonsData,
+  ]);
 
   const tabsData: TabItem[] = [
     { id: "info", label: "Info", content: InfoTabContent },
@@ -413,7 +428,12 @@ const PendingEdit = () => {
           onClick={() => {}}
           hideBorder={true}
         />
-        <NavigationTabs tabs={tabsData} className="max-w-md mx-auto" />
+        <NavigationTabs
+          tabs={tabsData}
+          className="max-w-md mx-auto"
+          defaultActiveTab={activeTabId}
+          onActiveTabChange={(id) => setActiveTabId(id)}
+        />
       </div>
     </div>
   );

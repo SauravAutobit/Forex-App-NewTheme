@@ -4,10 +4,9 @@ import { type AppDispatch, type RootState } from "../../store/store";
 import { updateOrder, cancelOrder } from "../../store/slices/openOrdersSlice";
 import { placeNewOrder, closePosition } from "../../store/slices/ordersSlice";
 import { setOrderStatus } from "../../store/slices/orderStatusSlice";
-
-import Button from "../../components/button/Button";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useMemo, useState, useEffect } from "react";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import type { OutletContextType } from "../../layout/MainLayout";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "../../store/hook";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import EditOrderList, {
@@ -90,7 +89,7 @@ const MarketEdit = () => {
     setSl(initialSl);
   }, [initialTp, initialSl]);
 
-  const handleClosePosition = () => {
+  const handleClosePosition = useCallback(() => {
     if (position) {
       dispatch(
         closePosition({
@@ -106,9 +105,9 @@ const MarketEdit = () => {
       );
       navigate(-1);
     }
-  };
+  }, [position, dispatch, navigate]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     if (!position) return;
 
     dispatch(
@@ -233,7 +232,7 @@ const MarketEdit = () => {
         }),
       );
     }
-  };
+  }, [position, dispatch, navigate, tp, sl]);
 
   if (!position) {
     return <div className="p-5 text-primary">No position selected</div>;
@@ -270,8 +269,8 @@ const MarketEdit = () => {
   };
 
   const InfoTabContent = (
-    // 250px
-    <div className="px-5 h-[calc(100vh-280px)]">
+    // 250px h-[calc(100vh-280px)]
+    <div className="px-5">
       <div className="flex flex-col justify-between h-full">
         <div>
           <EditOrderList
@@ -280,25 +279,6 @@ const MarketEdit = () => {
               navigate("/app/editHistory", { state: { type: "position" } })
             }
             lastListColor={true}
-          />
-        </div>
-        <div className="flex items-center justify-between mt-3 mb-2.5">
-          <Button
-            label="Show Chart"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#2D2D2D" : "#FAFAFA"}
-            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-            border="1px solid #505050"
-          />
-          <Button
-            label="Close Position"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-            textColor="#FAFAFA"
-            fontWeight={500}
-            onClick={handleClosePosition}
           />
         </div>
       </div>
@@ -318,8 +298,8 @@ const MarketEdit = () => {
   ];
 
   const EditTabContent = (
-    // 250px
-    <div className="px-5 h-[calc(100vh-280px)] overflow-y-auto">
+    // 250px h-[calc(100vh-280px)]
+    <div className="px-5 overflow-y-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="flex flex-col gap-2.5 mt-4">
           <Counter
@@ -341,32 +321,63 @@ const MarketEdit = () => {
             readOnly={true}
           />
         </div>
-        <div className="flex items-center justify-between mt-3 mb-2.5">
-          <Button
-            label="Discard"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#505050" : "#E5E5E5"}
-            textColor={theme === "dark" ? "#FAFAFA" : "#2D2D2D"}
-            border={
-              theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6"
-            }
-            onClick={() => navigate(-1)}
-          />
-          <Button
-            label="Confirm"
-            textShadow="1px 1px 3.5px 0px #02900B"
-            width="169.5px"
-            height="44px"
-            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-            textColor="#FAFAFA"
-            fontWeight={500}
-            onClick={handleConfirm}
-          />
-        </div>
       </div>
     </div>
   );
+
+  // Context for Trade Buttons
+  const { setTradeButtonsData } = useOutletContext<OutletContextType>();
+
+  // Logic to set buttons based on active tab
+  useEffect(() => {
+    if (activeTabId === "info") {
+      setTradeButtonsData({
+        leftButton: {
+          label: "Show Chart",
+          onClick: () => {
+            /* Navigate to chart logic if needed, or keeping it strictly generic as per user req */
+          },
+          // Replicating colors from previous code:
+          bgColor: theme === "dark" ? "#2D2D2D" : "#FAFAFA",
+          textColor: theme === "dark" ? "#FAFAFA" : "#2D2D2D",
+          border: "1px solid #505050",
+        },
+        rightButton: {
+          label: "Close Position",
+          onClick: handleClosePosition,
+          bgColor: theme === "dark" ? "#FE0000" : "#DD3C48",
+          textColor: "#FAFAFA",
+          fontWeight: 500,
+        },
+      });
+    } else if (activeTabId === "edit") {
+      setTradeButtonsData({
+        leftButton: {
+          label: "Discard",
+          onClick: () => navigate(-1),
+          bgColor: theme === "dark" ? "#505050" : "#E5E5E5",
+          textColor: theme === "dark" ? "#FAFAFA" : "#2D2D2D",
+          border: theme === "dark" ? "1px solid #505050" : "1px solid #D6D6D6",
+        },
+        rightButton: {
+          label: "Confirm",
+          onClick: handleConfirm,
+          bgColor: theme === "dark" ? "#02F511" : "#00B22D",
+          textColor: "#FAFAFA",
+          fontWeight: 500,
+          textShadow: "1px 1px 3.5px 0px #02900B",
+        },
+      });
+    }
+    return () => setTradeButtonsData(null);
+  }, [
+    activeTabId,
+    theme,
+    handleClosePosition,
+    handleConfirm,
+    navigate,
+    setTradeButtonsData,
+  ]);
 
   const tabsData: TabItem[] = [
     { id: "info", label: "Info", content: InfoTabContent },

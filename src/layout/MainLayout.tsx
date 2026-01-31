@@ -11,6 +11,7 @@ import { hideToasty } from "../store/slices/notificationSlice";
 // import OrderButtons from "../components/orderButtons/OrderButtons";
 import NewOrderButtons from "../components/newOrderButtons/NewOrderButtons";
 import ChartButtons from "../components/chartButtons/ChartButtons";
+import TradeButtons from "../components/tradeButtons/TradeButtons";
 
 export type DrawerState = {
   homeDrawer: boolean;
@@ -67,51 +68,42 @@ export type ChartButtonsData = {
   min: number;
 };
 
+export type TradeButtonConfig = {
+  label: string;
+  onClick: () => void;
+  bgColor?: string;
+  textColor?: string;
+  border?: string;
+  fontWeight?: number;
+  textShadow?: string;
+};
+
+export type TradeButtonsData = {
+  leftButton?: TradeButtonConfig;
+  rightButton?: TradeButtonConfig;
+};
+
 export type OutletContextType = {
-  setIsSidebarOpen: (isOpen: boolean) => void;
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isFlag: IsFlagType;
   setIsFlag: React.Dispatch<React.SetStateAction<IsFlagType>>;
-  favoriteItems: Array<{
-    id: string;
-    code: string;
-    bid: number;
-    ask: number;
-    high: number;
-    low: number;
-    ltp: number;
-    close: number;
-    pip: string;
-    timestamp: string;
-    icon: string;
-  }>;
-  setFavoriteItems: React.Dispatch<
-    React.SetStateAction<
-      Array<{
-        id: string;
-        code: string;
-        bid: number;
-        ask: number;
-        high: number;
-        low: number;
-        ltp: number;
-        close: number;
-        pip: string;
-        timestamp: string;
-        icon: string;
-      }>
-    >
-  >;
+  favoriteItems: string[];
+  setFavoriteItems: React.Dispatch<React.SetStateAction<string[]>>;
   active: string;
-  setActive: (tab: string) => void;
+  setActive: React.Dispatch<React.SetStateAction<string>>;
   isDrawerOpen: DrawerState;
   setIsDrawerOpen: React.Dispatch<React.SetStateAction<DrawerState>>;
-  favouriteInstrument: string[];
-  setFavouriteInstrument: React.Dispatch<React.SetStateAction<string[]>>;
+  favouriteInstrument: any;
+  setFavouriteInstrument: React.Dispatch<React.SetStateAction<any>>;
   newOrderData: NewOrderData | null;
   setNewOrderData: React.Dispatch<React.SetStateAction<NewOrderData | null>>;
   chartButtonsData: ChartButtonsData | null;
   setChartButtonsData: React.Dispatch<
     React.SetStateAction<ChartButtonsData | null>
+  >;
+  tradeButtonsData: TradeButtonsData | null;
+  setTradeButtonsData: React.Dispatch<
+    React.SetStateAction<TradeButtonsData | null>
   >;
 };
 
@@ -163,6 +155,8 @@ const MainLayout = () => {
   // State for Chart buttons data
   const [chartButtonsData, setChartButtonsData] =
     useState<ChartButtonsData | null>(null);
+  const [tradeButtonsData, setTradeButtonsData] =
+    useState<TradeButtonsData | null>(null);
 
   const { data: categories } = useSelector(
     (state: RootState) => state.categories,
@@ -298,6 +292,8 @@ const MainLayout = () => {
             setNewOrderData,
             chartButtonsData,
             setChartButtonsData,
+            tradeButtonsData,
+            setTradeButtonsData,
           }}
         />
       </main>
@@ -325,6 +321,12 @@ const MainLayout = () => {
             setVolume={chartButtonsData.setVolume}
             step={chartButtonsData.step}
             min={chartButtonsData.min}
+          />
+        )}
+        {tradeButtonsData && (
+          <TradeButtons
+            leftButton={tradeButtonsData.leftButton}
+            rightButton={tradeButtonsData.rightButton}
           />
         )}
         <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />

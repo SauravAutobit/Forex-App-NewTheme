@@ -13,7 +13,7 @@ const Overview = () => {
   //   step={step}
   //   min={min}
   // />;
-  const theme = useSelector((s: RootState) => s.theme.mode);
+  // const theme = useSelector((s: RootState) => s.theme.mode);
   // Connect to Redux store for real data
   const { account } = useSelector((state: RootState) => state.account);
   const { positions } = useSelector((state: RootState) => state.positions);

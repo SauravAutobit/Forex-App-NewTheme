@@ -106,13 +106,15 @@ const Login = () => {
   const [activeOptions, setActiveOptions] = useState(false);
   return (
     <NeonGlowBackground>
-      <div className="pt-[85px] flex items-start justify-center min-h-screen text-white relative z-20">
+      {/* 85 */}
+      <div className="pt-[50px] flex items-start justify-center min-h-screen text-white relative z-20">
         <div className="w-full max-w-sm p-4">
           <div className="flex justify-center mb-[50px]">
             <img
               // src={theme === "dark" ? logo : logoLight}
               src={logo}
               alt="Intrabit Logo"
+              className="w-[59px] h-[58px]"
             />
           </div>
           <form onSubmit={handleLogin} className="space-y-5">
