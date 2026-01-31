@@ -325,7 +325,7 @@ const AIChat = () => {
         {randomPrompts.map((prompt, index) => (
           <button
             key={index}
-            className="px-4 py-6 rounded-20 whitespace-nowrap"
+            className="px-[26px] py-5 rounded-20 whitespace-nowrap"
             style={{ background: theme === "dark" ? "#181818" : "#E5E5E5" }}
             onClick={() => dispatch(sendPromptToAI(prompt))}
           >
