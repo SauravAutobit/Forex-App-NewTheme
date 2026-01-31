@@ -207,54 +207,55 @@ const General = () => {
 
   return (
     <div className="pb-20">
-      <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
-
       <div>
         <NavigationTabs
           tabs={tabsData}
           onActiveTabChange={setActiveTab}
           defaultActiveTab={activeTab}
+          stickyHeader={true}
+          aboveContent={
+            <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
+          }
+          belowHeaderContent={
+            <div className="px-5 mt-[10px]">
+              {activeTab === "date" && (
+                <DateChanger
+                  text="Date:"
+                  date={formatDateStr(startDate)}
+                  onOpen={() => setShowCalendar(true)}
+                  changeText="Change Date"
+                />
+              )}
+              {activeTab === "weekly" && (
+                <DateChanger
+                  text="Week:"
+                  date={`${formatDateStr(weeklyRange.start)} - ${formatDateStr(
+                    weeklyRange.end,
+                  )}`}
+                  width="210px"
+                  onOpen={() => setShowCalendar(true)}
+                  changeText="Change Week"
+                />
+              )}
+              {activeTab === "monthly" && (
+                <DateChanger
+                  text="Month:"
+                  date={startDate.toLocaleString("default", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  width="140px"
+                  onOpen={() => setShowCalendar(true)}
+                  changeText="Change Month"
+                />
+              )}
+            </div>
+          }
+          topOffset="calc(56px + env(safe-area-inset-top))"
         />
       </div>
 
-      <div className="px-5">
-        {activeTab === "date" && (
-          <DateChanger
-            text="Date:"
-            date={formatDateStr(startDate)}
-            onOpen={() => setShowCalendar(true)}
-            changeText="Change Date"
-          />
-        )}
-        {activeTab === "weekly" && (
-          <DateChanger
-            text="Week:"
-            // Week ${weeklyRange.index}:
-            date={`${formatDateStr(weeklyRange.start)} - ${formatDateStr(
-              weeklyRange.end,
-            )}`}
-            // width="138px"
-            // width="140px"
-            width="210px"
-            onOpen={() => setShowCalendar(true)}
-            changeText="Change Week"
-          />
-        )}
-        {activeTab === "monthly" && (
-          <DateChanger
-            text="Month:"
-            date={startDate.toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-            })}
-            width="140px"
-            onOpen={() => setShowCalendar(true)}
-            changeText="Change Month"
-          />
-        )}
-      </div>
-
-      <div className="mt-4 space-y-4">
+      <div className="mt-[147px] mb-10 space-y-4">
         {Object.keys(groupedData).length > 0 ? (
           Object.entries(groupedData).map(([symbol, group]) => {
             const isPositive = group.totalPnL >= 0;

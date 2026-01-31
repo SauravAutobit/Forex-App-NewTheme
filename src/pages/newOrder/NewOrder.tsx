@@ -221,7 +221,7 @@ const NewOrder = () => {
       freeMargin: freeMargin,
     };
   }, [positions, liveQuotes, balance]);
-  console.log(metrics, "metrics");
+  // console.log(metrics, "metrics");
 
   // Update newOrderData context whenever relevant data changes
   useEffect(() => {

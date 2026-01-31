@@ -181,7 +181,7 @@ const Trade = () => {
       id: "market",
       label: "Market",
       content: (
-        <div>
+        <div className="mt-[127px]">
           {sortedOpenPositions.map((pos, index) => {
             return (
               <PositionCard
@@ -209,7 +209,7 @@ const Trade = () => {
       id: "pending",
       label: "Pending",
       content: (
-        <div>
+        <div className="mt-[87px]">
           {sortedOpenOrders.map((order, index) => {
             return (
               <PositionCard
@@ -306,14 +306,18 @@ const Trade = () => {
 
   return (
     // px-5 py-2.5
-    <div className="">
-      <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
+    <div>
       <NavigationTabs
         tabs={tabsData}
         totalPnl={totalPnl}
         defaultActiveTab={activeTabId}
         onTabChange={handleTabChange}
-        className="max-w-md mx-auto pb-2.5"
+        className="max-w-md mx-auto pb-2.5 mb-10"
+        stickyHeader={true}
+        aboveContent={
+          <InstrumentInfoCard {...profitBalanceProps} marginTop="0" />
+        }
+        topOffset="calc(56px + env(safe-area-inset-top))"
       />
 
       <BottomDrawer

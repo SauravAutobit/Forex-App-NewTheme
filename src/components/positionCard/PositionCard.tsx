@@ -410,8 +410,8 @@ const PositionCard = ({
         typeof (position as any)?.price === "number"
           ? (position as any).price.toFixed(5)
           : dealData && (dealData as any).price
-            ? Number((dealData as any).price).toFixed(5)
-            : "0.00000";
+          ? Number((dealData as any).price).toFixed(5)
+          : "0.00000";
       return `${displayQty.toFixed(2)} @ ${price}`;
     }
     return `${displayQty.toFixed(2)}`;
@@ -510,14 +510,22 @@ const PositionCard = ({
               </h2>
               {showTP && (
                 <span
-                  className={`${theme === "dark" ? "bg-tertiary" : "bg-cardBg border border-[#878787]"} w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
+                  className={`${
+                    theme === "dark"
+                      ? "bg-tertiary"
+                      : "bg-cardBg border border-[#878787]"
+                  } w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
                 >
                   TP
                 </span>
               )}
               {showSL && (
                 <span
-                  className={`${theme === "dark" ? "bg-tertiary" : "bg-cardBg border border-[#878787]"} w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
+                  className={`${
+                    theme === "dark"
+                      ? "bg-tertiary"
+                      : "bg-cardBg border border-[#878787]"
+                  } w-[18px] h-[18px] text-sm text-secondary flex justify-center items-center rounded-[4px]`}
                 >
                   SL
                 </span>

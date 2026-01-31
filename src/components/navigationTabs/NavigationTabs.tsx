@@ -19,6 +19,10 @@ interface MobileTabsProps {
   totalPnl?: number;
   activeColor?: string; // Text color for active tab (e.g., 'text-black')
   inactiveColor?: string; // Text color for inactive tabs (e.g., 'text-gray-400')
+  stickyHeader?: boolean;
+  topOffset?: string;
+  aboveContent?: React.ReactNode;
+  belowHeaderContent?: React.ReactNode;
 }
 
 // Define the motion variants for content sliding
@@ -55,6 +59,10 @@ const NavigationTabs = ({
   totalPnl,
   activeColor = "text-[#2D2D2D]", // Changed default to black for better contrast on neon background
   inactiveColor = "text-[#505050]",
+  stickyHeader = false,
+  topOffset = "0px",
+  aboveContent,
+  belowHeaderContent,
 }: MobileTabsProps) => {
   const [activeTab, setActiveTab] = useState(
     defaultActiveTab || tabs[0]?.id || "",
@@ -72,23 +80,6 @@ const NavigationTabs = ({
     // Initialize refs array
     tabRefs.current = tabRefs.current.slice(0, tabs.length);
   }, [tabs]);
-
-  // const handleTabClick = (tabId: string) => {
-  //   setActiveTab(tabId);
-  //   onTabChange?.(tabId);
-  // };
-
-  // const handleTabClick = (tabId: string) => {
-  //   const newIndex = tabs.findIndex((tab) => tab.id === tabId);
-  //   if (newIndex !== -1) {
-  //     // Calculate direction: 1 for forward (right), -1 for backward (left)
-  //     const newDirection = newIndex > previousIndex.current ? 1 : -1;
-  //     setDirection(newDirection);
-  //     previousIndex.current = newIndex; // Update previous index
-  //     setActiveTab(tabId);
-  //     onTabChange?.(tabId);
-  //   }
-  // };
 
   const handleTabClick = (tabId: string) => {
     const newIndex = tabs.findIndex((tab) => tab.id === tabId);
@@ -117,20 +108,20 @@ const NavigationTabs = ({
   }, [defaultActiveTab]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
-  //   const theme = useAppSelector((state) => state.theme.mode);
-
-  // 🎯 Determine the appropriate background color for the pill container
-  //   const containerBg = theme === "dark" ? "bg-gray-800" : "bg-gray-200";
-
-  // 🎯 Define the active indicator color (your neon green/yellow)
-  // Ensure this color is defined in your Tailwind config or is a utility class
-  //   const indicatorBg = "bg-primary-neon"; // Assuming 'bg-primary-neon' is your bright color
   const theme = useAppSelector((state) => state.theme.mode);
 
-  return (
-    <div className={`w-full ${className}`}>
-      {/* Tab Navigation Container (The 'Pill' Background) */}
-
+  const headerContent = (
+    <div
+      className={`${
+        stickyHeader ? "fixed z-30 bg-primaryBg w-full max-w-[440px]" : ""
+      }`}
+      style={
+        stickyHeader
+          ? { top: topOffset || "calc(56px + env(safe-area-inset-top))" }
+          : {}
+      }
+    >
+      {aboveContent}
       <div className="px-5">
         <div
           className={`relative flex rounded-10 h-[37px] ${
@@ -165,7 +156,6 @@ const NavigationTabs = ({
           {tabs.map((tab, index) => (
             <button
               key={tab.id}
-              // ✅ FIX: Use an explicit function body (curly braces) to ensure nothing is returned.
               ref={(el) => {
                 tabRefs.current[index] = el;
               }}
@@ -185,6 +175,14 @@ const NavigationTabs = ({
       {activeTab === "market" && totalPnl !== undefined && (
         <ProfitLossClose totalPnl={totalPnl} />
       )}
+      {belowHeaderContent}
+    </div>
+  );
+
+  return (
+    <div className={`w-full ${className}`}>
+      {/* Tab Navigation Container (The 'Pill' Background) */}
+      {headerContent}
 
       {/* Tab Content */}
       <div className="mt-3 grid grid-cols-1 overflow-hidden">

@@ -305,7 +305,7 @@ const History = ({}: HistoryProps) => {
 
   const positionsContent = (
     <>
-      <div className="mt-4 flex flex-col gap-0 w-full relative">
+      <div className="mt-[87px] flex flex-col gap-0 w-full relative">
         {/* Tutorial Backdrop */}
         {showTutorial && activeTabId === "position" && (
           <div
@@ -363,7 +363,7 @@ const History = ({}: HistoryProps) => {
 
   const dealsContent = (
     <>
-      <div className="mt-4 flex flex-col gap-0 w-full">
+      <div className="mt-[87px] flex flex-col gap-0 w-full">
         {dealsStatus === "loading" && deals.length === 0 ? (
           <></>
         ) : dealsStatus === "failed" && deals.length === 0 ? (
@@ -397,7 +397,7 @@ const History = ({}: HistoryProps) => {
 
   const ordersContent = (
     <>
-      <div className="mt-4 flex flex-col gap-0 w-full">
+      <div className="mt-[87px] flex flex-col gap-0 w-full">
         {historyOrdersStatus === "loading" && historyOrders.length === 0 ? (
           <></>
         ) : historyOrdersStatus === "failed" && historyOrders.length === 0 ? (
@@ -450,12 +450,16 @@ const History = ({}: HistoryProps) => {
 
   return (
     <div className="h-full overflow-y-auto" onScroll={handleScroll}>
-      <InstrumentInfoCard {...activeSummaryProps} marginTop="0" />
       <NavigationTabs
         tabs={tabsData}
         defaultActiveTab={activeTabId}
         onTabChange={handleTabChange}
-        className="max-w-md mx-auto pb-2.5 mb-2.5"
+        className="max-w-md mx-auto pb-2.5 mb-10"
+        stickyHeader={true}
+        aboveContent={
+          <InstrumentInfoCard {...activeSummaryProps} marginTop="0" />
+        }
+        topOffset="calc(56px + env(safe-area-inset-top))"
       />
     </div>
   );
