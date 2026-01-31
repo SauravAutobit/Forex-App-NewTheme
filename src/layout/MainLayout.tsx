@@ -10,6 +10,7 @@ import type { RootState } from "../store/store";
 import { hideToasty } from "../store/slices/notificationSlice";
 // import OrderButtons from "../components/orderButtons/OrderButtons";
 import NewOrderButtons from "../components/newOrderButtons/NewOrderButtons";
+import ChartButtons from "../components/chartButtons/ChartButtons";
 
 export type DrawerState = {
   homeDrawer: boolean;
@@ -58,6 +59,14 @@ export type NewOrderData = {
   positionIdToClose?: string;
 };
 
+export type ChartButtonsData = {
+  handlePlaceOrder: (side: "buy" | "sell") => void;
+  volume: number;
+  setVolume: (v: number) => void;
+  step: number;
+  min: number;
+};
+
 export type OutletContextType = {
   setIsSidebarOpen: (isOpen: boolean) => void;
   isFlag: IsFlagType;
@@ -100,6 +109,10 @@ export type OutletContextType = {
   setFavouriteInstrument: React.Dispatch<React.SetStateAction<string[]>>;
   newOrderData: NewOrderData | null;
   setNewOrderData: React.Dispatch<React.SetStateAction<NewOrderData | null>>;
+  chartButtonsData: ChartButtonsData | null;
+  setChartButtonsData: React.Dispatch<
+    React.SetStateAction<ChartButtonsData | null>
+  >;
 };
 
 const MainLayout = () => {
@@ -146,6 +159,10 @@ const MainLayout = () => {
 
   // State for NewOrder data
   const [newOrderData, setNewOrderData] = useState<NewOrderData | null>(null);
+
+  // State for Chart buttons data
+  const [chartButtonsData, setChartButtonsData] =
+    useState<ChartButtonsData | null>(null);
 
   const { data: categories } = useSelector(
     (state: RootState) => state.categories,
@@ -279,6 +296,8 @@ const MainLayout = () => {
             setFavouriteInstrument,
             newOrderData,
             setNewOrderData,
+            chartButtonsData,
+            setChartButtonsData,
           }}
         />
       </main>
@@ -297,6 +316,15 @@ const MainLayout = () => {
             mode={newOrderData.mode}
             originalSide={newOrderData.originalSide}
             positionIdToClose={newOrderData.positionIdToClose}
+          />
+        )}
+        {pathname === "/app/charts" && chartButtonsData && (
+          <ChartButtons
+            handlePlaceOrder={chartButtonsData.handlePlaceOrder}
+            volume={chartButtonsData.volume}
+            setVolume={chartButtonsData.setVolume}
+            step={chartButtonsData.step}
+            min={chartButtonsData.min}
           />
         )}
         <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />

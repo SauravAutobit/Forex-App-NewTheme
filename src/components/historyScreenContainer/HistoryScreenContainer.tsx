@@ -4,7 +4,8 @@ import History from "../../pages/history/History"; // Assuming your page compone
 
 const HistoryScreenContainer = () => {
   return (
-    <div className="relative h-screen bg-darkBg">
+    // h-screen
+    <div className="relative bg-darkBg">
       {/* --- Main History Page Content --- */}
       <History />
     </div>

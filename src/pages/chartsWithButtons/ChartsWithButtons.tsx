@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import Button from "../../components/button/Button";
-import Counter from "../../components/counter/Counter";
+
 import ChartComponent from "../../components/chartComponent/ChartComponent";
 import type { AppDispatch, RootState } from "../../store/store";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { mockTimeframes } from "../../mockData";
 import { useAppSelector } from "../../store/hook";
 import { placeNewOrder } from "../../store/slices/ordersSlice";
 import { subscribeToInstruments } from "../../services/socketService";
+import { useOutletContext } from "react-router-dom";
+import type { OutletContextType } from "../../layout/MainLayout";
 
 const ChartsWithButtons = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -83,6 +84,22 @@ const ChartsWithButtons = () => {
     );
   };
 
+  // Update chartButtonsData context
+  const { setChartButtonsData } = useOutletContext<OutletContextType>();
+
+  useEffect(() => {
+    setChartButtonsData({
+      handlePlaceOrder,
+      volume: selectedLot * contractSize,
+      setVolume: (v) => setSelectedLot(v / contractSize),
+      step: contractSize,
+      min: contractSize,
+    });
+
+    // Cleanup
+    return () => setChartButtonsData(null);
+  }, [selectedLot, contractSize, selectedInstrumentId, setChartButtonsData]);
+
   // 4. Effect to manage selectedInstrumentId synchronization
   useEffect(() => {
     if (instrumentsForDropdown.length === 0) {
@@ -117,7 +134,6 @@ const ChartsWithButtons = () => {
 
   //250px
   const height = `calc(100vh - 280px)`;
-  const theme = useSelector((s: RootState) => s.theme.mode);
 
   return (
     <div>
@@ -132,43 +148,6 @@ const ChartsWithButtons = () => {
         stopLossPrice={null}
         targetPrice={null}
       />
-      <div
-        className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-        style={{
-          position: "fixed",
-          bottom: "65px",
-          left: 0,
-        }}
-      >
-        <Button
-          label={"Sell"}
-          width="82px"
-          height="44px"
-          bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-          textColor="#FAFAFA"
-          fontWeight={600}
-          textShadow={theme === "dark" ? "0px 0px 10px 0px #950101" : ""}
-          onClick={() => handlePlaceOrder("sell")}
-        />
-        <Counter
-          label="Take Profit"
-          initialValue={selectedLot * contractSize}
-          onValueChange={(val) => setSelectedLot(val / contractSize)}
-          step={contractSize}
-          min={contractSize}
-        />
-
-        <Button
-          label={"Buy"}
-          width="82px"
-          height="44px"
-          bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-          textShadow={theme === "dark" ? "0px 0px 10px 0px #008508" : ""}
-          textColor="#FAFAFA"
-          fontWeight={600}
-          onClick={() => handlePlaceOrder("buy")}
-        />
-      </div>
     </div>
   );
 };

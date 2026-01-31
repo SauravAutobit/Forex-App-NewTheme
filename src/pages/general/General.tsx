@@ -233,7 +233,8 @@ const General = () => {
             date={`${formatDateStr(weeklyRange.start)} - ${formatDateStr(
               weeklyRange.end,
             )}`}
-            width="138px"
+            // width="138px"
+            width="140px"
             onOpen={() => setShowCalendar(true)}
             changeText="Change Week"
           />

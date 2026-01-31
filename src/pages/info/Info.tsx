@@ -1,30 +1,14 @@
-import { useSelector } from "react-redux";
-import Button from "../../components/button/Button";
-import Counter from "../../components/counter/Counter";
 import EditOrderList, {
   type ProfitBalanceProps,
 } from "../../components/editOrderList/EditOrderList";
-import type { RootState } from "../../store/store";
 
 import type { Instrument } from "../../store/slices/instrumentsSlice";
 
 interface InfoProps {
   instrument: Instrument | null;
-  handlePlaceOrder: (side: "buy" | "sell") => void;
-  volume: number;
-  setVolume: (v: number) => void;
-  step?: number;
-  min?: number;
 }
 
-const Info = ({
-  instrument,
-  handlePlaceOrder,
-  volume,
-  setVolume,
-  step = 0.01,
-  min = 0,
-}: InfoProps) => {
+const Info = ({ instrument }: InfoProps) => {
   // // ...
   // <Counter
   //   label="0"
@@ -66,11 +50,9 @@ const Info = ({
     ],
   };
 
-  const theme = useSelector((s: RootState) => s.theme.mode);
-
   return (
-    //250px
-    <div className="h-[calc(100vh-280px)] mt-5 overflow-auto">
+    //250px h-[calc(100vh-280px)]
+    <div className="mt-5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
           <div className="text-[26px] font-secondary text-primary">
@@ -85,40 +67,6 @@ const Info = ({
           <div className="mb-2.5">
             <EditOrderList {...profitBalanceProps} fontWeight={600} />
           </div>
-        </div>
-
-        <div
-          className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-          style={{ position: "fixed", bottom: "65px", left: 0 }}
-        >
-          <Button
-            label={"Sell"}
-            width="82px"
-            height="44px"
-            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-            textColor="#FAFAFA"
-            fontWeight={600}
-            textShadow="0px 0px 10px 0px #950101"
-            onClick={() => handlePlaceOrder("sell")}
-          />
-          <Counter
-            label="0"
-            initialValue={volume}
-            onValueChange={setVolume}
-            step={step}
-            min={min}
-          />
-
-          <Button
-            label={"Buy"}
-            width="82px"
-            height="44px"
-            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-            textShadow="0px 0px 10px 0px #008508"
-            textColor="#FAFAFA"
-            fontWeight={600}
-            onClick={() => handlePlaceOrder("buy")}
-          />
         </div>
       </div>
     </div>

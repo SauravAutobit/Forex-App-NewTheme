@@ -4,25 +4,8 @@ import AccountHealthCard from "../../components/overview/AccountHealthCard";
 import OpenPositionCard from "../../components/overview/OpenPositionCard";
 // import PerformanceCard from "../../components/overview/PerformanceCard";
 import TradeQualityCard from "../../components/overview/TradeQualityCard";
-import Button from "../../components/button/Button";
-import Counter from "../../components/counter/Counter";
-interface OverviewProps {
-  // Keeping interface compatible with parent but marking props as optional/unused if needed
-  selectedInstrumentId?: string | null;
-  handlePlaceOrder?: (side: "buy" | "sell") => void;
-  volume?: number;
-  setVolume?: (v: number) => void;
-  step?: number;
-  min?: number;
-}
 
-const Overview = ({
-  handlePlaceOrder,
-  volume,
-  setVolume,
-  step = 0.01,
-  min = 0,
-}: OverviewProps) => {
+const Overview = () => {
   // <Counter
   //   label="0"
   //   initialValue={volume}
@@ -100,7 +83,8 @@ const Overview = ({
 
   return (
     // 250px
-    <div className="h-[calc(100vh-280px)] mt-[10px] overflow-auto px-5">
+    // h-[calc(100vh-280px)]
+    <div className="mt-[10px] overflow-auto px-5">
       {" "}
       {/* pb-20 */}
       <div className="flex flex-col gap-1">
@@ -124,39 +108,6 @@ const Overview = ({
           avgLoss={avgLoss}
           totalTrades={positions.length}
         />{" "}
-        <div
-          className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-          style={{ position: "fixed", bottom: "65px", left: 0 }}
-        >
-          <Button
-            label={"Sell"}
-            width="82px"
-            height="44px"
-            bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-            textColor="#FAFAFA"
-            fontWeight={600}
-            textShadow="0px 0px 10px 0px #950101"
-            onClick={() => handlePlaceOrder?.("sell")}
-          />
-          <Counter
-            label="0"
-            initialValue={volume}
-            onValueChange={setVolume}
-            step={step}
-            min={min}
-          />
-
-          <Button
-            label={"Buy"}
-            width="82px"
-            height="44px"
-            bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-            textShadow="0px 0px 10px 0px #008508"
-            textColor="#FAFAFA"
-            fontWeight={600}
-            onClick={() => handlePlaceOrder?.("buy")}
-          />
-        </div>
       </div>
     </div>
   );

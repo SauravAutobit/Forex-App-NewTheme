@@ -14,8 +14,6 @@ import { mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
 import Info from "../info/Info";
 import Calender from "../../components/calender/Calender";
-import Button from "../../components/button/Button";
-import Counter from "../../components/counter/Counter";
 import type { OutletContextType } from "../../layout/MainLayout";
 import { useOutletContext } from "react-router-dom";
 import BottomDrawer from "../../components/bottomDrawer/BottomDrawer";
@@ -150,6 +148,44 @@ const Charts = () => {
     );
   };
 
+  // Update chartButtonsData context
+  const { setChartButtonsData } = useOutletContext<OutletContextType>();
+
+  useEffect(() => {
+    // Only set context data if One Touch Trading is NOT active
+    // If it IS active, ChartsWithButtons component will handle the context
+    if (!activeOptions.oneTouchTrading) {
+      setChartButtonsData({
+        handlePlaceOrder,
+        volume: selectedLot * contractSize,
+        setVolume: (v) => setSelectedLot(v / contractSize),
+        step: contractSize,
+        min: contractSize,
+      });
+    } else {
+      // If we switch to one touch trading, we might want to clear this component's data
+      // or let the child override it. But to be safe:
+      // setChartButtonsData(null);
+      // Actually, the child will mount and set it, so we might not need to explicit clear if timing is right.
+      // But preventing this effect from overwriting the child is key.
+    }
+
+    // Cleanup handled by the new effect in child or essentially just by this effect re-running
+    // If we return clear here, it might clear the child's data if dependencies change.
+    // So we should be careful.
+
+    return () => {
+      // Only clear if we were the ones setting it?
+      // Simpler: Just rely on the active component setting valid data.
+    };
+  }, [
+    selectedLot,
+    contractSize,
+    selectedInstrumentId,
+    setChartButtonsData,
+    activeOptions.oneTouchTrading,
+  ]);
+
   // 4. Effect to manage selectedInstrumentId synchronization
   useEffect(() => {
     if (instrumentsForDropdown.length === 0) {
@@ -214,7 +250,7 @@ const Charts = () => {
   // Sort them if needed (optional, e.g. by time)
   // const sortedPositions = [...filteredOpenPositions].sort((a,b) => b.created_at - a.created_at);
 
-  const theme = useAppSelector((s: RootState) => s.theme.mode);
+  // const theme = useAppSelector((s: RootState) => s.theme.mode);
 
   const height = `calc(100vh - 160px)`;
 
@@ -252,41 +288,24 @@ const Charts = () => {
         </>
       )}
 
-      {active === "Overview" && (
-        <Overview
-          selectedInstrumentId={selectedInstrumentId}
-          handlePlaceOrder={handlePlaceOrder}
-          volume={selectedLot * contractSize}
-          setVolume={(val) => setSelectedLot(val / contractSize)}
-          step={contractSize}
-          min={contractSize}
-        />
-      )}
+      {active === "Overview" && <Overview />}
 
       {active === "Calendar" && (
         <Calender
-          handlePlaceOrder={handlePlaceOrder}
-          volume={selectedLot * contractSize}
-          setVolume={(val) => setSelectedLot(val / contractSize)}
-          step={contractSize}
-          min={contractSize}
+        // width={285}
+        // handlePlaceOrder={handlePlaceOrder}
+        // volume={selectedLot * contractSize}
+        // setVolume={(val) => setSelectedLot(val / contractSize)}
+        // step={contractSize}
+        // min={contractSize}
         />
       )}
 
-      {active === "Info" && (
-        <Info
-          instrument={foundInstrument}
-          handlePlaceOrder={handlePlaceOrder}
-          volume={selectedLot * contractSize}
-          setVolume={(val) => setSelectedLot(val / contractSize)}
-          step={contractSize}
-          min={contractSize}
-        />
-      )}
+      {active === "Info" && <Info instrument={foundInstrument} />}
 
       {active === "Positions" && (
-        //250px
-        <div className="h-[calc(100vh-280px)] overflow-auto">
+        //250px h-[calc(100vh-280px)]
+        <div className="overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {/* Show Open Positions using PositionCard */}
@@ -310,50 +329,13 @@ const Charts = () => {
                 </div>
               )}
             </div>
-            <div
-              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-              style={{
-                position: "fixed",
-                bottom: "65px",
-                left: 0,
-              }}
-            >
-              <Button
-                label={"Sell"}
-                width="82px"
-                height="44px"
-                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-                textColor="#FAFAFA"
-                fontWeight={600}
-                textShadow="0px 0px 10px 0px #950101"
-                onClick={() => handlePlaceOrder("sell")}
-              />
-              <Counter
-                label="0"
-                initialValue={selectedLot * contractSize}
-                onValueChange={(val) => setSelectedLot(val / contractSize)}
-                step={contractSize}
-                min={contractSize}
-              />
-
-              <Button
-                label={"Buy"}
-                width="82px"
-                height="44px"
-                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-                textShadow="0px 0px 10px 0px #008508"
-                textColor="#FAFAFA"
-                fontWeight={600}
-                onClick={() => handlePlaceOrder("buy")}
-              />
-            </div>
           </div>
         </div>
       )}
 
       {active === "Orders" && (
-        // 250px
-        <div className="h-[calc(100vh-270px)] overflow-auto">
+        // 250px h-[calc(100vh-270px)]
+        <div className="overflow-auto">
           <div className="flex flex-col justify-between h-full">
             <div className="">
               {/* Show Pending Orders using PositionCard */}
@@ -374,43 +356,6 @@ const Charts = () => {
                   No pending orders for this instrument
                 </div>
               )}
-            </div>
-            <div
-              className="bg-primaryBg h-[90px] flex items-center justify-between gap-3.5 px-5 pt-2.5 pb-9 border-t border-primary"
-              style={{
-                position: "fixed",
-                bottom: "65px",
-                left: 0,
-              }}
-            >
-              <Button
-                label={"Sell"}
-                width="82px"
-                height="44px"
-                bgColor={theme === "dark" ? "#FE0000" : "#DD3C48"}
-                textColor="#FAFAFA"
-                fontWeight={600}
-                textShadow="0px 0px 10px 0px #950101"
-                onClick={() => handlePlaceOrder("sell")}
-              />
-              <Counter
-                label="0"
-                initialValue={selectedLot * contractSize}
-                onValueChange={(val) => setSelectedLot(val / contractSize)}
-                step={contractSize}
-                min={contractSize}
-              />
-
-              <Button
-                label={"Buy"}
-                width="82px"
-                height="44px"
-                bgColor={theme === "dark" ? "#02F511" : "#00B22D"}
-                textShadow="0px 0px 10px 0px #008508"
-                textColor="#FAFAFA"
-                fontWeight={600}
-                onClick={() => handlePlaceOrder("buy")}
-              />
             </div>
           </div>
         </div>
