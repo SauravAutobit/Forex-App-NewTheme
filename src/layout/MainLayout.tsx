@@ -8,6 +8,8 @@ import OrderStatus from "../components/orderStatus/OrderStatus";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store/store";
 import { hideToasty } from "../store/slices/notificationSlice";
+// import OrderButtons from "../components/orderButtons/OrderButtons";
+import NewOrderButtons from "../components/newOrderButtons/NewOrderButtons";
 
 export type DrawerState = {
   homeDrawer: boolean;
@@ -37,6 +39,23 @@ export type IsFlagType = {
   editHistory: {
     status: boolean;
   };
+};
+
+export type NewOrderData = {
+  metrics: {
+    usedMargin: number;
+    freeMargin: number;
+  };
+  instrumentId: string | null;
+  selectedOrderType: "market" | "limit" | "stop";
+  contractSize: number | null;
+  selectedLot: number;
+  orderPrice: number | null;
+  stoploss: number;
+  target: number;
+  mode: "newOrder" | "closePosition" | "modifyPosition";
+  originalSide?: "buy" | "sell";
+  positionIdToClose?: string;
 };
 
 export type OutletContextType = {
@@ -79,6 +98,8 @@ export type OutletContextType = {
   setIsDrawerOpen: React.Dispatch<React.SetStateAction<DrawerState>>;
   favouriteInstrument: string[];
   setFavouriteInstrument: React.Dispatch<React.SetStateAction<string[]>>;
+  newOrderData: NewOrderData | null;
+  setNewOrderData: React.Dispatch<React.SetStateAction<NewOrderData | null>>;
 };
 
 const MainLayout = () => {
@@ -122,6 +143,9 @@ const MainLayout = () => {
   >("favoriteItems", []);
 
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
+
+  // State for NewOrder data
+  const [newOrderData, setNewOrderData] = useState<NewOrderData | null>(null);
 
   const { data: categories } = useSelector(
     (state: RootState) => state.categories,
@@ -253,11 +277,30 @@ const MainLayout = () => {
             setIsDrawerOpen,
             favouriteInstrument,
             setFavouriteInstrument,
+            newOrderData,
+            setNewOrderData,
           }}
         />
       </main>
 
-      <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />
+      <div className="fixed bottom-0 w-full flex flex-col gap-2.5">
+        {pathname === "/app/newOrder" && newOrderData && (
+          <NewOrderButtons
+            metrics={newOrderData.metrics}
+            instrumentId={newOrderData.instrumentId}
+            selectedOrderType={newOrderData.selectedOrderType}
+            contractSize={newOrderData.contractSize}
+            selectedLot={newOrderData.selectedLot}
+            orderPrice={newOrderData.orderPrice}
+            stoploss={newOrderData.stoploss}
+            target={newOrderData.target}
+            mode={newOrderData.mode}
+            originalSide={newOrderData.originalSide}
+            positionIdToClose={newOrderData.positionIdToClose}
+          />
+        )}
+        <BottomNavbar setIsFlag={setIsFlag} isDrawerOpen={isDrawerOpen} />
+      </div>
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <OrderStatus />
     </div>

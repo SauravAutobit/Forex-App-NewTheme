@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { useSearchParams, useOutletContext } from "react-router-dom";
 import type { OutletContextType } from "../../layout/MainLayout";
-import OrderButtons from "../../components/orderButtons/OrderButtons";
+// import OrderButtons from "../../components/orderButtons/OrderButtons";
 import { setOrderStatus } from "../../store/slices/orderStatusSlice";
 import { useAppDispatch } from "../../store/hook";
 import { subscribeToInstruments } from "../../services/socketService";
@@ -20,14 +20,15 @@ interface TabItem {
 const NewOrder = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
-  const { setIsFlag } = useOutletContext<OutletContextType>();
+  const { setIsFlag, setNewOrderData } = useOutletContext<OutletContextType>();
 
   useEffect(() => {
     setIsFlag((prev) => ({ ...prev, newOrder: { status: true } }));
     return () => {
       setIsFlag((prev) => ({ ...prev, newOrder: { status: false } }));
+      setNewOrderData(null); // Clear data when leaving the page
     };
-  }, [setIsFlag]);
+  }, [setIsFlag, setNewOrderData]);
 
   useEffect(() => {
     // Reset status on mount
@@ -220,13 +221,44 @@ const NewOrder = () => {
       freeMargin: freeMargin,
     };
   }, [positions, liveQuotes, balance]);
+  console.log(metrics, "metrics");
+
+  // Update newOrderData context whenever relevant data changes
+  useEffect(() => {
+    const contractSize = getContractSize();
+    setNewOrderData({
+      metrics,
+      instrumentId: instrumentId || null,
+      selectedOrderType: activeTabId,
+      contractSize,
+      selectedLot,
+      orderPrice: activeTabId === "market" ? null : price,
+      stoploss,
+      target,
+      mode,
+      originalSide: selectedPosition?.side,
+      positionIdToClose: positionId,
+    });
+  }, [
+    metrics,
+    instrumentId,
+    activeTabId,
+    selectedLot,
+    price,
+    stoploss,
+    target,
+    mode,
+    selectedPosition,
+    positionId,
+    setNewOrderData,
+  ]);
 
   const renderContent = (type: "market" | "limit" | "stop") => {
     const contractSize = getContractSize();
 
     return (
-      //179
-      <div className="px-5 h-[calc(100vh-210px)] overflow-y-auto">
+      //179 h-[calc(100vh-210px)]
+      <div className="px-5 overflow-y-auto">
         <div className="mt-4 flex flex-col gap-2.5 justify-between h-full">
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-1">
@@ -276,33 +308,6 @@ const NewOrder = () => {
               readOnly={true}
             />
           </div>
-          <div className="mb-9">
-            <div className="flex items-center justify-between text-secondary text-sm">
-              Required margin/Free margin
-              <span>
-                {metrics.usedMargin.toFixed(2)} /
-                <span
-                  className={
-                    metrics.freeMargin < 0 ? "text-loss" : "text-profit"
-                  }
-                >
-                  {metrics.freeMargin.toFixed(2)}
-                </span>
-              </span>
-            </div>
-            <OrderButtons
-              instrumentId={instrumentId || null}
-              selectedOrderType={type}
-              contractSize={contractSize}
-              selectedLot={selectedLot}
-              orderPrice={price}
-              stoploss={stoploss}
-              target={target}
-              mode={mode}
-              originalSide={selectedPosition?.side as any}
-              positionIdToClose={positionId}
-            />
-          </div>
         </div>
       </div>
     );
@@ -314,15 +319,18 @@ const NewOrder = () => {
     { id: "stop", label: "Stop", content: renderContent("stop") },
   ];
 
+  // const type = "market";
+  // const contractSize = getContractSize();
+
   return (
-    <>
+    <div className="h-full">
       <NavigationTabs
         tabs={tabsData}
         defaultActiveTab={activeTabId}
         onActiveTabChange={(id) => setActiveTabId(id as any)}
         className="max-w-md mx-auto"
       />
-    </>
+    </div>
   );
 };
 

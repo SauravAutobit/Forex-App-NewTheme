@@ -154,7 +154,7 @@ const chartSlice = createSlice({
       }>
     ) => {
       const { data } = action.payload;
-      console.log("🔥 updateLiveCandle reducer called:", data);
+      // console.log("🔥 updateLiveCandle reducer called:", data);
       if (!data || !data.ltp || !data.ltpt) return;
 
       const ltp = Array.isArray(data.ltp) ? data.ltp[0] : data.ltp;

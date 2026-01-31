@@ -93,7 +93,8 @@ export default function BottomNavbar({
       {/* Backdrop when drawer is open */}
       {!drawer && (
         <nav
-          className="fixed bottom-0 left-0 right-0 bg-primaryBg z-40 p-2 max-w-[440px] mx-auto overflow-hidden"
+          // fixed bottom-0 left-0 right-0
+          className="w-full bg-primaryBg z-40 p-2 max-w-[440px] mx-auto overflow-hidden"
           style={{
             borderTop: "1px solid #5454584A",
             paddingBottom: "env(safe-area-inset-bottom)",
