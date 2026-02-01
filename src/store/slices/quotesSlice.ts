@@ -54,7 +54,10 @@ const QUOTES_STORAGE_KEY = 'subscribedQuotes';
 
 const loadQuotesFromStorage = (): QuoteData[] => {
   try {
-    const storedQuotes = localStorage.getItem(QUOTES_STORAGE_KEY);
+    const storedActiveAccount = localStorage.getItem("activeAccount");
+    const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+    const key = username ? `subscribedQuotes_${username}` : QUOTES_STORAGE_KEY;
+    const storedQuotes = localStorage.getItem(key);
     if (storedQuotes) {
       return JSON.parse(storedQuotes);
     }
@@ -88,7 +91,11 @@ export const quotesSlice = createSlice({
         };
         state.quotes.push(newQuote);
         subscribeToInstruments([newInstrument.id]); 
-        localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(state.quotes));
+        
+        const storedActiveAccount = localStorage.getItem("activeAccount");
+        const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+        const key = username ? `subscribedQuotes_${username}` : QUOTES_STORAGE_KEY;
+        localStorage.setItem(key, JSON.stringify(state.quotes));
       }
     },
     // ✅ REWRITTEN REDUCER to update both watchlist and live cache
@@ -161,8 +168,11 @@ export const quotesSlice = createSlice({
       // Filter out the quotes that are marked for deletion
       state.quotes = state.quotes.filter(quote => !idsToRemove.has(quote.id));
       
-      // Update session storage to persist the changes
-      localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(state.quotes));
+      // Update storage to persist the changes
+      const storedActiveAccount = localStorage.getItem("activeAccount");
+      const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+      const key = username ? `subscribedQuotes_${username}` : QUOTES_STORAGE_KEY;
+      localStorage.setItem(key, JSON.stringify(state.quotes));
     },
     reorderQuotes: (state, action: PayloadAction<{ activeId: string; overId: string }>) => {
       const { activeId, overId } = action.payload;
@@ -174,7 +184,10 @@ export const quotesSlice = createSlice({
         const [movedItem] = state.quotes.splice(oldIndex, 1);
         state.quotes.splice(newIndex, 0, movedItem);
         // Persist the new order to localStorage
-        localStorage.setItem(QUOTES_STORAGE_KEY, JSON.stringify(state.quotes));
+        const storedActiveAccount = localStorage.getItem("activeAccount");
+        const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+        const key = username ? `subscribedQuotes_${username}` : QUOTES_STORAGE_KEY;
+        localStorage.setItem(key, JSON.stringify(state.quotes));
       }
     },
   },

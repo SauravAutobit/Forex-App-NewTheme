@@ -124,7 +124,13 @@ export type OutletContextType = {
 const MainLayout = () => {
   const { pathname } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isFlag, setIsFlag] = useLocalStorage<IsFlagType>("appState", {
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // ⭐️ NEW: Derived storage keys based on username
+  const favItemsKey = user ? `favoriteItems_${user.username}` : "favoriteItems";
+  const favStateKey = user ? `appState_${user.username}` : "appState";
+
+  const [isFlag, setIsFlag] = useLocalStorage<IsFlagType>(favStateKey, {
     favourites: {
       status: false,
     },
@@ -144,7 +150,7 @@ const MainLayout = () => {
 
   const [active, setActive] = useState("Favorites");
 
-  // ⭐️ NEW: State for the list of favorite instruments
+  // ⭐️ NEW: State for the list of favorite instruments - account specific
   const [favoriteItems, setFavoriteItems] = useLocalStorage<
     Array<{
       id: string;
@@ -159,9 +165,35 @@ const MainLayout = () => {
       timestamp: string;
       icon: string;
     }>
-  >("favoriteItems", []);
+  >(favItemsKey, []);
 
   const [favouriteInstrument, setFavouriteInstrument] = useState<string[]>([]);
+
+  const instruments = useSelector((state: RootState) => state.instruments);
+  const instrumentsData = instruments.data;
+
+  // ✅ Initialize favouriteInstrument from persisted favoriteItems
+  useEffect(() => {
+    setFavouriteInstrument(favoriteItems.map((f) => f.code));
+  }, [favoriteItems]);
+
+  // ✅ Filter favorites against available instruments
+  // This ensures that if an instrument is deleted, it's removed from favorites
+  useEffect(() => {
+    const allInstruments = Object.values(instrumentsData).flat();
+    if (allInstruments.length > 0 && favoriteItems.length > 0) {
+      const availableIds = new Set(allInstruments.map((i) => i.id));
+      const filteredItems = favoriteItems.filter((item) =>
+        availableIds.has(item.id),
+      );
+
+      if (filteredItems.length !== favoriteItems.length) {
+        console.log("🧹 Cleanup: Removing orphans from favorites");
+        setFavoriteItems(filteredItems);
+        setFavouriteInstrument(filteredItems.map((f) => f.code));
+      }
+    }
+  }, [instrumentsData, favoriteItems, setFavoriteItems]);
 
   // State for NewOrder data
   const [newOrderData, setNewOrderData] = useState<NewOrderData | null>(null);
@@ -179,7 +211,10 @@ const MainLayout = () => {
   // Handle initial tab selection on mount based on favorites or previous history
   useEffect(() => {
     if (categories.length > 0) {
-      const prev = localStorage.getItem("previousCategory");
+      const prevCategoryKey = user
+        ? `previousCategory_${user.username}`
+        : "previousCategory";
+      const prev = localStorage.getItem(prevCategoryKey);
       if (
         prev &&
         categories.some(
@@ -211,6 +246,9 @@ const MainLayout = () => {
       "Orders",
     ];
 
+    const prevCategoryKey = user
+      ? `previousCategory_${user.username}`
+      : "previousCategory";
     if (pathname === "/app/charts") {
       // Only set to "Chart" if current active tab is not one of the chart-related tabs
       if (!chartTabs.includes(active)) {
@@ -221,14 +259,14 @@ const MainLayout = () => {
       chartTabs.includes(active)
     ) {
       // ✅ Restore previous category if coming back from Chart/Trade flow
-      const prev = localStorage.getItem("previousCategory");
+      const prev = localStorage.getItem(prevCategoryKey);
       if (prev) {
         setActive(prev);
       } else {
         setActive("Favorites");
       }
     }
-  }, [pathname, active]);
+  }, [pathname, active, user]);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

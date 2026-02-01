@@ -26,19 +26,27 @@ import PendingEdit from "../pages/pendingEdit/PendingEdit";
 import ClosedEdit from "../pages/closedEdit/ClosedEdit";
 import EditHistory from "../pages/editHistory/EditHistory";
 
+import { useAppSelector } from "../store/hook";
+
+/**
+ * Wrapper for MainLayout that uses the current user's username as a React key.
+ * This forces a complete remount of the layout and all its internal state
+ * (like favorites, drawers, etc.) whenever the active account switches.
+ */
+const MainLayoutWrapper = () => {
+  const user = useAppSelector((state) => state.auth.user);
+  return <MainLayout key={user?.username || "guest"} />;
+};
+
 export const AppRoutes = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
   },
-  // {
-  //   path: "/login",
-  //   element: <Login />,
-  // },
   {
     // /app
     path: "/app",
-    element: <MainLayout />,
+    element: <MainLayoutWrapper />,
     children: [
       { index: true, element: <Home /> }, // /app
       { path: "home", element: <Home /> },
@@ -52,14 +60,6 @@ export const AppRoutes = createBrowserRouter([
       { path: "PendingEdit", element: <PendingEdit /> },
       { path: "closedEdit", element: <ClosedEdit /> },
       { path: "editHistory", element: <EditHistory /> },
-      // { path: "profile", element: <Profile /> },
-      //   { path: "/new-order", element: <NewOrder /> },
-      //   { path: "/properties", element: <Properties /> },
-      //   { path: "/market-statistics", element: <MarketStatistics /> },
-      //   { path: "/depth-of-market", element: <DepthOfMarket /> },
-      //   { path: "/close-positions", element: <ClosePositions /> },
-      //   { path: "/modify-positions", element: <ModifyPositions /> },
-      //   { path: "/accounts", element: <Accounts /> },
     ],
   },
   {

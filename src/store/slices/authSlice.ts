@@ -181,6 +181,8 @@ export const authSlice = createSlice({
         state.accounts = state.accounts.filter(a => a.username !== state.user?.username);
       }
       
+      state.status = "idle";
+      
       // Switch to next available account
       if (state.accounts.length > 0) {
           state.user = state.accounts[state.accounts.length - 1]; // Use last added as typical behavior, or index 0

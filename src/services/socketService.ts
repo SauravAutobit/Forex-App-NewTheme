@@ -6,10 +6,10 @@ import {
   setEventStatus,
 } from "../store/slices/webSocketSlice";
 import {
-  WEBSOCKET_API_URL,
-  WEBSOCKET_EVENT_URL,
-  WEBSOCKET_STREAM_URL,
-} from "../utils//constants/app.constants";
+  getWebSocketApiUrl,
+  getWebSocketEventUrl,
+  getWebSocketStreamUrl,
+} from "../utils/constants/app.constants";
 import {
   fetchPositions,
   updatePositionQuote,
@@ -73,31 +73,20 @@ function isStreamQuoteMessage(msg: unknown): msg is {
 }
 
 
-export const fetchAllAppData = (dispatch: AppDispatch, timestamp?: number) => {
-  // If timestamp not provided compute start-of-today
-  const ts =
-    typeof timestamp === "number"
-      ? timestamp
-      : Math.floor(
-          new Date(
-            new Date().getFullYear(),
-            new Date().getMonth(),
-            new Date().getDate(),
-            0,
-            0,
-            0,
-            0
-          ).getTime() / 1000
-        );
+export const fetchEssentialHomeData = (dispatch: AppDispatch) => {
+  console.log("🏠 Fetching essential Home page data...");
+  
+  // 1. Fetch categories (Home navigation depends on this)
+  dispatch(fetchCategories()).unwrap().then((categories: any) => {
+    if (Array.isArray(categories)) {
+      // 2. Fetch instruments for all categories (Home cards depend on this)
+      categories.forEach((category) => {
+        dispatch(fetchInstrumentsByCategory(category));
+      });
+    }
+  }).catch(err => console.error("Failed to fetch categories:", err));
 
-  console.log("🔄 Triggering refresh for all history data with timestamp:", ts);
-
-  // Use pagination objects (reset to first page) for history fetches
-  dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
-  dispatch(fetchDeals({ offset: 0, limit: 30 }));
-  dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
-
-  // Other non-history thunks
+  // 3. Fetch account balance (Header depends on this)
   dispatch(fetchAccountBalance())
     .unwrap()
     .then((account: any) => {
@@ -105,23 +94,29 @@ export const fetchAllAppData = (dispatch: AppDispatch, timestamp?: number) => {
         dispatch(fetchLoginCount(account.account_id));
       }
     });
+
+  // 4. Fetch open positions (Home/Trade summary depends on this)
   dispatch(fetchPositions());
-  dispatch(fetchOpenOrders());
-  dispatch(fetchInstrumentRelations());
-  
-  // Fetch categories and then instruments
-  dispatch(fetchCategories()).unwrap().then((categories: any) => {
-    if (Array.isArray(categories)) {
-      categories.forEach((category) => {
-        dispatch(fetchInstrumentsByCategory(category));
-      });
-    }
-  }).catch(err => console.error("Failed to fetch categories during initial load:", err));
 };
 
-const API_BASE_URL = WEBSOCKET_API_URL; 
-const STREAM_BASE_URL = WEBSOCKET_STREAM_URL; //import.meta.env.VITE_STREAM_URL;
-const EVENT_BASE_URL = WEBSOCKET_EVENT_URL;
+export const fetchBackgroundAppData = (dispatch: AppDispatch) => {
+  console.log("🌘 Fetching background application data...");
+  
+  // Fetch history and orders in the background
+  dispatch(fetchHistoryPositions({ offset: 0, limit: 30 }));
+  dispatch(fetchDeals({ offset: 0, limit: 30 }));
+  dispatch(fetchHistoryOrders({ offset: 0, limit: 30 }));
+  dispatch(fetchOpenOrders());
+  dispatch(fetchInstrumentRelations());
+};
+
+// Deprecated in favor of split fetchers, keeping for back-compat if needed
+export const fetchAllAppData = (dispatch: AppDispatch) => {
+  fetchEssentialHomeData(dispatch);
+  fetchBackgroundAppData(dispatch);
+};
+
+// URLs will be retrieved dynamically inside initializeSockets
 
 let apiClient: WebSocketClient;
 let streamClient: WebSocketClient;
@@ -142,7 +137,6 @@ let eventClient: WebSocketClient;
 //swastiik token
 // const AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uIjoiQUNDLTlmMThjMjNkOTU4ODRmMzE4OTZhMGIwNmVjYmE3NDY2IiwiYWNjaWQiOiJTRVAyNS0xYzdlODRlNS1hNmNmLTQxMzEtYTFkYS1hZDE5Zjc5MmVhMjAifQ.xPUMPaSLH8JQ25IhevETYOnh3zPrh76waUsHe2burYU"
 export const initializeSockets = (store: Store) => {
-  // const token = getAuthToken(store);
   const state = store.getState() as RootState;
   const token = state.auth.user?.token;
 
@@ -153,29 +147,38 @@ export const initializeSockets = (store: Store) => {
     return;
   }
 
+  // Retrieve URLs dynamically at the moment of initialization
+  const API_BASE_URL = getWebSocketApiUrl();
+  const STREAM_BASE_URL = getWebSocketStreamUrl();
+  const EVENT_BASE_URL = getWebSocketEventUrl();
+
   // --- API Client Initialization ---
   if (!API_BASE_URL) {
     console.error(
-      "❌ VITE_API_WS_URL is not defined. API WebSocket connection will fail."
+      "❌ API WebSocket URL is not defined (check domainConfig). connection will fail."
     );
   } else if (!apiClient) {
+    console.log("🚀 Initializing API WebSocket Client to:", API_BASE_URL);
     const apiUrlWithToken = `${API_BASE_URL}?t=${token}`;
     apiClient = new WebSocketClient(apiUrlWithToken, store, setApiStatus);
-    console.log("API WebSocket Client Initialized.");
-
+    
     // Fetch all data once connected
     apiClient.onConnected(() => {
-        fetchAllAppData(store.dispatch as AppDispatch);
+        const dispatch = store.dispatch as AppDispatch;
+        fetchEssentialHomeData(dispatch);
+        // Delay background data slightly to prioritize Home render
+        setTimeout(() => {
+          fetchBackgroundAppData(dispatch);
+        }, 1000);
     });
   }
 
   // --- Stream Client Initialization ---
   if (!STREAM_BASE_URL) {
     console.error(
-      "❌ VITE_STREAM_URL is not defined. Stream WebSocket connection will fail."
+      "❌ Stream WebSocket URL is not defined. Stream connection will fail."
     );
   } else if (!streamClient) {
-    // const streamUrlWithToken = `${STREAM_BASE_URL}`;
     const streamUrlWithToken = `${STREAM_BASE_URL}?t=${token}`;
     streamClient = new WebSocketClient(
       streamUrlWithToken,
@@ -185,14 +188,6 @@ export const initializeSockets = (store: Store) => {
 
     // NEW: Central message handler using the universal type guard
     streamClient.setMessageHandler((msg: unknown) => {
-      // Log all incoming stream messages for debugging
-      // if (typeof msg === "object" && msg !== null && "component" in msg) {
-      //   console.log(`[Stream] Received: component=${(msg as any).component}, id=${(msg as any).instrument?.id}`);
-      // } else {
-      //   console.log("[Stream] Received unknown message format:", msg);
-      // }
-      // console.log("Received stream message:", msg);
-
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it
         const rootState = store.getState() as RootState;
@@ -265,14 +260,17 @@ export const initializeSockets = (store: Store) => {
         streamClient.sendStreamMessage(message);
       }
     });
-    console.log("Stream WebSocket Client Initialized.");
+
+    console.log("🚀 Stream WebSocket Client Initialized.");
   }
+
   // --- Event Client Initialization ---
   if (!EVENT_BASE_URL) {
     console.error(
-      "❌ WEBSOCKET_EVENT_URL is not defined. Event WebSocket connection will fail."
+      "❌ Event WebSocket URL is not defined. Event connection will fail."
     );
   } else if (!eventClient) {
+    console.log("🚀 Initializing Event WebSocket Client...");
     const eventUrlWithToken = `${EVENT_BASE_URL}?t=${token}`;
     eventClient = new WebSocketClient(eventUrlWithToken, store, setEventStatus); 
 
@@ -302,13 +300,14 @@ export const initializeSockets = (store: Store) => {
         }, 3000);
       }
 
-      fetchAllAppData(appDispatch);
+      fetchEssentialHomeData(appDispatch);
+      fetchBackgroundAppData(appDispatch);
     });
 
     eventClient.onConnected(() => {
       console.log("🎉 Event WebSocket connected. Ready to receive events.");
     });
-    console.log("Event WebSocket Client Initialized.");
+    console.log("🚀 Event WebSocket Client Initialized.");
   }
 };
 
@@ -358,16 +357,14 @@ export const reinitializeSockets = (store: Store) => {
   console.log("🔄 Reinitializing WebSocket connections...");
   
   // Close existing connections
-  if (apiClient) {
-    apiClient.close();
-  }
-  if (streamClient) {
-    streamClient.close();
-  }
+  if (apiClient) apiClient.close();
+  if (streamClient) streamClient.close();
+  if (eventClient) eventClient.close();
   
   // Reset clients
   apiClient = null as any;
   streamClient = null as any;
+  eventClient = null as any;
   
   // Reinitialize with new token
   initializeSockets(store);

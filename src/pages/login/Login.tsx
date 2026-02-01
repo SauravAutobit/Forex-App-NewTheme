@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "../../assets/icons/logo.svg";
 import eye from "../../assets/icons/eye.svg";
 import { useNavigate } from "react-router-dom";
@@ -31,46 +31,61 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const { apiStatus } = useAppSelector((state) => state.websockets);
+  const { status: categoriesStatus } = useAppSelector(
+    (state) => state.categories,
+  );
+  const { status: instrumentsStatus } = useAppSelector(
+    (state) => state.instruments,
+  );
+  const reinitAttempted = useRef(false);
+
   useEffect(() => {
     // If already logged in, redirect to app
-    // We check if user exists AND (status is succeeded OR status is idle)
-    // Idle status is possible on first mount if persisted from localStorage
     if (user && (status === "succeeded" || status === "idle")) {
-      console.log("🚀 Auto-login redirect for user:", user.username);
-
-      // Associate selected domain with this user if not already set
-      const currentDomain = getDomainKey();
-      if (currentDomain) {
-        setDomainKey(currentDomain, user.username);
+      // Reinitialize sockets ONLY if they are disconnected AND we haven't tried yet on this mount
+      // This prevents the infinite loop caused by apiStatus updates and connection failures
+      if (apiStatus === "disconnected" && !reinitAttempted.current) {
+        console.log("🔌 Initializing sockets for delayed redirect...");
+        reinitAttempted.current = true;
+        reinitializeSockets(store);
       }
 
-      // Reinitialize sockets with current token
-      reinitializeSockets(store);
+      const isReady =
+        apiStatus === "connected" &&
+        categoriesStatus === "succeeded" &&
+        instrumentsStatus === "succeeded";
 
-      // Navigate to home
-      navigate("/app/home");
+      if (isReady) {
+        console.log("🚀 Initialized! Redirecting to home.");
 
-      // Optional: Only show toasty if it was a fresh login, not an auto-redirect
-      // But for simplicity, we can keep it or remove it for auto-redirect.
-      // Let's remove it for auto-redirect to avoid annoyance on every app open.
-      if (status === "succeeded") {
-        dispatch(
-          showToasty({
-            type: "success",
-            message: "Login Successfully!",
-          }),
-        );
-      }
+        // Associate selected domain with this user if not already set
+        const currentDomain = getDomainKey();
+        if (currentDomain) {
+          setDomainKey(currentDomain, user.username);
+        }
 
-      // If it was an auto-login (status idle but user exists),
-      // we might want to reload once to ensure everything is in sync,
-      // but only if necessary. Since reinitializeSockets is called, it might be fine.
-      // However, the user's pattern was to reload.
-      if (status === "succeeded") {
-        window.location.reload();
+        if (status === "succeeded") {
+          dispatch(
+            showToasty({
+              type: "success",
+              message: "Login Successfully!",
+            }),
+          );
+        }
+
+        navigate("/app/home");
       }
     }
-  }, [user, status, navigate, dispatch]);
+  }, [
+    user,
+    status,
+    apiStatus,
+    categoriesStatus,
+    instrumentsStatus,
+    navigate,
+    dispatch,
+  ]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,14 +208,38 @@ const Login = () => {
 
             <button
               type="submit"
-              disabled={status === "loading"}
+              disabled={
+                status === "loading" ||
+                Boolean(
+                  user &&
+                    status === "succeeded" &&
+                    (apiStatus !== "connected" ||
+                      categoriesStatus !== "succeeded" ||
+                      instrumentsStatus !== "succeeded"),
+                )
+              }
               className={`w-full p-3 rounded-10 bg-quaternary font-secondary ${
-                status === "loading" ? "opacity-50 cursor-not-allowed" : ""
+                status === "loading" ||
+                (user &&
+                  status === "succeeded" &&
+                  (apiStatus !== "connected" ||
+                    categoriesStatus !== "succeeded" ||
+                    instrumentsStatus !== "succeeded"))
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
               // style={{ color: theme === "dark" ? "#303030" : "#FAFAFA" }}
               style={{ color: "#0C0C0C" }}
             >
-              {status === "loading" ? "Logging in..." : "Login"}
+              {status === "loading"
+                ? "Logging in..."
+                : user &&
+                  status === "succeeded" &&
+                  (apiStatus !== "connected" ||
+                    categoriesStatus !== "succeeded" ||
+                    instrumentsStatus !== "succeeded")
+                ? "Initializing Home..."
+                : "Login"}
             </button>
           </form>
 

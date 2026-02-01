@@ -1,19 +1,40 @@
 import { getDomainConfig } from "./domainConfig";
 
-const storedActiveAccount = localStorage.getItem("activeAccount");
-const activeUser = storedActiveAccount ? JSON.parse(storedActiveAccount) : null;
+const getActiveUser = () => {
+  try {
+    const storedActiveAccount = localStorage.getItem("activeAccount");
+    return storedActiveAccount ? JSON.parse(storedActiveAccount) : null;
+  } catch (e) {
+    return null;
+  }
+};
 
-const config = getDomainConfig(activeUser?.username);
+export const getWebSocketApiUrl = () => {
+  const user = getActiveUser();
+  const config = getDomainConfig(user?.username);
+  return config ? `wss://${config.api}/ws` : "";
+};
 
-export const WEBSOCKET_API_URL = config ? `wss://${config.api}/ws` : "";
-export const WEBSOCKET_STREAM_URL = config ? `wss://${config.stream}/stream` : "";
-export const WEBSOCKET_EVENT_URL = config ? `wss://${config.event}/event` : "";
+export const getWebSocketStreamUrl = () => {
+  const user = getActiveUser();
+  const config = getDomainConfig(user?.username);
+  return config ? `wss://${config.stream}/stream` : "";
+};
 
-console.log("DOMAIN CONFIG:", { 
-  user: activeUser?.username, 
-  api: config?.api, 
-  stream: config?.stream 
-});
+export const getWebSocketEventUrl = () => {
+  const user = getActiveUser();
+  const config = getDomainConfig(user?.username);
+  return config ? `wss://${config.event}/event` : "";
+};
 
-export const API_DOMAIN = config?.api || "";
-export const FEED_DOMAIN = config?.feed || "";
+export const getApiDomain = () => {
+  const user = getActiveUser();
+  const config = getDomainConfig(user?.username);
+  return config?.api || "";
+};
+
+export const getFeedDomain = () => {
+  const user = getActiveUser();
+  const config = getDomainConfig(user?.username);
+  return config?.feed || "";
+};

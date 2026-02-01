@@ -32,7 +32,10 @@ const INSTRUMENT_STORAGE_KEY = 'selectedInstrument';
 // Helper to load the ID from localStorage
 const loadSelectedInstrumentId = (): string | null => {
   try {
-    const storedId = localStorage.getItem(INSTRUMENT_STORAGE_KEY);
+    const storedActiveAccount = localStorage.getItem("activeAccount");
+    const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+    const key = username ? `selectedInstrument_${username}` : INSTRUMENT_STORAGE_KEY;
+    const storedId = localStorage.getItem(key);
     return storedId;
   } catch (e) {
     console.error("Failed to load selected instrument ID from localStorage", e);
@@ -42,7 +45,10 @@ const loadSelectedInstrumentId = (): string | null => {
 
 const loadState = (): Record<string, Instrument[]> => {
   try {
-    const serializedState = localStorage.getItem('instrumentsData');
+    const storedActiveAccount = localStorage.getItem("activeAccount");
+    const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+    const key = username ? `instrumentsData_${username}` : 'instrumentsData';
+    const serializedState = localStorage.getItem(key);
     if (serializedState === null) {
       return {};
     }
@@ -69,12 +75,16 @@ export const fetchInstrumentsByCategory = createAsyncThunk(
       });
 
       if (response.status === "success" && response.data) {
-        // Save to local storage after successful fetch
-        const existingData = JSON.parse(localStorage.getItem('instrumentsData') || '{}');
-        const newData = { ...existingData, [categoryName]: response.data };
-        localStorage.setItem('instrumentsData', JSON.stringify(newData));
-        return { categoryName, instruments: response.data };
-      }
+    // Save to local storage after successful fetch
+    const storedActiveAccount = localStorage.getItem("activeAccount");
+    const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+    const key = username ? `instrumentsData_${username}` : 'instrumentsData';
+    
+    const existingData = JSON.parse(localStorage.getItem(key) || '{}');
+    const newData = { ...existingData, [categoryName]: response.data };
+    localStorage.setItem(key, JSON.stringify(newData));
+    return { categoryName, instruments: response.data };
+  }
 
       return rejectWithValue(
         response.message || "Failed to fetch instruments for this category."
@@ -93,8 +103,11 @@ const instrumentsSlice = createSlice({
   reducers: {
     setSelectedInstrument: (state, action: PayloadAction<string>) => {
       state.selectedInstrumentId = action.payload;
-      // Persist the ID to session storage
-      localStorage.setItem(INSTRUMENT_STORAGE_KEY, action.payload);
+      // Persist the ID to account-specific storage
+      const storedActiveAccount = localStorage.getItem("activeAccount");
+      const username = storedActiveAccount ? JSON.parse(storedActiveAccount).username : "";
+      const key = username ? `selectedInstrument_${username}` : INSTRUMENT_STORAGE_KEY;
+      localStorage.setItem(key, action.payload);
     },
   },
   extraReducers: (builder) => {
