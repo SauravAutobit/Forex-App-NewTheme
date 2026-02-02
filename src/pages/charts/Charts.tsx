@@ -1,16 +1,13 @@
-// src/pages/Charts/Charts.tsx
-
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux"; // 1. Import useDispatch
 import type { AppDispatch, RootState } from "../../store/store"; // 2. Import AppDispatch
 // import { useOutletContext } from "react-router-dom";
-import ChartComponent from "../../components/chartComponent/ChartComponent";
+// import ChartComponent from "../../components/chartComponent/ChartComponent";
 import MarketsNavbar from "../../components/marketNavbar/MarketNavbar";
 // import BottomDrawer from "../../components/common/drawer/BottomDrawer";
 // import TradeButtonsDrawer from "../../components/tradeButtonsDrawer/TradeButtonsDrawer";
 // import type { OutletContextType } from "../../layout/MainLayout";
-
-import { mockTimeframes } from "../../mockData";
+// import { mockTimeframes } from "../../mockData";
 import Overview from "../overview/Overview";
 import Info from "../info/Info";
 import Calender from "../../components/calender/Calender";
@@ -23,10 +20,10 @@ import CheckList, {
 import { useAppSelector } from "../../store/hook";
 import { placeNewOrder } from "../../store/slices/ordersSlice";
 import { subscribeToInstruments } from "../../services/socketService";
-import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
-
+// import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 import PositionCard from "../../components/positionCard/PositionCard";
-import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
+import ChartModule from "../../components/chartModule/ChartModule";
+// import ChartsWithButtons from "../chartsWithButtons/ChartsWithButtons";
 
 const Charts = () => {
   const { active, setActive, isDrawerOpen, setIsDrawerOpen, setIsFlag } =
@@ -64,18 +61,53 @@ const Charts = () => {
   const makeInitialState = (list: OptionItem[]) =>
     Object.fromEntries(list.map((item) => [item.key, false]));
 
-  const [activeOptions, setActiveOptions] = useState(
-    makeInitialState(tradingOptions),
+  // Load one-touch trading state from localStorage
+  const loadOneTouchState = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const key = user.username
+        ? `oneTouchTrading_${user.username}`
+        : "oneTouchTrading";
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  };
+
+  const [activeOptions, setActiveOptions] = useState<Record<string, boolean>>(
+    () => {
+      return {
+        ...makeInitialState(tradingOptions),
+        oneTouchTrading: loadOneTouchState(),
+      };
+    },
   );
 
-  const [chartToolsOptions, setChartToolsOptions] = useState(
-    makeInitialState(chartOptions),
-  );
+  const [chartToolsOptions, setChartToolsOptions] = useState<
+    Record<string, boolean>
+  >(makeInitialState(chartOptions));
 
-  // Close drawer when One Touch Trading is enabled
+  // Save one-touch trading state to localStorage whenever it changes
   useEffect(() => {
-    if (activeOptions.oneTouchTrading) {
+    if (activeOptions.oneTouchTrading !== undefined) {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const key = user.username
+        ? `oneTouchTrading_${user.username}`
+        : "oneTouchTrading";
+      localStorage.setItem(key, JSON.stringify(activeOptions.oneTouchTrading));
+    }
+  }, [activeOptions.oneTouchTrading]);
+
+  // Use a ref to prevent closing drawer on first mount
+  const isMounted = useRef(false);
+
+  // Close drawer whenever One Touch Trading is toggled (enabled or disabled)
+  useEffect(() => {
+    if (isMounted.current) {
       setIsDrawerOpen((prev) => ({ ...prev, chartDrawer: false }));
+    } else {
+      isMounted.current = true;
     }
   }, [activeOptions.oneTouchTrading, setIsDrawerOpen]);
 
@@ -245,10 +277,11 @@ const Charts = () => {
 
   // const theme = useAppSelector((s: RootState) => s.theme.mode);
 
-  const height = `calc(100vh - 180px)`;
+  // const height = `calc(100vh - 180px)`;
 
   return (
-    <div className="relative">
+    // <div className="relative">
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       <MarketsNavbar
         active={active}
         setActive={setActive}
@@ -258,9 +291,10 @@ const Charts = () => {
       />
       {active === "Chart" && (
         <>
-          {!activeOptions.oneTouchTrading ? (
+          <ChartModule />
+          {/* {!activeOptions.oneTouchTrading ? (
             <ChartComponent
-              height={height}
+              // height={height}
               instruments={instrumentsForDropdown}
               selectedInstrumentId={selectedInstrumentId}
               selectedTimeframe={selectedTimeframe} //  Passing state
@@ -275,9 +309,11 @@ const Charts = () => {
             />
           ) : (
             <>
-              <ChartsWithButtons />
+              <ChartsWithButtons
+                oneTouchTrading={activeOptions.oneTouchTrading}
+              />
             </>
-          )}
+          )} */}
         </>
       )}
 

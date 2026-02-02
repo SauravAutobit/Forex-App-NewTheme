@@ -1,8 +1,12 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+// import { ChevronLeft } from "lucide-react";
+import { useAppSelector } from "@/store/hook";
+import back from "../assets/icons/back.svg";
+import backLight from "../assets/icons/backLight.svg";
 
 export default function ChatLayout() {
   const navigate = useNavigate();
+  const theme = useAppSelector((state) => state.theme.mode);
 
   return (
     <div className="flex flex-col h-[100dvh] bg-primaryBg relative max-w-[440px] mx-auto overflow-hidden text-white">
@@ -13,10 +17,12 @@ export default function ChatLayout() {
           paddingTop: "env(safe-area-inset-top)",
         }}
       >
-        <button onClick={() => navigate(-1)} className="pr-4">
-          <ChevronLeft size={24} />
+        {/* pr-4 */}
+        <button onClick={() => navigate(-1)}>
+          {/* <ChevronLeft size={24} color={theme === "dark" ? "#fff" : "#000"} /> */}
+          <img src={theme === "dark" ? back : backLight} alt="back" />
         </button>
-        <h1 className="text-xl font-secondary">Fintrabit AI</h1>
+        <h1 className="text-xl font-secondary text-primary">Fintrabit AI</h1>
       </header>
 
       <main

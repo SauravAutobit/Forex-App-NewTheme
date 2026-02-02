@@ -305,7 +305,7 @@ const NewOrder = () => {
               activeOptions={activeOptions}
               setActiveOptions={setActiveOptions}
               options={editOptions}
-              readOnly={true}
+              readOnly={false}
             />
           </div>
         </div>

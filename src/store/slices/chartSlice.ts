@@ -44,6 +44,26 @@ const initialState: ChartState = {
 };
 
 /**
+ * Convert timeframe string to minutes for API interval parameter
+ * @param timeframe - Timeframe string (e.g., '1m', '5m', '1h', '1d', etc.)
+ * @returns Number of minutes for the interval
+ */
+// const getIntervalMinutes = (timeframe: string): number => {
+//   const timeframeMap: Record<string, number> = {
+//     '1m': 1,
+//     '5m': 5,
+//     '30m': 30,
+//     '1h': 60,
+//     '4h': 240,
+//     '12h': 720,
+//     '1d': 1440,
+//     '1w': 10080,
+//     '1M': 43200,
+//   };
+//   return timeframeMap[timeframe] || 1; // Default to 1 minute if not found
+// };
+
+/**
  * Async thunk to fetch historical chart data for a given instrument.
  * It fetches a specific range of data using the `startIndex` and `endIndex`.
  *
@@ -72,6 +92,8 @@ export const fetchChartData = createAsyncThunk(
 //       // );
 //       return mockData;
 console.log(timeframe);
+      // const intervalMinutes = getIntervalMinutes(timeframe);
+      // interval="${intervalMinutes}m" and 
       const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
 
             const response = await apiClient.send<ChartApiResponseData>("query", {

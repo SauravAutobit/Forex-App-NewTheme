@@ -122,9 +122,10 @@ const Login = () => {
   return (
     <NeonGlowBackground>
       {/* 85 */}
-      <div className="pt-[50px] flex items-start justify-center min-h-screen text-white relative z-20">
+      <div className="pt-[30px] flex items-start justify-center min-h-screen text-white relative z-20">
         <div className="w-full max-w-sm p-4">
-          <div className="flex justify-center mb-[50px]">
+          {/* 40 */}
+          <div className="flex justify-center mb-[30px]">
             <img
               // src={theme === "dark" ? logo : logoLight}
               src={logo}
@@ -242,8 +243,8 @@ const Login = () => {
                 : "Login"}
             </button>
           </form>
-
-          <div className="flex flex-col items-center mt-[48px]">
+          {/* 48 */}
+          <div className="flex flex-col items-center mt-[25px]">
             <div className="flex items-center gap-3">
               <div
                 className={`h-px w-10 my-2 ${
@@ -259,13 +260,16 @@ const Login = () => {
                 }`}
               ></div>
             </div>
-            <div className="flex items-center gap-1 mt-3.5">
+            <div className="w-full flex items-center gap-1 mt-3.5">
               <div
-                className={`flex items-center justify-center gap-1.5 w-[117.67px] h-[34px] rounded-[4px] text-primary ${
+                // w-[117.67px]
+                className={`flex items-center justify-center gap-1.5 h-[34px] rounded-[4px] text-primary ${
                   theme === "dark"
                     ? "border border-[#FAFAFA]"
                     : "border border-[#2D2D2D]"
                 }`}
+                style={{ width: "50%" }}
+                // style={{ width: "117.6px" }}
               >
                 <img src={google} alt="google" />
                 Google
@@ -277,6 +281,8 @@ const Login = () => {
                     ? "border border-[#FAFAFA]"
                     : "border border-[#2D2D2D]"
                 }`}
+                style={{ width: "50%" }}
+                // style={{ width: "117.6px" }}
               >
                 <img src={theme === "dark" ? apple : appleLight} alt="apple" />
                 Apple
@@ -288,14 +294,16 @@ const Login = () => {
                     ? "border border-[#FAFAFA]"
                     : "border border-[#2D2D2D]"
                 }`}
+                style={{ width: "50%" }}
+                // style={{ width: "117.6px" }}
               >
                 <img src={facebook} alt="facebook" />
                 Facebook
               </div>
             </div>
           </div>
-
-          <div className="text-center mt-8 text-primary">
+          {/* mt-8 */}
+          <div className="text-center mt-5 text-primary">
             <span>Don't have an Account? </span>
             <a
               href="#"

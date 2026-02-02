@@ -215,11 +215,22 @@ const MainLayout = () => {
         ? `previousCategory_${user.username}`
         : "previousCategory";
       const prev = localStorage.getItem(prevCategoryKey);
+
+      const chartTabs = [
+        "Chart",
+        "Overview",
+        "Calendar",
+        "Info",
+        "Positions",
+        "Orders",
+      ];
+
       if (
         prev &&
-        categories.some(
+        (categories.some(
           (c) => c.toLowerCase() === prev.toLowerCase() || prev === "Favorites",
-        )
+        ) ||
+          chartTabs.includes(prev))
       ) {
         setActive(prev);
       } else if (favoriteItems.length === 0) {
@@ -268,6 +279,16 @@ const MainLayout = () => {
     }
   }, [pathname, active, user]);
 
+  // ✅ Persist active tab whenever it changes
+  useEffect(() => {
+    if (active) {
+      const prevCategoryKey = user
+        ? `previousCategory_${user.username}`
+        : "previousCategory";
+      localStorage.setItem(prevCategoryKey, active);
+    }
+  }, [active, user]);
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleUndoEvent = (e: any) => {
@@ -307,7 +328,8 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative text-white bg-primaryBg">
+    // <div className="min-h-screen flex flex-col relative text-white bg-primaryBg">
+    <div className="flex flex-col h-[100dvh] text-white bg-primaryBg">
       <Header
         isFlag={isFlag}
         setIsFlag={setIsFlag}
@@ -321,7 +343,8 @@ const MainLayout = () => {
       />
       <main
         id="#main-content"
-        className="flex-1 overflow-y-auto bg-primaryBg scroll-smooth"
+        // className="flex-1 overflow-y-auto bg-primaryBg scroll-smooth"
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto bg-primaryBg scroll-smooth"
         style={{
           paddingTop: "calc(56px + env(safe-area-inset-top))",
           paddingBottom: "calc(66px + env(safe-area-inset-bottom))",

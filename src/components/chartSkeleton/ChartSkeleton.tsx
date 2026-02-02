@@ -7,7 +7,11 @@ const SHIMMER_CLASSES = `
   animate-shimmer 
   bg-[length:1000px_100%]
 `;
-const ChartSkeleton = () => {
+const ChartSkeleton = ({
+  oneTouchTrading,
+}: {
+  oneTouchTrading?: boolean | undefined;
+}) => {
   return (
     <div className="w-full px-5 transition-opacity duration-300 opacity-90">
       <div className="flex items-center justify-between">
@@ -23,7 +27,9 @@ const ChartSkeleton = () => {
         ></button>
       </div>
       <div
-        className={`bg-cardBg h-[660px] mt-4 rounded-10 ${SHIMMER_CLASSES}`}
+        className={`bg-cardBg mt-4 rounded-10 ${
+          oneTouchTrading ? "h-[540px]" : "h-[620px]"
+        } ${SHIMMER_CLASSES}`}
       ></div>
     </div>
   );

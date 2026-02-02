@@ -159,7 +159,7 @@ const AIChat = () => {
     }
 
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col text-primary font-secondary">
         {mainPart} <span className="text-[#505050]">{secondaryPart}</span>
       </div>
     );
@@ -274,7 +274,7 @@ const AIChat = () => {
                   ? "bg-[#AEED09] text-[#181818] rounded-[20px] rounded-br-none"
                   : theme === "dark"
                   ? "bg-[#181818] rounded-[20px] rounded-bl-none"
-                  : "bg-[#E5E5E5] rounded-[20px] rounded-bl-none"
+                  : "bg-[#E5E5E5] text-[#181818] rounded-[20px] rounded-bl-none"
               } break-words`}
             >
               {/* Always use Markdown for committed messages */}

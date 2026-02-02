@@ -10,7 +10,11 @@ import { subscribeToInstruments } from "../../services/socketService";
 import { useOutletContext } from "react-router-dom";
 import type { OutletContextType } from "../../layout/MainLayout";
 
-const ChartsWithButtons = () => {
+const ChartsWithButtons = ({
+  oneTouchTrading,
+}: {
+  oneTouchTrading: boolean | undefined;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const allInstrumentsData = useAppSelector(
@@ -133,7 +137,7 @@ const ChartsWithButtons = () => {
   }, [selectedInstrumentId, apiStatus]);
 
   //250px
-  const height = `calc(100vh - 280px)`;
+  const height = `calc(100dvh - 250px)`;
 
   return (
     <div>
@@ -147,6 +151,7 @@ const ChartsWithButtons = () => {
         onInstrumentChange={(id) => setSelectedInstrumentId(id)}
         stopLossPrice={null}
         targetPrice={null}
+        oneTouchTrading={oneTouchTrading}
       />
     </div>
   );

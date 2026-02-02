@@ -172,7 +172,7 @@ function calcMACD(data: Candle[]) {
 type Instrument = { id: string; name: string };
 
 interface ChartComponentProps {
-  height: string;
+  height?: string;
   instruments?: Instrument[];
   selectedInstrumentId?: string | null;
   onInstrumentChange?: (id: string) => void;
@@ -182,6 +182,7 @@ interface ChartComponentProps {
   selectedTimeframe: string; // The currently selected time frame value
   onTimeframeChange: (timeframeValue: string) => void; // Handler for time frame change
   timeframeGroups: TimeframeGroup[];
+  oneTouchTrading?: boolean;
 }
 
 export default function ChartComponent({
@@ -194,6 +195,7 @@ export default function ChartComponent({
   selectedTimeframe,
   onTimeframeChange,
   timeframeGroups,
+  oneTouchTrading,
 }: ChartComponentProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { pathname } = useLocation();
@@ -1081,7 +1083,8 @@ export default function ChartComponent({
   return (
     <>
       <div
-        className="flex flex-col relative overflow-hidden"
+        // className="flex flex-col relative overflow-hidden"
+        className="w-full h-full min-h-0 flex flex-col relative overflow-hidden"
         style={{ height }}
       >
         {/* Skeleton loading overlay to cover the whole component area while data is loading */}
@@ -1090,7 +1093,7 @@ export default function ChartComponent({
           chartData.length === 0 ||
           !isDataApplied) && (
           <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-primaryBg">
-            <ChartSkeleton />
+            <ChartSkeleton oneTouchTrading={oneTouchTrading} />
           </div>
         )}
 
@@ -1133,7 +1136,8 @@ export default function ChartComponent({
         <main className="flex-1 flex flex-col gap-2 overflow-auto relative">
           <div
             ref={mainRef}
-            className="flex-1 w-full min-h-[300px] rounded-lg"
+            // className="flex-1 w-full min-h-[300px] rounded-lg"
+            className="flex-1 w-full h-full min-h-[300px] rounded-lg"
             style={{ border: "none", outline: "none" }}
           />
         </main>
