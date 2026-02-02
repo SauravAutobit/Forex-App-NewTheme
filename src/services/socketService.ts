@@ -188,6 +188,8 @@ export const initializeSockets = (store: Store) => {
 
     // NEW: Central message handler using the universal type guard
     streamClient.setMessageHandler((msg: unknown) => {
+      
+      // console.log("Received stream message:", msg);
       if (isStreamQuoteMessage(msg)) {
         // It's a quote message, now check which slice should handle it
         const rootState = store.getState() as RootState;
@@ -313,6 +315,8 @@ export const initializeSockets = (store: Store) => {
 
 // NEW: A single function to subscribe to multiple instruments
 export const subscribeToInstruments = (instrumentIds: string[]) => {
+  if (!instrumentIds || instrumentIds.length === 0) return;
+  
   if (streamClient) {
     const message = {
       action: "subscribe",
@@ -323,31 +327,21 @@ export const subscribeToInstruments = (instrumentIds: string[]) => {
     };
     streamClient.sendStreamMessage(message);
     console.log(
-      `Subscribed to quotes for ${instrumentIds.length} instruments.`
+      `📡 [Stream] Subscribing to quotes for ${instrumentIds.length} instruments:`,
+      instrumentIds
     );
   } else {
-    console.warn("Stream client not ready, cannot subscribe to instruments.");
+    console.warn("⚠️ [Stream] Client not ready, cannot subscribe to instruments.");
   }
 };
 
 
 /**
  * Unsubscribe from a list of instrument IDs
+ * (Note: Currently disabled as backend returns 'unknown action')
  */
 export const unsubscribeFromInstruments = (instrumentIds: string[]) => {
-  if (streamClient) {
-    const message = {
-      action: "unsubscribe",
-      payload: instrumentIds.map((id) => ({
-        id,
-        data: ["quotes"],
-      })),
-    };
-    streamClient.sendStreamMessage(message);
-    console.log(`❌ Unsubscribed from quotes for ${instrumentIds.length} instruments.`);
-  } else {
-    console.warn("Stream client not ready, cannot unsubscribe.");
-  }
+  console.log("📡 [Stream] Unsubscribe called (skipped due to backend constraints):", instrumentIds);
 };
 
 /**

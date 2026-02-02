@@ -156,21 +156,24 @@ const Home = () => {
       targetIds = currentInstruments.map((i) => i.id);
     }
 
-    // 2. Unsubscribe from IDs no longer needed
-    const prevIds = prevCategoryRef.current
-      ? prevCategoryRef.current.split(",") || []
-      : [];
-    const idsToUnsubscribe = prevIds.filter((id) => !targetIds.includes(id));
+    // not unsbscribing as it throws error from BE
+    // // 2. Unsubscribe from IDs no longer needed
+    // const prevIds = prevCategoryRef.current
+    //   ? prevCategoryRef.current.split(",") || []
+    //   : [];
+    // const idsToUnsubscribe = prevIds.filter((id) => !targetIds.includes(id));
 
-    if (idsToUnsubscribe.length > 0) {
-      import("../../services/socketService").then(
-        ({ unsubscribeFromInstruments }) => {
-          unsubscribeFromInstruments(idsToUnsubscribe);
-        },
-      );
-    }
+    // if (idsToUnsubscribe.length > 0) {
+    //   import("../../services/socketService").then(
+    //     ({ unsubscribeFromInstruments }) => {
+    //       unsubscribeFromInstruments(idsToUnsubscribe);
+    //     },
+    //   );
+    // }
 
-    // 3. Subscribe to new target IDs
+    // // 3. Subscribe to new target IDs
+
+    // 2. Subscribe to new target IDs
     if (targetIds.length > 0) {
       import("../../services/socketService").then(
         ({ subscribeToInstruments }) => {
@@ -179,19 +182,22 @@ const Home = () => {
       );
     }
 
-    // 4. Update ref for next run (store as comma separated string for easy comparison)
+    // 3. Update ref for next run (store as comma separated string for easy comparison)
     prevCategoryRef.current = targetIds.join(",");
 
-    // Cleanup: Unsubscribe on unmount
-    return () => {
-      if (targetIds.length > 0) {
-        import("../../services/socketService").then(
-          ({ unsubscribeFromInstruments }) => {
-            unsubscribeFromInstruments(targetIds);
-          },
-        );
-      }
-    };
+    // not unsbscribing as it throws error from BE
+    //     // Cleanup: Unsubscribe on unmount
+    // return () => {
+    //   if (targetIds.length > 0) {
+    //     import("../../services/socketService").then(
+    //       ({ unsubscribeFromInstruments }) => {
+    //         unsubscribeFromInstruments(targetIds);
+    //       },
+    //     );
+    //   }
+    // };
+
+    // Note: unmount cleanup removed to avoid race conditions during navigation
   }, [active, activeCategoryName, apiStatus, instrumentsData, favoriteItems]);
 
   // Reset search query when switching tabs (Optional UX preference)

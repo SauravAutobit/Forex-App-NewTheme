@@ -1,105 +1,71 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "@/store/hook";
+import { type AppDispatch, type RootState } from "@/store/store";
 import { Chart } from "@/chartLibrary/swastiik-chart.esm.js";
+import { fetchChartData, clearChartData } from "@/store/slices/chartSlice";
+import {
+  subscribeToInstruments,
+  unsubscribeFromInstruments,
+} from "@/services/socketService";
 
-const generateData = () => {
-  const data = [];
-  let time = Math.floor(Date.now() / 1000) - 24 * 60 * 60 * 100; // Start 100 days ago
-  let open = 100;
-  let high, low, close;
-
-  for (let i = 0; i < 1000; i++) {
-    // Random walk
-    const volatility = 2;
-    const change = (Math.random() - 0.5) * volatility;
-
-    close = open + change;
-    high = Math.max(open, close) + Math.random() * volatility * 0.5;
-    low = Math.min(open, close) - Math.random() * volatility * 0.5;
-
-    data.push({
-      time: time + i * 60 * 60, // Hourly data
-      open: open,
-      high: high,
-      low: low,
-      close: close,
-    });
-
-    open = close;
-  }
-  return data;
-};
-
-const startFeed = (
-  initialData: string | any[],
-  onUpdate: { (candle: { time: any; close: any }): void; (arg0: any): void },
-) => {
-  let lastCandle = initialData[initialData.length - 1];
-  let currentPrice = lastCandle.close;
-  let targetPrice = currentPrice;
-  let lastTime = lastCandle.time;
-
-  // Configuration
-  const updateInterval = 20; // 50 updates per second for smoothness
-  const volatility = 0.5;
-
-  // Interpolation loop
-  const intervalId = setInterval(() => {
-    // Occasionally pick a new target price (simulating market move)
-    if (Math.random() < 0.05) {
-      // 5% chance per tick to change target
-      const change = (Math.random() - 0.5) * volatility * 5;
-      targetPrice = currentPrice + change;
-    }
-
-    // Smoothly move currentPrice towards targetPrice
-    const diff = targetPrice - currentPrice;
-    if (Math.abs(diff) > 0.01) {
-      currentPrice += diff * 0.1; // Move 10% towards target per tick
-    } else {
-      currentPrice = targetPrice;
-    }
-
-    const updatedCandle = {
-      ...lastCandle,
-      close: currentPrice,
-      high: Math.max(lastCandle.high, currentPrice),
-      low: Math.min(lastCandle.low, currentPrice),
-    };
-
-    onUpdate(updatedCandle);
-    lastCandle = updatedCandle;
-  }, updateInterval);
-
-  // return intervalId;
-
-  return () => {
-    clearInterval(intervalId);
-  };
-};
+// Dummy data generators removed in favor of real Redux store data.
 
 const ChartModule = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const mainRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<any>(null);
+  const seriesRef = useRef<any>(null);
   const [chartType, setChartType] = useState<"candlestick" | "area">(
     "candlestick",
   );
 
-  // Stabilize data so the chart doesn't "jump" when toggling types
-  const currentData = useMemo(() => generateData(), []);
+  const selectedInstrumentId = useAppSelector(
+    (state: RootState) => state.instruments.selectedInstrumentId,
+  );
+  const chartData = useAppSelector((state: RootState) => state.chart.data);
+  const { apiStatus, streamStatus } = useAppSelector(
+    (state: RootState) => state.websockets,
+  );
 
+  const hasZoomedRef = useRef<Record<string, boolean>>({});
+
+  // Fetch real data when instrument or connection status changes
+  useEffect(() => {
+    if (apiStatus === "connected" && selectedInstrumentId) {
+      // Don't clear immediately here to avoid unnecessary blanking state
+      // clearChartData will be handled by the slice or if we want it here
+      dispatch(
+        fetchChartData({
+          instrumentId: selectedInstrumentId,
+          timeframe: "1m",
+          startIndex: 0,
+          endIndex: 200,
+        }),
+      );
+    }
+  }, [selectedInstrumentId, apiStatus, dispatch]);
+
+  // Subscribe to live price updates for the selected instrument
+  useEffect(() => {
+    if (selectedInstrumentId && streamStatus === "connected") {
+      subscribeToInstruments([selectedInstrumentId]);
+    }
+  }, [selectedInstrumentId, streamStatus]);
+
+  // 1. Initialize Chart & Series - ONLY on chartType change
   useEffect(() => {
     if (!mainRef.current) return;
 
-    // Persist chart instance across toggles
     if (!chartRef.current) {
       chartRef.current = new Chart(mainRef.current);
     }
     const chart = chartRef.current;
 
-    // Explicitly remove previous series to ensure a clean switch
+    // We only remove/re-add when the chart type changes (Candle/Area)
+    // Changing the instrument should NOT destroy the series to avoid blinking.
     chart.removeSeries("main");
 
-    // Add new series based on current type
     let series: any;
     if (chartType === "candlestick") {
       series = chart.addSeries("candlestick", "main", {
@@ -109,7 +75,6 @@ const ChartModule = () => {
         wickUpColor: "#02F511",
         wickDownColor: "#FE0000",
       });
-      series.setData(currentData);
     } else {
       series = chart.addSeries("area", "main", {
         topColor: "rgba(2, 245, 17, 0.4)",
@@ -117,28 +82,77 @@ const ChartModule = () => {
         lineColor: "#02F511",
         lineWidth: 2,
       });
-      series.setData(
-        currentData.map((d) => ({ time: d.time, value: d.close })),
-      );
     }
+    seriesRef.current = series;
 
-    chart.fitContent();
-
-    // Setup live feed with correct data mapping for each type
-    const stopFeed = startFeed(currentData, (candle: any) => {
-      // Use the series instance directly instead of fetching by name for reliability
-      if (chartType === "candlestick") {
-        series.update(candle); // OHLC format
-      } else {
-        series.update({ time: candle.time, value: candle.close }); // Single value format
-      }
-      chart.updateOverlays();
+    // Apply layout options for better zoom/scaling
+    chart.applyOptions({
+      rightPriceScale: {
+        autoScale: true,
+        borderColor: "#404040",
+      },
+      timeScale: {
+        rightOffset: 12,
+        barSpacing: 8,
+        minBarSpacing: 1,
+        shiftVisibleRangeOnNewBar: true,
+      },
     });
 
-    return () => {
-      stopFeed();
-    };
-  }, [chartType, currentData]);
+    return () => {};
+  }, [chartType]); // Removed selectedInstrumentId to stop blinking
+
+  // 2. Clear old data and signal zoom reset when instrument changes
+  useEffect(() => {
+    if (selectedInstrumentId) {
+      if (seriesRef.current) {
+        seriesRef.current.setData([]);
+      }
+      dispatch(clearChartData());
+    }
+  }, [selectedInstrumentId, dispatch]);
+
+  // 3. Populate History and Apply Initial Zoom
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series || chartData.length === 0) return;
+
+    // Fill history
+    if (chartType === "candlestick") {
+      series.setData(chartData.map((d) => ({ ...d })));
+    } else {
+      series.setData(chartData.map((d) => ({ time: d.time, value: d.close })));
+    }
+
+    // Zoom logic: only once per instrument per visit
+    if (selectedInstrumentId && !hasZoomedRef.current[selectedInstrumentId]) {
+      const total = chartData.length;
+      if (total > 5) {
+        chartRef.current.chart.timeScale().setVisibleLogicalRange({
+          from: total - 40,
+          to: total + 3,
+        });
+        hasZoomedRef.current[selectedInstrumentId] = true;
+      }
+    }
+  }, [chartData.length, chartType, selectedInstrumentId]);
+
+  // 4. Keep the most recent candle updated
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series || chartData.length === 0) return;
+
+    const latest = chartData[chartData.length - 1];
+    if (chartType === "candlestick") {
+      series.update({ ...latest });
+    } else {
+      series.update({ time: latest.time, value: latest.close });
+    }
+
+    if (chartRef.current) {
+      chartRef.current.updateOverlays();
+    }
+  }, [chartData, chartType]);
 
   return (
     <div
