@@ -419,6 +419,7 @@ const Home = () => {
                   active={active}
                   favourites={isFlag.favourites?.status}
                   icon={instrument.icon}
+                  id={instrument.id}
                 />
               );
             })

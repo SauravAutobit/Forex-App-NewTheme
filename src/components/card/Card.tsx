@@ -23,6 +23,7 @@ export interface CardProps {
   active?: string;
   favourites?: boolean;
   icon?: string;
+  id?: string;
 }
 
 const Card = ({
@@ -39,6 +40,7 @@ const Card = ({
   active,
   favourites,
   icon,
+  id,
 }: CardProps) => {
   const askPrice = formatPrice(ask, pip);
   const bidPrice = formatPrice(bid, pip);
@@ -48,8 +50,9 @@ const Card = ({
   const [askColor, setAskColor] = useState("text-primary"); // Start neutral
   const [bidColor, setBidColor] = useState("text-primary"); // Start neutral
 
-  const { setFavouriteInstrument } = useOutletContext<OutletContextType>();
-  const [star, setStar] = useState(false);
+  const { setFavoriteItems, favouriteInstrument } =
+    useOutletContext<OutletContextType>();
+  const isFavourite = favouriteInstrument?.includes(code) || false;
 
   const theme = useAppSelector((state) => state.theme.mode);
 
@@ -93,10 +96,10 @@ const Card = ({
 
   const favIconSrc =
     theme === "light"
-      ? star
+      ? isFavourite
         ? favouriteTickLight
         : notFavouriteTickLight
-      : star
+      : isFavourite
       ? favouriteTick
       : notFavouriteTick;
   return (
@@ -197,14 +200,28 @@ const Card = ({
             alt="favouriteStar"
             onClick={(e) => {
               e.stopPropagation(); // Stop click event from triggering the parent card's onClick/swipe
-              setFavouriteInstrument((prev: string[]) => {
-                if (prev.includes(code)) {
-                  return prev.filter((item) => item !== code);
+              setFavoriteItems((prev) => {
+                if (isFavourite) {
+                  return prev.filter((item) => item.code !== code);
                 } else {
-                  return [...prev, code];
+                  return [
+                    ...prev,
+                    {
+                      id: id || "",
+                      code,
+                      bid,
+                      ask,
+                      high,
+                      low,
+                      ltp,
+                      close,
+                      pip: String(pip || ""),
+                      timestamp,
+                      icon: icon || "",
+                    },
+                  ];
                 }
               });
-              setStar(!star);
             }}
           />
         ) : null}

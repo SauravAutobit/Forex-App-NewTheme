@@ -111,6 +111,7 @@ const Favourites = ({ addFavourite, items, removeItem }: FavouritesProps) => {
                     active={active}
                     favourites={isFlag.favourites?.status}
                     icon={item.icon}
+                    id={item.id}
                   />
                 </SwipeableListItem>
               </motion.div>

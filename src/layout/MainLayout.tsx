@@ -279,9 +279,18 @@ const MainLayout = () => {
     }
   }, [pathname, active, user]);
 
-  // ✅ Persist active tab whenever it changes
+  // ✅ Persist active tab whenever it changes - but ONLY if it's not a chart tab
   useEffect(() => {
-    if (active) {
+    const chartTabs = [
+      "Chart",
+      "Overview",
+      "Calendar",
+      "Info",
+      "Positions",
+      "Orders",
+    ];
+
+    if (active && !chartTabs.includes(active)) {
       const prevCategoryKey = user
         ? `previousCategory_${user.username}`
         : "previousCategory";
