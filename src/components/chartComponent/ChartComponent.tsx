@@ -1112,10 +1112,10 @@ export default function ChartComponent({
                 onSelect={onTimeframeChange} // Passed handler
               />
 
-              <InstrumentDropdown
-                instruments={instruments ?? []}
-                selectedInstrumentId={selectedInstrumentId!}
-                onSelect={onInstrumentChange!}
+              <TimeframeDropdown
+                timeframeGroups={timeframeGroups} // Passed data
+                selectedTimeframe={selectedTimeframe} // Passed state
+                onSelect={onTimeframeChange} // Passed handler
               />
             </div>
 

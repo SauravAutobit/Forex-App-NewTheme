@@ -1,31 +1,27 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppSelector } from "../../store/hook";
 
-// Define the structure for a single time frame option
-type TimeframeOption = {
+type ToolOption = {
   label: string;
-  value: string; // e.g., '1m', '1h', '1d'
+  value: string;
 };
 
-// Group options by category (Minutes, Hours, etc.)
-export type TimeframeGroup = {
+type ToolGroup = {
   category: string;
-  options: TimeframeOption[];
+  options: ToolOption[];
 };
 
-interface TimeframeDropdownProps {
-  timeframeGroups: TimeframeGroup[];
-  selectedTimeframe: string;
-  onSelect: (timeframeValue: string) => void;
+interface ToolDropdownProps {
+  selectedTool: string;
+  onSelect: (toolValue: string) => void;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
 }
 
-const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
-  timeframeGroups,
-  selectedTimeframe,
+const ToolDropdown: React.FC<ToolDropdownProps> = ({
+  selectedTool,
   onSelect,
   isOpen: propsIsOpen,
   setIsOpen: propsSetIsOpen,
@@ -35,23 +31,23 @@ const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
   const setIsOpen =
     propsSetIsOpen !== undefined ? propsSetIsOpen : setLocalIsOpen;
 
-  // Determine the label to show on the main button
-  const selectedLabel = useMemo(() => {
-    for (const group of timeframeGroups) {
-      const option = group.options.find(
-        (opt) => opt.value === selectedTimeframe,
-      );
-      if (option) return option.label;
-    }
-    return "Timeframe"; // Default text if none is selected or found
-  }, [timeframeGroups, selectedTimeframe]);
+  // Categories and options to match TimeframeSelector layout
+  const toolGroups: ToolGroup[] = [
+    {
+      category: "Chart Style",
+      options: [
+        { label: "Cdl", value: "candlestick" },
+        { label: "Area", value: "area" },
+      ],
+    },
+    // We could add more groups here like "Indicators" if needed later
+  ];
 
-  const handleSelect = (timeframeValue: string) => {
-    onSelect(timeframeValue);
+  const handleSelect = (toolValue: string) => {
+    onSelect(toolValue);
     setIsOpen(false);
   };
 
-  // --- Animation Variants (Copied from InstrumentDropdown) ---
   const listVariants = {
     closed: {
       opacity: 0,
@@ -71,11 +67,10 @@ const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
 
   const theme = useAppSelector((state) => state.theme.mode);
 
-  // Common styling for the grid buttons
   const buttonClassName = (value: string) =>
-    `m-1 rounded-md transition-colors duration-200 w-[40px] h-[40px] 
+    `m-1 rounded-md transition-colors duration-200 w-[60px] h-[40px] flex items-center justify-center
      ${
-       value === selectedTimeframe
+       value === selectedTool
          ? `bg-quaternary ${
              theme === "dark" ? "text-tertiary" : "text-primary"
            }`
@@ -83,43 +78,46 @@ const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
      }`;
 
   return (
-    <div className="dropdown">
+    <div className="dropdown" style={{ position: "relative" }}>
       <button
-        // Using the same styling from InstrumentDropdown button
-        className="btn w-[104px] h-[40px] bg-primaryBg border border-primary rounded-10 flex justify-center gap-2.5 items-center px-2.5 text-primary"
+        className="btn w-[104px] h-[40px] bg-primaryBg border border-primary rounded-10 flex justify-center gap-2.5 items-center px-1 text-primary shadow-lg transition-all"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        <div className="text-primary font-secondary">{selectedLabel}</div>
+        <span className="text-primary font-secondary font-bold text-[13px]">
+          Tools
+        </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown size={20} className="text-icon" />
+          <ChevronDown size={18} className="text-icon" />
         </motion.div>
       </button>
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div // Use div for the main container instead of ul/menu
-            className="dropdown-content z-[1] mt-8 p-5 shadow-2xl bg-primaryBg border border-primary rounded-20 w-max max-w-sm text-primary"
+          <motion.div
+            className="dropdown-content z-[1000] mt-8 p-5 shadow-2xl bg-primaryBg border border-primary rounded-20 w-max text-primary"
             variants={listVariants}
             initial="closed"
             animate="open"
             exit="closed"
-            // Centering logic: middle relative to the button
-            // style={{ position: "absolute", right: "-100px" }}
+            // Use translation to truly center relative to the button
             style={{
               position: "absolute",
-              left: "50%",
+              left: "30%",
               translateX: "-50%",
+              // Clamp it so it doesn't go off screen if button is near edge
+              // But for the right button, we might want it shifted left
             }}
           >
-            {/* --- Timeframe Grid Content (Adapted from TimeframeSelector) --- */}
-            {timeframeGroups.map((group) => (
+            {toolGroups.map((group) => (
               <div key={group.category} className="mb-3 last:mb-0">
-                <h4 className="font-secondary mb-2.5">{group.category}</h4>
+                <h4 className="font-secondary mb-2.5 text-primary">
+                  {group.category}
+                </h4>
                 <div className="flex flex-wrap gap-1">
                   {group.options.map((option) => (
                     <motion.button
@@ -142,4 +140,4 @@ const TimeframeDropdown: React.FC<TimeframeDropdownProps> = ({
   );
 };
 
-export default TimeframeDropdown;
+export default ToolDropdown;

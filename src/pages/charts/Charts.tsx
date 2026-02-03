@@ -127,7 +127,7 @@ const Charts = () => {
       }));
   }, [allInstrumentsData]);
 
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1m");
+  // const [selectedTimeframe, setSelectedTimeframe] = useState<string>("1m");
 
   const [selectedInstrumentId, setSelectedInstrumentId] = useState<
     string | null
@@ -291,7 +291,7 @@ const Charts = () => {
       />
       {active === "Chart" && (
         <>
-          <ChartModule />
+          <ChartModule oneTouchTrading={activeOptions.oneTouchTrading} />
           {/* {!activeOptions.oneTouchTrading ? (
             <ChartComponent
               // height={height}

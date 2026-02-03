@@ -48,20 +48,34 @@ const initialState: ChartState = {
  * @param timeframe - Timeframe string (e.g., '1m', '5m', '1h', '1d', etc.)
  * @returns Number of minutes for the interval
  */
-// const getIntervalMinutes = (timeframe: string): number => {
-//   const timeframeMap: Record<string, number> = {
-//     '1m': 1,
-//     '5m': 5,
-//     '30m': 30,
-//     '1h': 60,
-//     '4h': 240,
-//     '12h': 720,
-//     '1d': 1440,
-//     '1w': 10080,
-//     '1M': 43200,
-//   };
-//   return timeframeMap[timeframe] || 1; // Default to 1 minute if not found
-// };
+const getIntervalMinutes = (timeframe: string): number => {
+  const timeframeMap: Record<string, number> = {
+  "1m": 1,
+  "5m": 5,
+  "10m": 10,
+  "15m": 15,
+  "30m": 30,
+
+  "1h": 60,
+  "5h": 300,
+  "10h": 600,
+  "24h": 1440,
+
+  "1d": 1440,
+  "5d": 7200,
+  "10d": 14400,
+  "20d": 28800,
+
+  "1M": 43200, 
+  "5M": 216000,
+  "10M": 432000,
+
+  "1Y": 525600,
+  "5Y": 2628000,
+  "10Y": 5256000,
+  };
+  return timeframeMap[timeframe] || 1; 
+};
 
 /**
  * Async thunk to fetch historical chart data for a given instrument.
@@ -92,9 +106,9 @@ export const fetchChartData = createAsyncThunk(
 //       // );
 //       return mockData;
 console.log(timeframe);
-      // const intervalMinutes = getIntervalMinutes(timeframe);
-      // interval="${intervalMinutes}m" and 
-      const query = `fintrabit.chart_history[instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
+      const intervalMinutes = getIntervalMinutes(timeframe);
+
+      const query = `fintrabit.chart_history[interval="${intervalMinutes}m" and instrument_id="${instrumentId}"]._desc(time)[${startIndex}:${endIndex}]`;
 
             const response = await apiClient.send<ChartApiResponseData>("query", {
               query,

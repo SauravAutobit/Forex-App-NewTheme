@@ -11,14 +11,21 @@ interface InstrumentDropdownProps {
   instruments: Instrument[];
   selectedInstrumentId: string | null;
   onSelect: (instrumentId: string) => void;
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
 }
 
 const InstrumentDropdown: React.FC<InstrumentDropdownProps> = ({
   instruments,
   selectedInstrumentId,
   onSelect,
+  isOpen: propsIsOpen,
+  setIsOpen: propsSetIsOpen,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [localIsOpen, setLocalIsOpen] = useState(false);
+  const isOpen = propsIsOpen !== undefined ? propsIsOpen : localIsOpen;
+  const setIsOpen =
+    propsSetIsOpen !== undefined ? propsSetIsOpen : setLocalIsOpen;
 
   const selectedInstrument = instruments?.find(
     (inst) => inst?.id === selectedInstrumentId,

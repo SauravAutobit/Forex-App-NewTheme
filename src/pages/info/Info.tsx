@@ -1,6 +1,4 @@
-import EditOrderList, {
-  type ProfitBalanceProps,
-} from "../../components/editOrderList/EditOrderList";
+import EditOrderList from "../../components/editOrderList/EditOrderList";
 
 import type { Instrument } from "../../store/slices/instrumentsSlice";
 
@@ -9,63 +7,55 @@ interface InfoProps {
 }
 
 const Info = ({ instrument }: InfoProps) => {
-  // // ...
-  // <Counter
-  //   label="0"
-  //   initialValue={volume}
-  //   onValueChange={setVolume}
-  //   step={step}
-  //   min={min}
-  // />;
   const staticData = instrument?.static_data || {};
 
-  const profitBalanceProps: ProfitBalanceProps = {
-    balanceItems: [
-      { label: "Digits", value: String(staticData["digits"] || "0") },
-      { label: "Lot size", value: String(staticData["lot size"] || "0") },
-      {
-        label: "Pip price",
-        value: String(
-          staticData["pip price"]
-            ? `$${Number(staticData["pip price"]).toFixed(2)}`
-            : "0",
-        ),
-      },
-      {
-        label: "Minimum volume",
-        value: String(staticData["minimum volume"] || "0"),
-      },
-      {
-        label: "Maximum volume",
-        value: String(staticData["maximum volume"] || "0"),
-      },
-      {
-        label: "Margin percentage",
-        value: String(staticData["margin percentage"] || "0%"),
-      },
-      {
-        label: "Order execution mode",
-        value: String(staticData["order execution mode"] || "Market"),
-      },
-    ],
+  // Utility to format keys (e.g., "lot_size" or "lot size" -> "Lot Size")
+  const formatLabel = (key: string) => {
+    return key
+      .split(/_|\s+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
+  const balanceItems = Object.entries(staticData)
+    // Filter out description/info if you want to show it separately
+    .filter(([key]) => key !== "info")
+    .map(([key, value]) => {
+      let displayValue = String(value);
+
+      // Special formatting for known monetary or percentage types if needed,
+      // but keeping it generic as requested.
+      if (key.toLowerCase().includes("price") && !isNaN(Number(value))) {
+        displayValue = `$${Number(value).toFixed(2)}`;
+      } else if (
+        key.toLowerCase().includes("percentage") &&
+        !displayValue.includes("%")
+      ) {
+        displayValue = `${displayValue}%`;
+      }
+
+      return {
+        label: formatLabel(key),
+        value: displayValue,
+      };
+    });
+
   return (
-    //250px h-[calc(100vh-280px)]
     <div className="mt-5 overflow-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="px-5 flex flex-col gap-5">
           <div className="text-[26px] font-secondary text-primary">
             {instrument?.name || "Unknown Instrument"}
           </div>
-          <p className="text-secondary">
+          <p className="text-secondary text-sm">
             {String(
               staticData["info"] ||
+                staticData["description"] ||
                 "No description available for this instrument.",
             )}
           </p>
           <div className="mb-2.5">
-            <EditOrderList {...profitBalanceProps} fontWeight={600} />
+            <EditOrderList balanceItems={balanceItems} fontWeight={600} />
           </div>
         </div>
       </div>
