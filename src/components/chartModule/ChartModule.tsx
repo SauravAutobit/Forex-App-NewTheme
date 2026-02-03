@@ -41,7 +41,7 @@ const ChartModule = ({ oneTouchTrading }: { oneTouchTrading?: boolean }) => {
       .flat()
       .map((inst) => ({
         id: inst.id,
-        name: inst.name || inst.trading_name, // Use name if available, fallback to trading_name
+        name: inst.name || inst.trading_name, 
       }));
   }, [allInstrumentsData]);
 
@@ -274,7 +274,6 @@ const ChartModule = ({ oneTouchTrading }: { oneTouchTrading?: boolean }) => {
         }}
       ></div>
 
-      {/* Render Dropdowns via Portals into the library-managed overlay divs */}
       {overlayTargets.instrument &&
         ReactDOM.createPortal(
           <InstrumentDropdown

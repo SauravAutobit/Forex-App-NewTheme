@@ -240,7 +240,7 @@ export const initializeSockets = (store: Store) => {
         quotes.forEach((quote) => {
           const message = {
             action: "subscribe",
-            payload: [{ id: quote.id, data: ["quotes"] }],
+            payload: [{ id: quote.id, data: ["quotes", "calendar"] }],
           };
           streamClient.sendStreamMessage(message);
         });
@@ -257,7 +257,7 @@ export const initializeSockets = (store: Store) => {
         );
         const message = {
           action: "subscribe",
-          payload: uniqueInstrumentIds.map((id) => ({ id, data: ["quotes"] })),
+          payload: uniqueInstrumentIds.map((id) => ({ id, data: ["quotes", "calendar"] })),
         };
         streamClient.sendStreamMessage(message);
       }
@@ -322,7 +322,7 @@ export const subscribeToInstruments = (instrumentIds: string[]) => {
       action: "subscribe",
       payload: instrumentIds.map((id) => ({
         id,
-        data: ["quotes"],
+        data: ["quotes", "calendar"],
       })),
     };
     streamClient.sendStreamMessage(message);

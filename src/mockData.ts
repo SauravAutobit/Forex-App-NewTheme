@@ -78,8 +78,8 @@ export const mockTimeframes = [
     options: [
       { label: "1M", value: "1m" },
       { label: "5M", value: "5m" },
-      { label: "10M", value: "10m" },
-      { label: "15M", value: "15m" },
+      // { label: "10M", value: "10m" },
+      // { label: "15M", value: "15m" },
       { label: "30M", value: "30m" },
     ],
   },
@@ -87,34 +87,45 @@ export const mockTimeframes = [
     category: "Hours",
     options: [
       { label: "1H", value: "1h" },
-      { label: "5H", value: "5h" },
-      { label: "10H", value: "10h" },
-      { label: "24H", value: "24h" },
+      { label: "4H", value: "4h" },
+      { label: "12H", value: "12h" },
+      // { label: "5H", value: "5h" },
+      // { label: "10H", value: "10h" },
+      // { label: "24H", value: " 24h" },
     ],
   },
   {
     category: "Days",
     options: [
       { label: "1D", value: "1d" },
-      { label: "5D", value: "5d" },
-      { label: "10D", value: "10d" },
-      { label: "20D", value: "20d" },
+      // { label: "5D", value: "5d" },
+      // { label: "10D", value: "10d" },
+      // { label: "20D", value: "20d" },
+    ],
+  },
+  {
+    category: "Weeks",
+    options: [
+      { label: "1W", value: "1w" },
+      // { label: "5D", value: "5d" },
+      // { label: "10D", value: "10d" },
+      // { label: "20D", value: "20d" },
     ],
   },
   {
     category: "Months",
     options: [
-      { label: "1M", value: "1mo" },
-      { label: "5M", value: "5mo" },
-      { label: "10M", value: "10mo" },
+      { label: "1M", value: "1M" },
+      // { label: "5M", value: "5mo" },
+      // { label: "10M", value: "10mo" },
     ],
   },
-  {
-    category: "Years",
-    options: [
-      { label: "1Y", value: "1y" },
-      { label: "5Y", value: "5y" },
-      { label: "10Y", value: "10y" },
-    ],
-  },
+  // {
+  //   category: "Years",
+  //   options: [
+  //     { label: "1Y", value: "1y" },
+  //     { label: "5Y", value: "5y" },
+  //     { label: "10Y", value: "10y" },
+  //   ],
+  // },
 ];

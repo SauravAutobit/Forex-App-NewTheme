@@ -31,7 +31,7 @@ const NewOrderButtons = ({
   positionIdToClose,
 }: NewOrderButtonsProps) => {
   return (
-    <div className="w-full px-5">
+    <div className="w-full px-5 pb-2.5">
       <div className="flex items-center justify-between text-secondary text-sm">
         Required margin/Free margin
         <span>

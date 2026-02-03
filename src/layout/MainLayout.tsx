@@ -382,7 +382,7 @@ const MainLayout = () => {
         />
       </main>
 
-      <div className="fixed bottom-0 w-full flex flex-col gap-2.5">
+      <div className="fixed bottom-0 w-full flex flex-col">
         {pathname === "/app/newOrder" && newOrderData && (
           <NewOrderButtons
             metrics={newOrderData.metrics}

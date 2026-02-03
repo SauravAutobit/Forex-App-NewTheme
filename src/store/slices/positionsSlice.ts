@@ -45,16 +45,17 @@ export interface Position {
     updated_at: number;
     used_balance: number;
     position_id?: string;
-    // CRITICAL FIX: Ensure torders is typed correctly, but we'll normalize it to TOrder[] in the thunk
     torders: TOrder[]; 
+    orders: TOrder[];
     // Live data from WebSocket stream (will be added dynamically)
     live_bid?: number;
     live_ask?: number;
 }
 
 // Internal type for data coming directly from the API (before normalization)
-type PositionApiData = Omit<Position, 'torders'> & {
+type PositionApiData = Omit<Position, 'torders' | 'orders'> & {
     torders: TOrder[] | string | undefined; // Handle string (e.g., "") or undefined from API
+    orders: TOrder[] | string | undefined;
 };
 
 interface PositionsState {
@@ -84,7 +85,7 @@ export const fetchPositions = createAsyncThunk(
              // dispatch(showLoader()); 
             // 
             // Note: The query is fine as it is.
-            const query = "fintrabit.positions[status=\"open\" or status=\"partial\"]{account_id,closed_pnl,created_at,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,\"trading_name\":instruments.trading_name[0],torders[status=\"pending\"],instruments.static_data}";
+            const query = "fintrabit.positions[status=\"open\" or status=\"partial\"]{account_id,closed_pnl,created_at,orders,id,instrument_id,price,qty,side,status,tid,updated_at,used_balance,\"trading_name\":instruments.trading_name[0],torders[status=\"pending\"],instruments.static_data}";
 
             const response = await apiClient.send<PositionApiData[]>("query", { query });
 
@@ -93,6 +94,7 @@ export const fetchPositions = createAsyncThunk(
                 const normalizedData: Position[] = response.data.map(pos => ({
                     ...pos,
                     torders: (Array.isArray(pos.torders) ? pos.torders : []) as TOrder[],
+                    orders: (Array.isArray(pos.orders) ? pos.orders : []) as TOrder[],
                 }));
                 return normalizedData;
             } else {

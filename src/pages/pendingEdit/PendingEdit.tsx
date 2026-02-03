@@ -2,7 +2,7 @@ import PositionCard from "../../components/positionCard/PositionCard";
 import EditOrderList, {
   type ProfitBalanceProps,
 } from "../../components/editOrderList/EditOrderList";
-import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
+// import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 // import Button from "../../components/button/Button";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect, useCallback } from "react";
@@ -20,6 +20,7 @@ import { useAppSelector } from "../../store/hook";
 import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import Counter from "../../components/counter/Counter";
 import CheckList from "../../components/checkList/CheckList";
+import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 
 interface TabItem {
   id: string;
@@ -137,10 +138,10 @@ const PendingEdit = () => {
         label: "Position ID",
         value: order?.id ? `#${order.tid || order.id}` : "-",
       },
-      {
-        label: "History",
-        value: <img src={rightArrowHistory} alt="rightArrowHistory" />,
-      },
+      // {
+      //   label: "History",
+      //   value: <img src={rightArrowHistory} alt="rightArrowHistory" />,
+      // },
     ],
     marginTop: "16px",
   };
@@ -180,9 +181,6 @@ const PendingEdit = () => {
     let hasChanges = false;
     let updateMessage = "Updating order...";
 
-    // Prepare new payload values
-    let newTp = order.metadata?.legs?.target ?? 0;
-    let newSl = order.metadata?.legs?.stoploss ?? 0;
     const newPrice = price;
     const newQty = lot * cs;
 
@@ -195,31 +193,22 @@ const PendingEdit = () => {
     // TP Logic
     if (initialTp > 0) {
       if (!tp || tp === 0) {
-        newTp = 0; // Remove
         hasChanges = true;
-        // updateMessage = "Canceling Take Profit...";
       } else if (tp !== initialTp) {
-        newTp = tp; // Update
         hasChanges = true;
-        // updateMessage = "Updating Take Profit...";
       }
     } else if (tp && tp > 0) {
-      newTp = tp; // Add
       hasChanges = true;
-      // updateMessage = "Placing Take Profit...";
     }
 
     // SL Logic
     if (initialSl > 0) {
       if (!sl || sl === 0) {
-        newSl = 0; // Remove
         hasChanges = true;
       } else if (sl !== initialSl) {
-        newSl = sl; // Update
         hasChanges = true;
       }
     } else if (sl && sl > 0) {
-      newSl = sl; // Add
       hasChanges = true;
     }
 
@@ -227,10 +216,6 @@ const PendingEdit = () => {
       navigate(-1);
       return;
     }
-
-    // Determine final message based on what changed (mimicking Market Edit feel)
-    // Note: Since we do one bulk update, we pick a generic or specific message
-    // For now, "Updating order" covers all, but we could make it dynamic.
 
     dispatch(setOrderStatus({ status: "loading", message: updateMessage }));
 
@@ -243,20 +228,17 @@ const PendingEdit = () => {
           price: newPrice,
           qty: newQty,
           side: order.side,
-          stoploss: newSl,
-          target: newTp,
+          stoploss: sl, 
+          target: tp, 
         }),
       ).unwrap();
 
       dispatch(
         setOrderStatus({
           status: "succeeded",
-          // The user mentions "Order placed" or "Order canceled" messages in Market Edit
-          // We can't strictly replicate "Placed" since it's an update, but "Order updated" is accurate.
           message: "Order updated successfully",
         }),
       );
-      // Wait for user to see the success message
       await new Promise((resolve) => setTimeout(resolve, 2000));
       navigate(-1);
     } catch (error) {
@@ -286,9 +268,9 @@ const PendingEdit = () => {
         <div>
           <EditOrderList
             {...profitBalanceProps}
-            onClick={() =>
-              navigate("/app/editHistory", { state: { type: "pending" } })
-            }
+            // onClick={() =>
+            //   navigate("/app/editHistory", { state: { type: "pending" } })
+            // }
             lastListColor={true}
           />
         </div>
@@ -370,7 +352,8 @@ const PendingEdit = () => {
         leftButton: {
           label: "Show Chart",
           onClick: () => {
-            /* Navigate to chart logic if needed */
+            dispatch(setSelectedInstrument(order.instrument_id));
+            navigate("/app/charts");
           },
           bgColor: theme === "dark" ? "#2D2D2D" : "#FAFAFA",
           textColor: theme === "dark" ? "#FAFAFA" : "#2D2D2D",

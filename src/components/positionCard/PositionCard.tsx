@@ -169,7 +169,8 @@ const PositionCard = ({
     pnl = 0;
   } else {
     // open/live position: use buy -> live_ask, sell -> live_bid
-    const instrumentId = (position as Position)?.instrument_id;
+    const instrumentId =
+      (position as Position)?.instrument_id ?? (data as any)?.instrument_id;
     const quotes = instrumentId ? liveQuotes[instrumentId] : null;
     const currentPrice =
       (position as Position)?.side === "buy" ? quotes?.ask : quotes?.bid;
@@ -217,10 +218,15 @@ const PositionCard = ({
   const dateTimeString = `${formattedDate} | ${formattedTime}`;
 
   // Live instrument price to show on right side for live positions/trades
-  const instrumentId = (position as Position)?.instrument_id;
-  const quotes = instrumentId ? liveQuotes[instrumentId] : null;
+  const instrumentIdForQuotes =
+    (position as Position)?.instrument_id ?? (data as any)?.instrument_id;
+  const quotesForTop = instrumentIdForQuotes
+    ? liveQuotes[instrumentIdForQuotes]
+    : null;
   const instrumentLivePrice =
-    (position as Position)?.side === "buy" ? quotes?.ask : quotes?.bid;
+    (position as Position)?.side === "buy"
+      ? quotesForTop?.ask
+      : quotesForTop?.bid;
 
   // ⭐️⭐️⭐️ MAJOR FIX: Simplified and corrected instrument name resolution ⭐️⭐️⭐️
   const resolvedInstrumentName = useMemo(() => {
@@ -240,6 +246,27 @@ const PositionCard = ({
     // Final Fallback: If no name can be found through any method.
     return "Unknown Instrument";
   }, [instrumentNameProp, data, findInstrumentTradingName]);
+
+  // Use instrumentById to get the icon
+  const resolvedIcon = useMemo(() => {
+    const instrumentId =
+      (openOrderData as OpenOrder)?.instrument_id ??
+      (historyPositionData as HistoryPosition)?.instrument_id ??
+      (position as Position)?.instrument_id ??
+      (isDeal && dealData?.instrument_id);
+
+    if (!instrumentId) return cardIcon;
+    const found = instrumentById.get(instrumentId);
+    const icon = found?.icon || found?.static_data?.icon;
+    return icon?.toLowerCase().includes("base64") ? icon : cardIcon;
+  }, [
+    instrumentById,
+    openOrderData,
+    historyPositionData,
+    position,
+    isDeal,
+    dealData,
+  ]);
 
   // ----- Resolve contract_size (Priority: OpenOrder/History > Deal > Store > fallback 1) -----
   const resolvedContractSize = useMemo(() => {
@@ -303,6 +330,7 @@ const PositionCard = ({
     openOrderData,
     isLiveOrder,
     isDeal,
+    data,
   ]);
 
   // ----- Display quantity (qty / contract_size) -----
@@ -406,13 +434,13 @@ const PositionCard = ({
       return `${displayQty.toFixed(2)}`;
     }
     if (label === "Deals") {
-      const price =
+      const priceVal =
         typeof (position as any)?.price === "number"
           ? (position as any).price.toFixed(5)
           : dealData && (dealData as any).price
           ? Number((dealData as any).price).toFixed(5)
           : "0.00000";
-      return `${displayQty.toFixed(2)} @ ${price}`;
+      return `${displayQty.toFixed(2)} @ ${priceVal}`;
     }
     return `${displayQty.toFixed(2)}`;
   }, [
@@ -465,7 +493,11 @@ const PositionCard = ({
     return (
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
-          <img src={cardIcon} alt="cardIcon" />
+          <img
+            src={resolvedIcon}
+            alt="cardIcon"
+            className="w-[33px] h-[29px]"
+          />
           <div>
             <h2 className="my-1 font-secondary text uppercase">
               {resolvedInstrumentName}
@@ -503,6 +535,11 @@ const PositionCard = ({
     return (
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2.5">
+          <img
+            src={resolvedIcon}
+            alt="cardIcon"
+            className="w-[33px] h-[29px]"
+          />
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="my-1 font-tertiary uppercase text-primary">
@@ -564,6 +601,11 @@ const PositionCard = ({
         </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex items-center gap-2.5">
+            <img
+              src={resolvedIcon}
+              alt="cardIcon"
+              className="w-[33px] h-[29px]"
+            />
             <div>
               <h2 className="mt-2.5 mb-2 font-tertiary uppercase text-primary">
                 {resolvedInstrumentName}

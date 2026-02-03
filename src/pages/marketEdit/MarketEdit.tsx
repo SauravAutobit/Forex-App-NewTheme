@@ -12,9 +12,10 @@ import NavigationTabs from "../../components/navigationTabs/NavigationTabs";
 import EditOrderList, {
   type ProfitBalanceProps,
 } from "../../components/editOrderList/EditOrderList";
-import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
+// import rightArrowHistory from "../../assets/icons/rightArrowHistory.svg";
 import Counter from "../../components/counter/Counter";
 import CheckList from "../../components/checkList/CheckList";
+import { setSelectedInstrument } from "../../store/slices/instrumentsSlice";
 
 interface TabItem {
   id: string;
@@ -44,6 +45,7 @@ const MarketEdit = () => {
 
   const [tp, setTp] = useState(0);
   const [sl, setSl] = useState(0);
+  const [qty, setQty] = useState(0); // For Volume/Lot editing
   const [activeTabId, setActiveTabId] = useState("info");
   const [priceStep, setPriceStep] = useState(0.0001);
 
@@ -74,27 +76,28 @@ const MarketEdit = () => {
     const tpOrder = position?.torders?.find(
       (o: any) => o.order_type === "stop",
     );
-    return tpOrder?.price ?? tpOrder?.metadata?.legs?.target ?? 0;
+    return tpOrder?.price ?? tpOrder?.metadata?.legs?.stoploss ?? 0;
   }, [position]);
 
   const initialSl = useMemo(() => {
     const slOrder = position?.torders?.find(
       (o: any) => o.order_type === "limit",
     );
-    return slOrder?.price ?? slOrder?.metadata?.legs?.stoploss ?? 0;
+    return slOrder?.price ?? slOrder?.metadata?.legs?.target ?? 0;
   }, [position]);
 
   useEffect(() => {
     setTp(initialTp);
     setSl(initialSl);
-  }, [initialTp, initialSl]);
+    setQty(position?.qty || 0);
+  }, [initialTp, initialSl, position?.qty]);
 
   const handleClosePosition = useCallback(() => {
     if (position) {
       dispatch(
         closePosition({
           instrument_id: position.instrument_id,
-          qty: position.qty,
+          qty: qty, // Use state qty for partial closing
           price: 0,
           order_type: "market",
           side: position.side === "buy" ? "sell" : "buy",
@@ -125,11 +128,34 @@ const MarketEdit = () => {
 
     let hasUpdateOrPlace = false;
 
+    // Primary Order Qty update
+    const primaryOrder = position.orders?.[0];
+    if (primaryOrder && qty !== primaryOrder.placed_qty) {
+      hasUpdateOrPlace = true;
+      promises.push(
+        dispatch(
+          updateOrder({
+            id: primaryOrder.id,
+            account_id: position.account_id,
+            order_type: primaryOrder.order_type,
+            price: primaryOrder.price,
+            qty: qty,
+            side: primaryOrder.side,
+            stoploss: tp, // Use current TP state
+            target: sl, // Use current SL state
+          }),
+        ).unwrap(),
+      );
+    }
+
     // TP Logic (Stop Order)
     if (originalTpOrder) {
       if (!tp || tp === 0) {
         promises.push(dispatch(cancelOrder(originalTpOrder.id)).unwrap());
-      } else if (tp !== originalTpOrder.price) {
+      } else if (
+        tp !== originalTpOrder.price ||
+        qty !== originalTpOrder.placed_qty
+      ) {
         hasUpdateOrPlace = true;
         promises.push(
           dispatch(
@@ -138,7 +164,7 @@ const MarketEdit = () => {
               account_id: position.account_id,
               order_type: "stop",
               price: tp,
-              qty: position.qty,
+              qty: qty,
               side: position.side === "buy" ? "sell" : "buy",
               stoploss: 0,
               target: 0,
@@ -152,7 +178,7 @@ const MarketEdit = () => {
         dispatch(
           placeNewOrder({
             instrument_id: position.instrument_id,
-            qty: position.qty,
+            qty: qty,
             price: tp,
             order_type: "stop",
             side: position.side === "buy" ? "sell" : "buy",
@@ -168,7 +194,10 @@ const MarketEdit = () => {
     if (originalSlOrder) {
       if (!sl || sl === 0) {
         promises.push(dispatch(cancelOrder(originalSlOrder.id)).unwrap());
-      } else if (sl !== originalSlOrder.price) {
+      } else if (
+        sl !== originalSlOrder.price ||
+        qty !== originalSlOrder.placed_qty
+      ) {
         hasUpdateOrPlace = true;
         promises.push(
           dispatch(
@@ -177,7 +206,7 @@ const MarketEdit = () => {
               account_id: position.account_id,
               order_type: "limit",
               price: sl,
-              qty: position.qty,
+              qty: qty,
               side: position.side === "buy" ? "sell" : "buy",
               stoploss: 0,
               target: 0,
@@ -191,7 +220,7 @@ const MarketEdit = () => {
         dispatch(
           placeNewOrder({
             instrument_id: position.instrument_id,
-            qty: position.qty,
+            qty: qty,
             price: sl,
             order_type: "limit",
             side: position.side === "buy" ? "sell" : "buy",
@@ -232,7 +261,7 @@ const MarketEdit = () => {
         }),
       );
     }
-  }, [position, dispatch, navigate, tp, sl]);
+  }, [position, dispatch, navigate, tp, sl, qty]);
 
   if (!position) {
     return <div className="p-5 text-primary">No position selected</div>;
@@ -253,6 +282,8 @@ const MarketEdit = () => {
         })
       : "-";
 
+  const orderFromPos = position?.orders?.[0];
+
   const profitBalanceProps: ProfitBalanceProps = {
     balanceItems: [
       { label: "Create time", value: formatTime(position.created_at) },
@@ -261,25 +292,48 @@ const MarketEdit = () => {
       { label: "Position ID", value: `#${position.tid || position.id}` },
       { label: "Swap", value: "0.00" },
       {
-        label: "History",
-        value: <img src={rightArrowHistory} alt="rightArrowHistory" />,
+        label: "Order type",
+        value: orderFromPos
+          ? `${orderFromPos.side} ${orderFromPos.order_type}`.toUpperCase()
+          : "-",
+      },
+      {
+        label: "Target price",
+        value: orderFromPos ? formatPrice(orderFromPos.price) : "-",
+      },
+      {
+        label: "Volume",
+        value: orderFromPos ? orderFromPos.filled_qty.toString() : "-",
       },
     ],
     marginTop: "16px",
   };
 
   const InfoTabContent = (
-    // 250px h-[calc(100vh-280px)]
     <div className="px-5">
-      <div className="flex flex-col justify-between h-full">
+      <div className="flex flex-col justify-between h-full pt-4">
         <div>
-          <EditOrderList
-            {...profitBalanceProps}
-            onClick={() =>
-              navigate("/app/editHistory", { state: { type: "position" } })
-            }
-            lastListColor={true}
-          />
+          <EditOrderList {...profitBalanceProps} lastListColor={true} />
+          {/* Quantity Counters relocated from Edit tab */}
+          <div className="flex items-center gap-2.5 mt-6 border-t border-[#505050] pt-6">
+            <Counter
+              label="Vol"
+              initialValue={qty}
+              min={1}
+              step={1}
+              onValueChange={setQty}
+            />
+            <span className="text-secondary mt-7">or</span>
+            <Counter
+              label="Lot"
+              initialValue={qty / (position?.static_data?.contract_size || 1)}
+              min={1}
+              step={1}
+              onValueChange={(val) =>
+                setQty(val * (position?.static_data?.contract_size || 1))
+              }
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -298,7 +352,6 @@ const MarketEdit = () => {
   ];
 
   const EditTabContent = (
-    // 250px h-[calc(100vh-280px)]
     <div className="px-5 overflow-y-auto">
       <div className="flex flex-col justify-between h-full">
         <div className="flex flex-col gap-2.5 mt-4">
@@ -335,7 +388,8 @@ const MarketEdit = () => {
         leftButton: {
           label: "Show Chart",
           onClick: () => {
-            /* Navigate to chart logic if needed, or keeping it strictly generic as per user req */
+            dispatch(setSelectedInstrument(position.instrument_id));
+            navigate("/app/charts");
           },
           // Replicating colors from previous code:
           bgColor: theme === "dark" ? "#2D2D2D" : "#FAFAFA",
